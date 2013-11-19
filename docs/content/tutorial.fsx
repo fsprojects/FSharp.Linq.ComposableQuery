@@ -7,13 +7,32 @@
 Introducing your project
 ========================
 
-Say more
+Compositional Query Framework for F# Queries, based on "A Practical Theory of Language-Integrated Query"
+ 
+Referencing the library
 
 *)
 #r "FSharpComposableQuery.dll"
+#r "FSharp.Data.TypeProviders.dll"
+#r "System.Data.dll"
+#r "System.Data.Linq.dll"
+
 open FSharpComposableQuery
 
-Library.hello 0
 (**
-Some more info
+All existing F# database and in-memory queries work as normal. For example:
+*)
+
+let data = [1; 5; 7; 11; 18; 21]
+let lastNumberInSortedList =
+    query {
+        for s in data do
+        sortBy s
+        last
+    }
+
+(**
+In addition, more queries and query compositions work. See the paper "A Practical Theory of Language-Integrated Query"
+
+More documentation will be added.
 *)

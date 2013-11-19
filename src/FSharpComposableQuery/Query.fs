@@ -573,7 +573,7 @@ module HighPriority =
 
 [<AutoOpen>]
 module TopLevelValues = 
-    let pquery = FSharpComposableQuery.QueryImpl.QueryBuilder()
+    let query = FSharpComposableQuery.QueryImpl.QueryBuilder()
     
-    pquery.initMi()
+    query.initMi()
 

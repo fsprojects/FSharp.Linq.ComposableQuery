@@ -1,8 +1,21 @@
-﻿#r "FSharp.Data.TypeProviders.dll"
+﻿(*** hide ***)
+// This block of code is omitted in the generated HTML documentation. Use 
+// it to define helpers that you do not want to show in the documentation.
+#I "../../bin"
+
+
+(**
+Lots of sample queries
+========================
+
+Say more
+
+*)
+#r "FSharp.Data.TypeProviders.dll"
 #r "System.Data.dll"
 #r "System.Data.Linq.dll"
 #r "FSharp.PowerPack.Linq.dll"
-#r @"bin\Debug\FSharpComposableQuery.dll"
+#r "FSharpComposableQuery.dll"
 
 open System
 open System.Data.Linq.SqlClient
@@ -13,6 +26,9 @@ open Microsoft.FSharp.Linq
 
 open FSharpComposableQuery
 
+(**
+Accessing a database
+*)
 
 [<Literal>]
 let ConnectionString = 
@@ -48,7 +64,7 @@ let testQuery f = f query query
 tagQuery()
 printfn "\ncontains query operator"
 let result1 =
-    pquery {
+    query {
         for student in db.Student do
         select student.Age.Value
         contains 11
@@ -59,7 +75,7 @@ result1 |> printfn "Is at least one student age 11? %b"
 tagQuery()
 printfn "\ncount query operator"
 let result2 =
-    pquery {
+    query {
         for student in db.Student do
         select student
         count
@@ -71,7 +87,7 @@ result2 |> printfn "Number of students: %d"
 tagQuery()
 printfn "\nlast query operator." 
 let result3 =
-    pquery {
+    query {
         for s in data do
         sortBy s
         last
@@ -82,7 +98,7 @@ printfn "Last: %d" result3
 tagQuery()
 printfn "\nlastOrDefault query operator." 
 let result4 =
-    pquery {
+    query {
             for number in data do
             sortBy number
             lastOrDefault
@@ -92,7 +108,7 @@ result4 |> printfn "lastOrDefault: %d"
 tagQuery()
 printfn "\nexactlyOne query operator."
 let student2 =
-    pquery {
+    query {
         for student in db.Student do
         where (student.StudentID = 1)
         select student
@@ -103,7 +119,7 @@ printfn "Student with StudentID = 1 is %s" student2.Name
 tagQuery()
 printfn "\nexactlyOneOrDefault query operator."
 let student3 =
-    pquery {
+    query {
         for student in db.Student do
         where (student.StudentID = 1)
         select student
@@ -114,7 +130,7 @@ printfn "Student with StudentID = 1 is %s" student3.Name
 tagQuery()
 printfn "\nheadOrDefault query operator."
 let student4 =
-    pquery {
+    query {
         for student in db.Student do
         select student
         headOrDefault
@@ -124,7 +140,7 @@ printfn "head student is %s" student4.Name
 tagQuery()
 printfn "\nselect query operator."
 let select5 = 
-    pquery {
+    query {
         for (student:schema.ServiceTypes.Student) in db.Student do
         select student
         }
@@ -133,7 +149,7 @@ select5 |> Seq.iter (fun (student:schema.ServiceTypes.Student) -> printfn "Stude
 tagQuery()
 printfn "\nwhere query operator."
 let select6 = 
-    pquery {
+    query {
         for student in db.Student do
         where (student.StudentID > 4)
         select student
@@ -143,7 +159,7 @@ select6 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.Stu
 tagQuery()
 printfn "\nminBy query operator."
 let student5 =
-    pquery {
+    query {
         for student in db.Student do
         minBy student.StudentID
     }
@@ -151,14 +167,14 @@ let student5 =
 tagQuery()
 printfn "\nmaxBy query operator."
 let student6 =
-    pquery {
+    query {
         for student in db.Student do
         maxBy student.StudentID
     }
     
 tagQuery()
 printfn "\ngroupBy query operator."
-pquery {
+query {
     for student in db.Student do
     groupBy student.Age into g
     select (g.Key, g.Count())
@@ -167,7 +183,7 @@ pquery {
 
 tagQuery()
 printfn "\nsortBy query operator."
-pquery {
+query {
     for student in db.Student do
     sortBy student.Name
     select student
@@ -176,7 +192,7 @@ pquery {
 
 tagQuery()
 printfn "\nsortByDescending query operator."
-pquery {
+query {
     for student in db.Student do
     sortByDescending student.Name
     select student
@@ -185,7 +201,7 @@ pquery {
 
 tagQuery()
 printfn "\nthenBy query operator."
-pquery {
+query {
     for student in db.Student do
     where student.Age.HasValue
     sortBy student.Age.Value
@@ -196,7 +212,7 @@ pquery {
 
 tagQuery()
 printfn "\nthenByDescending query operator."
-pquery {
+query {
     for student in db.Student do
     where student.Age.HasValue
     sortBy student.Age.Value
@@ -207,7 +223,7 @@ pquery {
 
 tagQuery()
 printfn "\ngroupValBy query operator."
-pquery {
+query {
     for student in db.Student do
     groupValBy student.Name student.Age into g
     select (g, g.Key, g.Count())
@@ -218,7 +234,7 @@ pquery {
 
 tagQuery()
 printfn "\n sumByNullable query operator"
-pquery {
+query {
     for student in db.Student do
     sumByNullable student.Age
     }
@@ -226,7 +242,7 @@ pquery {
 
 tagQuery()
 printfn "\n minByNullable"
-pquery {
+query {
     for student in db.Student do
     minByNullable student.Age
     }
@@ -234,7 +250,7 @@ pquery {
 
 tagQuery()
 printfn "\n maxByNullable"
-pquery {
+query {
     for student in db.Student do
     maxByNullable student.Age
     }
@@ -242,7 +258,7 @@ pquery {
 
 tagQuery()
 printfn "\n averageBy"
-pquery {
+query {
     for student in db.Student do
     averageBy (float student.StudentID)
     }
@@ -250,7 +266,7 @@ pquery {
 
 tagQuery()
 printfn "\n averageByNullable"
-pquery {
+query {
     for student in db.Student do
     averageByNullable (Nullable.float student.Age)
     }
@@ -258,7 +274,7 @@ pquery {
 
 tagQuery()
 printfn "\n find query operator"
-pquery {
+query {
     for student in db.Student do
     find (student.Name = "Abercrombie, Kim")
 }
@@ -267,7 +283,7 @@ pquery {
 
 tagQuery()
 printfn "\n all query operator"
-pquery {
+query {
     for student in db.Student do
     all (SqlMethods.Like(student.Name, "%,%"))
 }
@@ -276,7 +292,7 @@ pquery {
 
 tagQuery()
 printfn "\n head query operator"
-pquery {
+query {
     for student in db.Student do
     head
     }
@@ -284,7 +300,7 @@ pquery {
 
 tagQuery()
 printfn "\n nth query operator"
-pquery {
+query {
     for numbers in data do
     nth 3
     }
@@ -292,7 +308,7 @@ pquery {
 
 tagQuery()
 printfn "\n skip query operator"
-pquery {
+query {
     for student in db.Student do
     skip 1
     }
@@ -300,7 +316,7 @@ pquery {
 
 tagQuery()
 printfn "\n skipWhile query operator"
-pquery {
+query {
     for number in data do
     skipWhile (number < 3)
     select number
@@ -310,7 +326,7 @@ pquery {
 
 tagQuery()
 printfn "\n sumBy query operator"
-pquery {
+query {
    for student in db.Student do
    sumBy student.StudentID
    }
@@ -318,7 +334,7 @@ pquery {
 
 tagQuery()
 printfn "\n take query operator"
-pquery {
+query {
    for student in db.Student do
    select student
    take 2
@@ -327,7 +343,7 @@ pquery {
 
 tagQuery()
 printfn "\n takeWhile query operator"
-pquery {
+query {
     for number in data do
     takeWhile (number < 10)
     }
@@ -335,7 +351,7 @@ pquery {
 
 tagQuery()
 printfn "\n sortByNullable query operator"
-pquery {
+query {
     for student in db.Student do
     sortByNullable student.Age
     select student
@@ -345,7 +361,7 @@ pquery {
 
 tagQuery()
 printfn "\n sortByNullableDescending query operator"
-pquery {
+query {
     for student in db.Student do
     sortByNullableDescending student.Age
     select student
@@ -355,7 +371,7 @@ pquery {
 
 tagQuery()
 printfn "\n thenByNullable query operator"
-pquery {
+query {
     for student in db.Student do
     sortBy student.Name
     thenByNullable student.Age
@@ -366,7 +382,7 @@ pquery {
 
 tagQuery()
 printfn "\n thenByNullableDescending query operator"
-pquery {
+query {
     for student in db.Student do
     sortBy student.Name
     thenByNullableDescending student.Age
@@ -378,7 +394,7 @@ pquery {
 
 tagQuery()
 printfn "All students: "
-pquery {
+query {
         for student in db.Student do
         select student
     }
@@ -387,7 +403,7 @@ pquery {
 
 tagQuery()
 printfn "\nCount of students: "
-pquery {
+query {
         for student in db.Student do        
         count
     }
@@ -395,9 +411,10 @@ pquery {
 
 tagQuery()
 printfn "\nExists."
-pquery {
+query {
         for student in db.Student do
-        where (pquery { for courseSelection in db.CourseSelection do
+        where (ExtraTopLevelOperators.query 
+                      { for courseSelection in db.CourseSelection do
                         exists (courseSelection.StudentID = student.StudentID) })
         select student }
 |> Seq.iter (fun student -> printfn "%A" student.Name)
@@ -405,7 +422,7 @@ pquery {
 
 tagQuery()
 printfn "\n Group by age and count"
-pquery {
+query {
         for n in db.Student do
         groupBy n.Age into g
         select (g.Key, g.Count())
@@ -414,7 +431,7 @@ pquery {
 
 tagQuery()
 printfn "\n Group value by age."
-pquery {
+query {
         for n in db.Student do
         groupValBy n.Age n.Age into g
         select (g.Key, g.Count())
@@ -428,7 +445,7 @@ pquery {
 
 tagQuery()
 printfn "\nGroup students by age where age > 10."
-pquery {
+query {
         for student in db.Student do
         groupBy student.Age into g
         where (g.Key.HasValue && g.Key.Value > 10)
@@ -441,7 +458,7 @@ pquery {
 
 tagQuery()
 printfn "\nGroup students by age and print counts of number of students at each age with more than 1 student."
-pquery {
+query {
         for student in db.Student do
         groupBy student.Age into group
         where (group.Count() > 1)
@@ -452,7 +469,7 @@ pquery {
 
 tagQuery()
 printfn "\nGroup students by age and sum ages."
-pquery {
+query {
         for student in db.Student do
         groupBy student.Age into g        
         let total = query { for student in g do sumByNullable student.Age }
@@ -466,7 +483,7 @@ pquery {
 
 tagQuery()
 printfn "\nGroup students by age and count number of students at each age, and display all with count > 1 in descending order of count."
-pquery {
+query {
         for student in db.Student do
         groupBy student.Age into g
         where (g.Count() > 1)        
@@ -482,7 +499,7 @@ printfn "\n Select students from a set of IDs"
 let idList = [1; 2; 5; 10]
 let idQuery = query { for id in idList do
                        select id }
-pquery {
+query {
         for student in db.Student do
         where (idQuery.Contains(student.StudentID))
         select student
@@ -492,7 +509,7 @@ pquery {
 
 tagQuery()
 printfn "\nLook for students with Name match _e%% pattern and take first two."
-pquery {
+query {
     for student in db.Student do
     where (SqlMethods.Like( student.Name, "_e%") )
     select student
@@ -502,7 +519,7 @@ pquery {
 
 tagQuery()
 printfn "\nLook for students with Name matching [abc]%% pattern."
-pquery {
+query {
     for student in db.Student do
     where (SqlMethods.Like( student.Name, "[abc]%") )
     select student  
@@ -511,7 +528,7 @@ pquery {
 
 tagQuery()
 printfn "\nLook for students with name matching [^abc]%% pattern."
-pquery {
+query {
     for student in db.Student do
     where (SqlMethods.Like( student.Name, "[^abc]%") )
     select student  
@@ -520,7 +537,7 @@ pquery {
 
 tagQuery()
 printfn "\nLook for students with name matching [^abc]%% pattern and select ID."
-pquery {
+query {
     for n in db.Student do
     where (SqlMethods.Like( n.Name, "[^abc]%") )
     select n.StudentID    
@@ -529,7 +546,7 @@ pquery {
 
 tagQuery()
 printfn "\n Using Contains as a query filter."
-pquery {
+query {
         for student in db.Student do
         where (student.Name.Contains("a"))
         select student
@@ -540,7 +557,7 @@ pquery {
 tagQuery()
 printfn "\nSearching for names from a list."
 let names = [|"a";"b";"c"|]
-pquery {
+query {
     for student in db.Student do
     if names.Contains (student.Name) then select student }
 |> Seq.iter (fun student -> printfn "%s" student.Name)
@@ -573,7 +590,7 @@ query {
 
 tagQuery()
 printfn "\nJoin with count"
-pquery {
+query {
         for n in db.Student do 
         join e in db.CourseSelection on (n.StudentID = e.StudentID)
         count        
@@ -582,7 +599,7 @@ pquery {
 
 tagQuery()
 printfn "\n Join with distinct."
-pquery {
+query {
         for student in db.Student do 
         join selection in db.CourseSelection on (student.StudentID = selection.StudentID)
         distinct        
@@ -591,7 +608,7 @@ pquery {
 
 tagQuery()
 printfn "\n Join with distinct and count."
-pquery {
+query {
         for n in db.Student do 
         join e in db.CourseSelection on (n.StudentID = e.StudentID)
         distinct
@@ -602,7 +619,7 @@ pquery {
 
 tagQuery()
 printfn "\n Selecting students with age between 10 and 15."
-pquery {
+query {
         for student in db.Student do
         where (student.Age.Value >= 10 && student.Age.Value < 15)
         select student
@@ -611,7 +628,7 @@ pquery {
 
 tagQuery()
 printfn "\n Selecting students with age either 11 or 12."
-pquery {
+query {
         for student in db.Student do
         where (student.Age.Value = 11 || student.Age.Value = 12)
         select student
@@ -620,7 +637,7 @@ pquery {
 
 tagQuery()
 printfn "\n Selecting students in a certain age range and sorting."
-pquery {
+query {
         for n in db.Student do
         where (n.Age.Value = 12 || n.Age.Value = 13)
         sortByNullableDescending n.Age
@@ -630,7 +647,7 @@ pquery {
 
 tagQuery()
 printfn "\n Selecting students with certain ages, taking account of possibility of nulls."
-pquery {
+query {
         for student in db.Student do
         where ((student.Age.HasValue && student.Age.Value = 11) ||
                (student.Age.HasValue && student.Age.Value = 12))
@@ -644,12 +661,12 @@ pquery {
 tagQuery()
 printfn "\n Union of two queries."
 module Queries =
-    let query1 = pquery {
+    let query1 = query {
             for n in db.Student do
             select (n.Name, n.Age)
         }
 
-    let query2 = pquery {
+    let query2 = query {
             for n in db.LastStudent do
             select (n.Name, n.Age)
             }
@@ -660,12 +677,12 @@ module Queries =
 tagQuery()
 printfn "\n Intersect of two queries."
 module Queries2 =
-    let query1 = pquery {
+    let query1 = query {
            for n in db.Student do
            select (n.Name, n.Age)
         }
 
-    let query2 = pquery {
+    let query2 = query {
             for n in db.LastStudent do
             select (n.Name, n.Age)
             }
@@ -675,7 +692,7 @@ module Queries2 =
 
 tagQuery()
 printfn "\n Using if statement to alter results for special value."
-pquery {
+query {
         for student in db.Student do
         select (if student.Age.HasValue && student.Age.Value = -1 then
                    (student.StudentID, System.Nullable<int>(100), student.Age)
@@ -685,7 +702,7 @@ pquery {
 
 tagQuery()
 printfn "\n Using if statement to alter results special values."
-pquery {
+query {
         for student in db.Student do
         select (if student.Age.HasValue && student.Age.Value = -1 then
                    (student.StudentID, System.Nullable<int>(100), student.Age)
@@ -698,7 +715,7 @@ pquery {
 
 tagQuery()
 printfn "\n Multiple table select."
-pquery {
+query {
         for student in db.Student do
         for course in db.Course do
         select (student, course)
@@ -709,7 +726,7 @@ pquery {
 
 tagQuery()
 printfn "\nMultiple Joins"
-pquery {
+query {
     for student in db.Student do
     join courseSelection in db.CourseSelection on
         (student.StudentID = courseSelection.StudentID)
@@ -721,7 +738,7 @@ pquery {
 
 tagQuery()
 printfn "\nMultiple Left Outer Joins"
-pquery {
+query {
    for student in db.Student do
     leftOuterJoin courseSelection in db.CourseSelection 
       on (student.StudentID = courseSelection.StudentID) into g1

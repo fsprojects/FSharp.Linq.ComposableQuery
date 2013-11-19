@@ -5,8 +5,8 @@
     <version>@build.number@</version>
     <authors>@authors@</authors>
     <owners>@authors@</owners>
-    <licenseUrl>http://github.com/pblasucci/FSharpComposableQuery/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>http://pblasucci.github.com/FSharpComposableQuery</projectUrl>
+    <licenseUrl>http://github.com/fsharp/FSharpComposableQuery/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>http://fsharp.github.com/FSharpComposableQuery</projectUrl>
     <iconUrl>https://raw.github.com/fsharp/FSharpComposableQuery/master/nuget/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
@@ -17,6 +17,6 @@
     <dependencies />
   </metadata>
   <files>
-    <file src="FSharpComposableQuery.dll" target="lib/net40" />
+    <file src="..\bin\FSharpComposableQuery.dll" target="lib/net40" />
   </files>
 </package>

@@ -6,14 +6,14 @@
 // Binaries that have XML documentation (in a corresponding generated XML file)
 let referenceBinaries = [ "FSharpComposableQuery.dll" ]
 // Web site location for the generated documentation
-let website = "http://pblasucci.github.io/FSharpComposableQuery"
+let website = "http://fsharp.github.io/FSharpComposableQuery"
 
 // Specify more information about your project
 let info =
   [ "project-name", "FSharpComposableQuery"
     "project-author", "Your Name"
     "project-summary", "A short summary of your project"
-    "project-github", "http://github.com/pblasucci/FSharpComposableQuery"
+    "project-github", "http://github.com/fsharp/FSharpComposableQuery"
     "project-nuget", "http://nuget.com/packages/FSharpComposableQuery" ]
 
 // --------------------------------------------------------------------------------------
