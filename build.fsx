@@ -174,18 +174,17 @@ Target "Release" DoNothing
 
 Target "All" DoNothing
 
-//"Clean"
-// ==>"RestorePackages"
-// ==> "AssemblyInfo"
-//  ==> "Build"
-"Build"
+"Clean"
+  ==>"RestorePackages"
+  ==> "AssemblyInfo"
+  ==> "Build"
   ==> "RunTests"
   ==> "All"
 
 "All" 
-//  ==> "CleanDocs"
-//  ==> "GenerateDocs"
-//  ==> "ReleaseDocs"
+  ==> "CleanDocs"
+  ==> "GenerateDocs"
+  ==> "ReleaseDocs"
   ==> "NuGet"
   ==> "Release"
 

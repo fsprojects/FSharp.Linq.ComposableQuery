@@ -49,6 +49,11 @@ let lastNumberInSortedList =
 
 (**
 In addition, more queries and query compositions work. See the paper "A Practical Theory of Language-Integrated Query"
+
+WARNING: F# compiler optimizations are no lnoger applied to in-memory queries. This library should only be used for database query programming, or you 
+can explicitly bind 
+
+let dbQuery =  FSharpComposableQuery.TopLevelValues.query
 *)
 
 
