@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>F# Project Scaffold
+    <title>FSharpComposableQuery
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A short summary of your project">
@@ -33,7 +33,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>F# Project Scaffold</h1>
+<h1>FSharpComposableQuery</h1>
 
 <p>Documentation</p>
 
@@ -41,7 +41,7 @@
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The F# ProjectTemplate library can be <a href="https://nuget.org/packages/FSharpComposableQuery">installed from NuGet</a>:
+      The FSharpComposableQuery library can be <a href="https://nuget.org/packages/FSharpComposableQuery">installed from NuGet</a>:
       <pre>PM> Install-Package FSharpComposableQuery</pre>
     </div>
   </div>
@@ -50,9 +50,15 @@
 
 <img src="img/logo.png" alt="F# Project" style="float:right;width:150px;margin:10px" />
 
+<h2>Overview</h2>
+
+<p>When you open 'FSharpComposableQuery', a new 'query' builder is available. The old F# query builder is out-scoped.</p>
+
+<p>All existing F# database and in-memory queries work as normal.</p>
+
 <h2>Example</h2>
 
-<p>This example demonstrates using a function defined in this sample library.</p>
+<p>This example demonstrates a query.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -74,23 +80,23 @@
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">data</span> <span class="o">=</span> [<span class="n">1</span>; <span class="n">5</span>; <span class="n">7</span>; <span class="n">11</span>; <span class="n">18</span>; <span class="n">21</span>]
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">lastNumberInSortedList</span> <span class="o">=</span>
-    <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">pquery</span> {
+    <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">query</span> {
         <span class="k">for</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">s</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">data</span> <span class="k">do</span>
         <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="k">sortBy</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="i">s</span>
         <span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="k">last</span>
     }</pre>
 </td>
 </tr>
-</table><p>Some more info</p>
+</table><p>In addition, more queries and query compositions work. See the paper "A Practical Theory of Language-Integrated Query"</p>
+<p>Some more info</p>
 
 <h2>Samples &amp; documentation</h2>
 
-<p>The library comes with comprehensible documentation. 
-It can include a tutorials automatically generated from <code>*.fsx</code> files in <a href="https://github.com/fsharp/FSharpComposableQuery/tree/master/docs/content">the content folder</a>. 
-The API reference is automatically generated from Markdown comments in the library implementation.</p>
+<p>The API reference is automatically generated from Markdown comments in the library implementation.</p>
 
 <ul>
 <li><p><a href="tutorial.html">Tutorial</a> contains a further explanation of this sample library.</p></li>
+<li><p><a href="QueryExamples.html">Query Examples</a> contains a more comprehensive set of queries from the MSDN documentation.</p></li>
 <li><p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types, modules
 and functions in the library. This includes additional brief samples on using most of the
 functions.</p></li>
@@ -103,14 +109,14 @@ the project and submit pull requests. If you're adding new public API, please al
 consider adding <a href="https://github.com/fsharp/FSharpComposableQuery/tree/master/docs/content">samples</a> that can be turned into a documentation. You might
 also want to read <a href="https://github.com/fsharp/FSharpComposableQuery/blob/master/README.md">library design notes</a> to understand how it works.</p>
 
-<p>The library is available under Public Domain license, which allows modification and 
+<p>The library is available under MIT license, which allows modification and 
 redistribution for both commercial and non-commercial purposes. For more information see the 
 <a href="https://github.com/fsharp/FSharpComposableQuery/blob/master/LICENSE.txt">License file</a> in the GitHub repository.</p>
 
 <div class="tip" id="fs1">namespace FSharpComposableQuery</div>
 <div class="tip" id="fs2">val data : int list<br /><br />Full name: Index.data</div>
 <div class="tip" id="fs3">val lastNumberInSortedList : int<br /><br />Full name: Index.lastNumberInSortedList</div>
-<div class="tip" id="fs4">val pquery : QueryImpl.QueryBuilder<br /><br />Full name: FSharpComposableQuery.TopLevelValues.pquery</div>
+<div class="tip" id="fs4">val query : QueryImpl.QueryBuilder<br /><br />Full name: FSharpComposableQuery.TopLevelValues.query</div>
 <div class="tip" id="fs5">val s : int</div>
 <div class="tip" id="fs6">custom operation: sortBy (&#39;Key)<br /><br />Calls Linq.QueryBuilder.SortBy </div>
 <div class="tip" id="fs7">custom operation: last<br /><br />Calls Linq.QueryBuilder.Last </div>
@@ -129,6 +135,7 @@ redistribution for both commercial and non-commercial purposes. For more informa
             <li class="nav-header">Getting started</li>
             <li><a href="http://fsharp.github.io/FSharpComposableQuery/index.html">Home page</a></li>
             <li><a href="http://fsharp.github.io/FSharpComposableQuery/tutorial.html">Sample tutorial</a></li>
+            <li><a href="http://fsharp.github.io/FSharpComposableQuery/QueryExamples.html">Query Examples</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharpComposableQuery/reference/index.html">API Reference</a></li>

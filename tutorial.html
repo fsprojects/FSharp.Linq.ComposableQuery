@@ -56,7 +56,7 @@
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">FSharpComposableQuery</span></pre>
 </td>
 </tr>
-</table><p>Your first query</p>
+</table><p>All existing F# database and in-memory queries work as normal. For example:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -70,18 +70,21 @@
 <td class="snippet"><pre class="fssnip">
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">data</span> <span class="o">=</span> [<span class="n">1</span>; <span class="n">5</span>; <span class="n">7</span>; <span class="n">11</span>; <span class="n">18</span>; <span class="n">21</span>]
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">lastNumberInSortedList</span> <span class="o">=</span>
-    <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">pquery</span> {
+    <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">query</span> {
         <span class="k">for</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">s</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">data</span> <span class="k">do</span>
         <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="k">sortBy</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="i">s</span>
         <span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="k">last</span>
     }</pre>
 </td>
 </tr>
-</table>
+</table><p>In addition, more queries and query compositions work. See the paper "A Practical Theory of Language-Integrated Query"</p>
+
+<p>More documentation will be added.</p>
+
 <div class="tip" id="fs1">namespace FSharpComposableQuery</div>
 <div class="tip" id="fs2">val data : int list<br /><br />Full name: Tutorial.data</div>
 <div class="tip" id="fs3">val lastNumberInSortedList : int<br /><br />Full name: Tutorial.lastNumberInSortedList</div>
-<div class="tip" id="fs4">val pquery : QueryImpl.QueryBuilder<br /><br />Full name: FSharpComposableQuery.TopLevelValues.pquery</div>
+<div class="tip" id="fs4">val query : QueryImpl.QueryBuilder<br /><br />Full name: FSharpComposableQuery.TopLevelValues.query</div>
 <div class="tip" id="fs5">val s : int</div>
 <div class="tip" id="fs6">custom operation: sortBy (&#39;Key)<br /><br />Calls Linq.QueryBuilder.SortBy </div>
 <div class="tip" id="fs7">custom operation: last<br /><br />Calls Linq.QueryBuilder.Last </div>
@@ -100,6 +103,7 @@
             <li class="nav-header">Getting started</li>
             <li><a href="http://fsharp.github.io/FSharpComposableQuery/index.html">Home page</a></li>
             <li><a href="http://fsharp.github.io/FSharpComposableQuery/tutorial.html">Sample tutorial</a></li>
+            <li><a href="http://fsharp.github.io/FSharpComposableQuery/QueryExamples.html">Query Examples</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="http://fsharp.github.io/FSharpComposableQuery/reference/index.html">API Reference</a></li>
