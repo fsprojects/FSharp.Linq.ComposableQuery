@@ -9,7 +9,6 @@
 
 open FSharpComposableQuery.Expr
 open Test
-open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Linq.QuotationEvaluation
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Linq

@@ -60,12 +60,12 @@
   <ItemGroup>
     <Compile Include="Tests.fs" />
     <None Include="packages.config" />
-    <None Include="Nested.fsx" />
-    <None Include="People.fsx" />
-    <None Include="QueryTest.fsx" />
-    <None Include="Script.fsx" />
     <None Include="Test.fsx" />
+    <None Include="People.fsx" />
+    <None Include="Nested.fsx" />
     <None Include="XmlTest.fsx" />
+    <None Include="Script.fsx" />
+    <None Include="QueryTest.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

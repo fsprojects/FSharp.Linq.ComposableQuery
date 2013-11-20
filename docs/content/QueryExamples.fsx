@@ -26,6 +26,8 @@ open Microsoft.FSharp.Linq
 
 open FSharpComposableQuery
 
+(** Query examples (**work in progress**) *)
+
 (**
 Accessing a database
 *)

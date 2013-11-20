@@ -3,11 +3,9 @@
 #r "System.Data.dll"
 #r "System.Data.Linq.dll"
 #r "FSharp.PowerPack.Linq.dll"
+#r "FSharpComposableQuery.dll"
+
 #nowarn "62"
-#load "Common.fs"
-#load "SQL.fs"
-#load "Expr.fs"
-#load "Query.fs"
 #endif
 
 open Microsoft.FSharp.Quotations
@@ -19,6 +17,30 @@ open FSharpComposableQuery.Expr
 open FSharpComposableQuery.Common
 open FSharpComposableQuery.QueryRunExtensions.TopLevelValues
 
+
+let median (l : float list) = 
+    if l.Length = 0 then -1.0
+    else List.nth l (l.Length / 2)
+
+let timeIt n f = 
+    let l = 
+        List.map (fun _ -> 
+            let timer = new System.Diagnostics.Stopwatch()
+            timer.Start()
+            let returnValue = f()
+            returnValue, timer.Elapsed.TotalMilliseconds) [ 1..n ]
+    
+    let (vs, ts) = List.unzip l
+    (List.head vs, median ts)
+
+let withDuration n f = 
+    let returnValue, elapsed = timeIt n f
+    returnValue, elapsed
+
+let duration n msg f = 
+    let returnValue, elapsed = withDuration n f
+    printfn "%s: \t %f ms" msg elapsed
+    returnValue
 // Testing stuff
 let test msg f = try f ()
                      printfn "%s: \tSuccess" msg 
@@ -29,7 +51,7 @@ let testNaive msg (q:Expr<'T>) p = test msg (fun x -> q.Eval() |> p)
 let testFS2 msg (q:Expr<'T>) p = test msg (fun x -> q |> Query.query |> p)
 let testFS3 msg (q:Expr<'T>) p = test msg (fun x -> query { for x in (%q) do yield x } |> p)
 //let testPLinq msg (q:Expr<seq<'T>>) p = test msg (fun x -> q |> runQuery |> p)
-let testPLinqQ msg (q:Expr<'T>) p = test msg (fun x -> pquery { for x in (%q) do yield x } |> p)
+let testPLinqQ msg (q:Expr<'T>) p = test msg (fun x -> dbQuery { for x in (%q) do yield x } |> p)
 
 let testAll (q:Expr<seq<'T>>) (q':Expr<IQueryable<'T>>) (p:seq<'T> -> unit) = 
   //testNaive "Naive" q p
@@ -52,7 +74,7 @@ let timeNaive' (q:Expr<'T>) p = withDuration 21 (fun () -> q.Eval() |> p)
 let timeFS2' (q:Expr<'T>) p = withDuration 21 (fun () -> q |> Query.query |> p)
 let timeFS3' (q:Expr<'T>) p = withDuration 21 (fun () -> query { for x in (%q) do yield x }|> p)
 //let timePLinq' (q:Expr<'T>) p = withDuration 21 (fun () -> q |> runQuery |> p)
-let timePLinqQ' (q:Expr<'T>) p =  withDuration 21 (fun () -> pquery { for x in (%q) do yield x }|> p)
+let timePLinqQ' (q:Expr<'T>) p =  withDuration 21 (fun () -> dbQuery { for x in (%q) do yield x }|> p)
 let timeNorm' (q:Expr<'T>) = withDuration 21 (fun () -> nf_expr q)
 
 let timeNaive msg (q:Expr<'T>) p = testTime msg (fun () -> timeNaive' q p)

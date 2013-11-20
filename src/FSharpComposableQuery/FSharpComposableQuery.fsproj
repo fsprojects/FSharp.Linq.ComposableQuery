@@ -42,8 +42,8 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
     <Compile Include="Common.fs" />
-    <Compile Include="SQL.fs" />
     <Compile Include="Expr.fs" />
+    <Compile Include="SQL.fs" />
     <Compile Include="Query.fs" />
   </ItemGroup>
   <ItemGroup>

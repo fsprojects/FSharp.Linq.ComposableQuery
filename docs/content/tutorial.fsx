@@ -4,7 +4,10 @@
 #I "../../bin"
 
 (**
-Introducing your project
+
+(**work in progress**)
+
+Introducing your project 
 ========================
 
 Compositional Query Framework for F# Queries, based on "A Practical Theory of Language-Integrated Query"

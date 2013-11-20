@@ -1,6 +1,6 @@
 ﻿module internal FSharpComposableQuery.Expr
 
-open FSharpComposableQuery.SQL
+//open FSharpComposableQuery.SQL
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
@@ -558,8 +558,3 @@ let time_nf_expr (expr : Expr<seq<'T>>) =
 
 //let timeQuery expr = let q = duration 1 "Query normalization time" (fun () -> nf_expr expr)
 //                     in q |> Query.query
-let sqlQuery expr = 
-    let nrcExp = fromExpr expr
-    let nrc_nf = nf nrcExp
-    if not (recognizeNF nrc_nf) then printfn "Warning: Not in normal form!"
-    toSqlQuery (toSql nrc_nf)

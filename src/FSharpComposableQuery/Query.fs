@@ -82,8 +82,8 @@ module QueryImpl =
         | ForF
         | ZeroF
         | YieldF
-        //| SourceF
         | UnknownF
+// TODO: Recognize and translate nested RunQueryAsValue
         | RunQueryAsValueF
 
     type QueryBuilder() = 
@@ -177,7 +177,7 @@ module QueryImpl =
                         else 
                             let y' = fresh (y)
                             (y', freshen y y' m2)
-                    reduce (Comp(Comp(e2, x, m2), y, m1))
+                    reduce (Comp(Comp(e2, x, m2'), y', m1))
                 | IfThenElse(m, n1, n2) -> 
                     IfThenElse(m, reduce (Comp(e2, x, n1)), reduce (Comp(e2, x, n2)))
                 | n -> Comp(reduce e2, x, n)

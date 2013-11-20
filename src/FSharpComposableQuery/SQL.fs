@@ -146,3 +146,10 @@ let toSql exp =
         | _ -> failwithf "Warning: not base %A" exp
     
     recognizeUnion exp
+
+
+let sqlQuery expr =
+    let nrcExp = Expr.fromExpr expr
+    let nrc_nf = Expr.nf nrcExp
+    if not (Expr.recognizeNF nrc_nf) then printfn "Warning: Not in normal form!"
+    toSqlQuery (toSql nrc_nf)
