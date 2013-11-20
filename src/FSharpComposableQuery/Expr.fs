@@ -12,7 +12,8 @@ open System.Reflection
 // TODO: Implement flat FSharpComposableQuery -> SQL translation; compare with SQL Server queries
 // TODO: Add support for idiomatic grouping/aggregation
 // TODO: Improve performance of fromExpr
-// TODO: Comment to relate code to reductions in paper
+// TODO: Comments to relate code to reductions in paper
+
 let SeqTy(ty : System.Type) = 
     typeof<seq<_>>.GetGenericTypeDefinition().MakeGenericType([| ty |])
 let GroupTy(ty1 : System.Type, ty2) = 
@@ -83,7 +84,7 @@ let rec reduce exp =
     | Tuple(tty, es) -> Tuple(tty, List.map reduce es)
     | Proj(e, i) -> 
         match reduce e with
-        | Tuple(tty, es) -> List.nth es i
+        | Tuple(_tty, es) -> List.nth es i
         | IfThenElse(m, n1, n2) -> 
             reduce (IfThenElse(m, Proj(n1, i), Proj(n2, i)))
         | n -> Proj(n, i)
@@ -509,6 +510,9 @@ let fromExpr expr =
                 (UnknownCall(func), ty, Option.map from obj, List.map from args)
     
     from expr
+
+
+    // TODO: clean this stuff up, export or remove it
 
 let testNF nrcExp = 
     let nrc_nf = nf nrcExp

@@ -8,7 +8,7 @@
 #endif
 
 
-open FSharpComposableQuery.Expr
+open FSharpComposableQuery
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Linq.QuotationEvaluation
 open Microsoft.FSharp.Linq
@@ -319,7 +319,7 @@ let doTestSweep ()=
 
 let tabify (d,n,t1,t2) =     printfn "%d \t%d \t%f \t%f" d n t1 t2
 
-
+(*
 let doScaleTest d n = 
     dropTables()
     addRandomDepartments d n
@@ -339,9 +339,9 @@ let doScaleAbsTest d n =
     (d,n,t1,t2)
 ;;
 
-
 let results d n k = List.map (fun d -> List.map (fun _ -> doScaleTest (4*d) n) [1..k]) [1..d];;
 
+*)
 
 let doTest'()  =
 

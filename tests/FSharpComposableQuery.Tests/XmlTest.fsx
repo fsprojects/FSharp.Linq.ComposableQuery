@@ -9,7 +9,7 @@
 #load "Test.fsx"
 #endif
 
-open FSharpComposableQuery.Expr
+open FSharpComposableQuery
 open Test
 open System
 open Microsoft.FSharp.Data.TypeProviders
@@ -300,7 +300,7 @@ let timeXPath xp =
 let timeXPath' xp = 
   timeAll' (xpath 0 <@data@> xp) (xpath' 0 <@data@> xp) forceRows
 
-let simfs2 xp = timeFS2 "FSharp 2.0 (NF)" (xpath 0 <@data@> xp |> nf_expr) countRows
+//let simfs2 xp = timeFS2 "FSharp 2.0 (NF)" (xpath 0 <@data@> xp |> nf_expr) countRows
 let simfs3 xp = timeFS3 "FSharp 3.0 (NF)" (xpath' 0 <@data@> xp) countRows
 let simPLinqq xp = testPLinqQ "PLinqQ" (xpath' 0 <@data@> xp) countRows
 

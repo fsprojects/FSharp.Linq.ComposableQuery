@@ -7,11 +7,10 @@
 #load "Test.fsx"
 #endif
 
-open FSharpComposableQuery.Expr
+open FSharpComposableQuery
 open Test
-open Microsoft.FSharp.Linq.QuotationEvaluation
+open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
-open Microsoft.FSharp.Linq
 open System.Linq
 
 
