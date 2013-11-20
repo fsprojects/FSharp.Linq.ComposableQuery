@@ -113,7 +113,7 @@
     }</pre>
 </td>
 </tr>
-</table><p>In addition, more queries and query compositions work. See the paper "<a href="a href="http://dl.acm.org/citation.cfm?id=2500586"">a href="http://dl.acm.org/citation.cfm?id=2500586"</a>A Practical Theory of Language-Integrated Query" (ICFP 2013)</a></p>
+</table><p>In addition, more queries and query compositions work. See the paper ["A Practical Theory of Language-Integrated Query" (ICFP 2013)]<a href="http://dl.acm.org/citation.cfm?id=2500586">http://dl.acm.org/citation.cfm?id=2500586</a></a></p>
 
 <p>For example, lambda-abstractions can be used to build up queries.  (We assume ConnectionString is a database connection string 
 pointing to a database with appropriate tables matching the query). 
@@ -164,15 +164,14 @@ pointing to a database with appropriate tables matching the query).
 </table><p>Another example: find all people with even age *</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
-<span class="l">2: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 60)" onmouseover="showTip(event, 'fs40', 60)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 61)" onmouseover="showTip(event, 'fs14', 61)" class="i">query</span> {<span class="k">for</span> <span onmouseout="hideTip(event, 'fs38', 62)" onmouseover="showTip(event, 'fs38', 62)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs31', 63)" onmouseover="showTip(event, 'fs31', 63)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs39', 64)" onmouseover="showTip(event, 'fs39', 64)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs39', 65)" onmouseover="showTip(event, 'fs39', 65)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs38', 66)" onmouseover="showTip(event, 'fs38', 66)" class="i">x</span> }
- </pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 60)" onmouseover="showTip(event, 'fs40', 60)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 61)" onmouseover="showTip(event, 'fs14', 61)" class="i">query</span> {<span class="k">for</span> <span onmouseout="hideTip(event, 'fs38', 62)" onmouseover="showTip(event, 'fs38', 62)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs31', 63)" onmouseover="showTip(event, 'fs31', 63)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs39', 64)" onmouseover="showTip(event, 'fs39', 64)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs39', 65)" onmouseover="showTip(event, 'fs39', 65)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs38', 66)" onmouseover="showTip(event, 'fs38', 66)" class="i">x</span> }</pre>
 </td>
 </tr>
-</table><p>WARNING: F# compiler optimizations are no lnoger applied to in-memory queries. This library should only be used for database query programming, or you 
+</table><p>WARNING: F# compiler optimizations are no longer applied to in-memory queries. 
+This library should only be used for database query programming, or you 
 can explicitly bind</p>
 
 <p>let dbQuery =  FSharpComposableQuery.TopLevelValues.query</p>
