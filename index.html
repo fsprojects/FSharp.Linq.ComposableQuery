@@ -52,9 +52,10 @@
 
 <h2>Overview</h2>
 
-<p>When you open 'FSharpComposableQuery', a new 'query' builder is available. The old F# query builder is out-scoped.</p>
+<p>When you open 'FSharpComposableQuery', a new 'query' builder is available. The old F# query builder 
+is out-scoped, but can still be accessed as 'Microsoft.FSharp.Core.ExtraTopLevelOperators.query'.</p>
 
-<p>All existing F# database and in-memory queries work as normal.</p>
+<p>All existing F# database and in-memory queries shuold work as normal.</p>
 
 <h2>Example</h2>
 
@@ -113,11 +114,16 @@
     }</pre>
 </td>
 </tr>
-</table><p>In addition, more queries and query compositions work. See the paper 
-<a href="http://dl.acm.org/citation.cfm?id=2500586">"A Practical Theory of Language-Integrated Query" (ICFP 2013)</a></p>
+</table><h2>Intended use</h2>
 
-<p>For example, lambda-abstractions can be used to build up queries.  (We assume ConnectionString is a database connection string 
-pointing to a database with appropriate tables matching the query).</p>
+<p>In addition, queries can be <em>composed</em> using lambda-abstraction. See the paper 
+<a href="http://dl.acm.org/citation.cfm?id=2500586">"A Practical Theory of Language-Integrated Query" (ICFP 2013)</a>.<br />
+Simple forms of query composition (such as abstracting over a value of base type) already work in LINQ, 
+but 'FSharpComposableQuery' in addition supports abstracting over functions, to allow higher-order query 
+operations.</p>
+
+<p>The following is a simple example.  We assume ConnectionString is a database connection string 
+pointing to a database with appropriate tables matching the query, namely a 'People' table with fields 'name:String' and 'age:Int'.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -147,7 +153,7 @@ pointing to a database with appropriate tables matching the query).</p>
  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs32', 40)" onmouseover="showTip(event, 'fs32', 40)" class="i">p</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs14', 41)" onmouseover="showTip(event, 'fs14', 41)" class="i">query</span> { 
     <span class="k">for</span> <span onmouseout="hideTip(event, 'fs33', 42)" onmouseover="showTip(event, 'fs33', 42)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs21', 43)" onmouseover="showTip(event, 'fs21', 43)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 44)" onmouseover="showTip(event, 'fs34', 44)" class="i">People</span> <span class="k">do</span>
     <span class="k">if</span> <span onmouseout="hideTip(event, 'fs32', 45)" onmouseover="showTip(event, 'fs32', 45)" class="i">p</span> <span onmouseout="hideTip(event, 'fs33', 46)" onmouseover="showTip(event, 'fs33', 46)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 47)" onmouseover="showTip(event, 'fs35', 47)" class="i">Age</span> 
-    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs33', 48)" onmouseover="showTip(event, 'fs33', 48)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 49)" onmouseover="showTip(event, 'fs36', 49)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs33', 50)" onmouseover="showTip(event, 'fs33', 50)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 51)" onmouseover="showTip(event, 'fs35', 51)" class="i">Age</span>}
+    <span class="k">then</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs32', 48)" onmouseover="showTip(event, 'fs32', 48)" class="i">p</span>
    } @&gt;</pre>
 </td>
 </tr>
@@ -157,7 +163,7 @@ pointing to a database with appropriate tables matching the query).</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 52)" onmouseover="showTip(event, 'fs37', 52)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 53)" onmouseover="showTip(event, 'fs14', 53)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs38', 54)" onmouseover="showTip(event, 'fs38', 54)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs31', 55)" onmouseover="showTip(event, 'fs31', 55)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs39', 56)" onmouseover="showTip(event, 'fs39', 56)" class="i">x</span> <span class="k">-&gt;</span> <span class="n">20</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs39', 57)" onmouseover="showTip(event, 'fs39', 57)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs39', 58)" onmouseover="showTip(event, 'fs39', 58)" class="i">x</span> <span class="o">&lt;</span> <span class="n">30</span> ) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs38', 59)" onmouseover="showTip(event, 'fs38', 59)" class="i">x</span> }</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 49)" onmouseover="showTip(event, 'fs36', 49)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 50)" onmouseover="showTip(event, 'fs14', 50)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs37', 51)" onmouseover="showTip(event, 'fs37', 51)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs31', 52)" onmouseover="showTip(event, 'fs31', 52)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs38', 53)" onmouseover="showTip(event, 'fs38', 53)" class="i">x</span> <span class="k">-&gt;</span> <span class="n">20</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs38', 54)" onmouseover="showTip(event, 'fs38', 54)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs38', 55)" onmouseover="showTip(event, 'fs38', 55)" class="i">x</span> <span class="o">&lt;</span> <span class="n">30</span> ) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs37', 56)" onmouseover="showTip(event, 'fs37', 56)" class="i">x</span> }</pre>
 </td>
 </tr>
 </table><p>Another example: find all people with even age</p>
@@ -166,19 +172,45 @@ pointing to a database with appropriate tables matching the query).</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 60)" onmouseover="showTip(event, 'fs40', 60)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 61)" onmouseover="showTip(event, 'fs14', 61)" class="i">query</span> {<span class="k">for</span> <span onmouseout="hideTip(event, 'fs38', 62)" onmouseover="showTip(event, 'fs38', 62)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs31', 63)" onmouseover="showTip(event, 'fs31', 63)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs39', 64)" onmouseover="showTip(event, 'fs39', 64)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs39', 65)" onmouseover="showTip(event, 'fs39', 65)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs38', 66)" onmouseover="showTip(event, 'fs38', 66)" class="i">x</span> }</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 57)" onmouseover="showTip(event, 'fs39', 57)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 58)" onmouseover="showTip(event, 'fs14', 58)" class="i">query</span> {<span class="k">for</span> <span onmouseout="hideTip(event, 'fs37', 59)" onmouseover="showTip(event, 'fs37', 59)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs31', 60)" onmouseover="showTip(event, 'fs31', 60)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs38', 61)" onmouseover="showTip(event, 'fs38', 61)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs38', 62)" onmouseover="showTip(event, 'fs38', 62)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs37', 63)" onmouseover="showTip(event, 'fs37', 63)" class="i">x</span> }</pre>
 </td>
 </tr>
-</table><p>WARNING: F# compiler optimizations are no longer applied to in-memory queries. 
-This library should only be used for database query programming, or you 
-can explicitly bind</p>
+</table><h2>Caveats</h2>
 
-<p>let dbQuery =  FSharpComposableQuery.TopLevelValues.query</p>
+<ul>
+<li>WARNING: F# compiler optimizations are no longer applied to in-memory queries. 
+This library should only be used for database query programming.  If both in-memory querying and
+composable database queries are needed, you can explicitly bind</li>
+</ul>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 64)" onmouseover="showTip(event, 'fs40', 64)" class="i">dbQuery</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs11', 65)" onmouseover="showTip(event, 'fs11', 65)" class="i">FSharpComposableQuery</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 66)" onmouseover="showTip(event, 'fs41', 66)" class="i">TopLevelValues</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 67)" onmouseover="showTip(event, 'fs14', 67)" class="i">query</span>
 
-<p>to bind dbQuery for use with database queries, without changing the behavior of query {} on in-memory queries.</p>
-<p>Some more info</p>
+<span class="c">(*</span>
+<span class="c">   instead of opening the &#39;FSharpComposableQuery&#39; namespace, to avoid shadowing the built-in &#39;query&#39;.</span>
+<span class="c">   to bind dbQuery for use with database queries, without changing the behavior of query {} on in-memory queries.</span>
 
-<h2>Samples &amp; documentation</h2>
+<span class="c"> * As of the current version (0.1.1-alpha), &#39;query {}&#39; expressions nested inside other &#39;query {}&#39; expressions </span>
+<span class="c">   do not always work, which may prevent some query compositions from working. </span>
+
+
+<span class="c">*)</span></pre>
+</td>
+</tr>
+</table><h2>Samples &amp; documentation</h2>
 
 <p>The API reference is automatically generated from Markdown comments in the library implementation.</p>
 
@@ -231,16 +263,17 @@ redistribution for both commercial and non-commercial purposes. For more informa
 <div class="tip" id="fs28">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
 <div class="tip" id="fs29">PeopleR.age: int</div>
 <div class="tip" id="fs30">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int</div>
-<div class="tip" id="fs31">val satisfies : Quotations.Expr&lt;((int -&gt; bool) -&gt; IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Index.satisfies</div>
+<div class="tip" id="fs31">val satisfies : Quotations.Expr&lt;((int -&gt; bool) -&gt; IQueryable&lt;(int -&gt; bool)&gt;)&gt;<br /><br />Full name: Index.satisfies</div>
 <div class="tip" id="fs32">val p : (int -&gt; bool)</div>
 <div class="tip" id="fs33">val u : dbSchema.ServiceTypes.People</div>
 <div class="tip" id="fs34">property dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople.People: Data.Linq.Table&lt;dbSchema.ServiceTypes.People&gt;<br /><em><br /><br />Gets the &#39;People&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
 <div class="tip" id="fs35">property dbSchema.ServiceTypes.People.Age: int</div>
-<div class="tip" id="fs36">property dbSchema.ServiceTypes.People.Name: string</div>
-<div class="tip" id="fs37">val ex1 : IQueryable&lt;PeopleR&gt;<br /><br />Full name: Index.ex1</div>
-<div class="tip" id="fs38">val x : PeopleR</div>
-<div class="tip" id="fs39">val x : int</div>
-<div class="tip" id="fs40">val ex2 : IQueryable&lt;PeopleR&gt;<br /><br />Full name: Index.ex2</div>
+<div class="tip" id="fs36">val ex1 : IQueryable&lt;(int -&gt; bool)&gt;<br /><br />Full name: Index.ex1</div>
+<div class="tip" id="fs37">val x : (int -&gt; bool)</div>
+<div class="tip" id="fs38">val x : int</div>
+<div class="tip" id="fs39">val ex2 : IQueryable&lt;(int -&gt; bool)&gt;<br /><br />Full name: Index.ex2</div>
+<div class="tip" id="fs40">val dbQuery : QueryImpl.QueryBuilder<br /><br />Full name: Index.dbQuery</div>
+<div class="tip" id="fs41">module TopLevelValues<br /><br />from FSharpComposableQuery</div>
 
         </div>
         <div class="span3">
