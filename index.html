@@ -183,34 +183,21 @@ This library should only be used for database query programming.  If both in-mem
 composable database queries are needed, you can explicitly bind</li>
 </ul>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
-<span class="l"> 2: </span>
-<span class="l"> 3: </span>
-<span class="l"> 4: </span>
-<span class="l"> 5: </span>
-<span class="l"> 6: </span>
-<span class="l"> 7: </span>
-<span class="l"> 8: </span>
-<span class="l"> 9: </span>
-<span class="l">10: </span>
-<span class="l">11: </span>
+<span class="l">1: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 64)" onmouseover="showTip(event, 'fs40', 64)" class="i">dbQuery</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs11', 65)" onmouseover="showTip(event, 'fs11', 65)" class="i">FSharpComposableQuery</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 66)" onmouseover="showTip(event, 'fs41', 66)" class="i">TopLevelValues</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 67)" onmouseover="showTip(event, 'fs14', 67)" class="i">query</span>
-
-<span class="c">(*</span>
-<span class="c">   instead of opening the &#39;FSharpComposableQuery&#39; namespace, to avoid shadowing the built-in &#39;query&#39;.</span>
-<span class="c">   to bind dbQuery for use with database queries, without changing the behavior of query {} on in-memory queries.</span>
-
-<span class="c"> * As of the current version (0.1.1-alpha), &#39;query {}&#39; expressions nested inside other &#39;query {}&#39; expressions </span>
-<span class="c">   do not always work, which may prevent some query compositions from working. </span>
-
-
-<span class="c">*)</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 64)" onmouseover="showTip(event, 'fs40', 64)" class="i">dbQuery</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs11', 65)" onmouseover="showTip(event, 'fs11', 65)" class="i">FSharpComposableQuery</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 66)" onmouseover="showTip(event, 'fs41', 66)" class="i">TopLevelValues</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 67)" onmouseover="showTip(event, 'fs14', 67)" class="i">query</span></pre>
 </td>
 </tr>
-</table><h2>Samples &amp; documentation</h2>
+</table><p>instead of opening the 'FSharpComposableQuery' namespace, to avoid shadowing the built-in 'query'.
+   to bind dbQuery for use with database queries, without changing the behavior of query {} on in-memory queries.</p>
+
+<ul>
+<li>As of the current version (0.1.1-alpha), 'query {}' expressions nested inside other 'query {}' expressions 
+do not always work, which may prevent some query compositions from working.</li>
+</ul>
+<h2>Samples &amp; documentation</h2>
 
 <p>The API reference is automatically generated from Markdown comments in the library implementation.</p>
 
