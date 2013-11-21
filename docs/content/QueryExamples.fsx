@@ -8,7 +8,7 @@
 Lots of sample queries
 ========================
 
-Say more
+Say more (__work in progress__)
 
 *)
 #r "FSharp.Data.TypeProviders.dll"
@@ -26,7 +26,7 @@ open Microsoft.FSharp.Linq
 
 open FSharpComposableQuery
 
-(** Query examples (**work in progress**) *)
+(** Query examples  *)
 
 (**
 Accessing a database
@@ -52,44 +52,36 @@ type Nullable<'T when 'T : ( new : unit -> 'T) and 'T : struct and 'T :> ValueTy
         if (this.HasValue) then this.Value.ToString()
         else "NULL"
 
-let tag = ref 1
-let tagQuery() = 
-  let str = sprintf "Q%d" !tag;
-  tag := !tag+1
-
 let testQuery f = f query query
 
 // Convenience copies of failing tests
 
 
 // Start
-tagQuery()
-printfn "\ncontains query operator"
-let result1 =
-    query {
+(**  contains query operator
+*)
+query {
         for student in db.Student do
         select student.Age.Value
         contains 11
-        }
-result1 |> printfn "Is at least one student age 11? %b" 
+        }|> printfn "Is at least one student age 11? %b" 
 
 
-tagQuery()
-printfn "\ncount query operator"
-let result2 =
-    query {
+(**
+count query operator
+*)
+query {
         for student in db.Student do
         select student
         count
-        }
-
-result2 |> printfn "Number of students: %d" 
+        } |> printfn "Number of students: %d" 
 
 
-tagQuery()
-printfn "\nlast query operator." 
+(**
+last query operator.
+*)
 let result3 =
-    query {
+    *)
         for s in data do
         sortBy s
         last
@@ -97,20 +89,22 @@ let result3 =
 printfn "Last: %d" result3
 
 
-tagQuery()
-printfn "\nlastOrDefault query operator." 
+(**
+lastOrDefault query operator.
+*)
 let result4 =
-    query {
+    *)
             for number in data do
             sortBy number
             lastOrDefault
             }
 result4 |> printfn "lastOrDefault: %d"
 
-tagQuery()
-printfn "\nexactlyOne query operator."
+(**
+exactlyOne query operator
+*)
 let student2 =
-    query {
+    *)
         for student in db.Student do
         where (student.StudentID = 1)
         select student
@@ -118,10 +112,11 @@ let student2 =
         }
 printfn "Student with StudentID = 1 is %s" student2.Name
 
-tagQuery()
-printfn "\nexactlyOneOrDefault query operator."
+(**
+exactlyOneOrDefault query operator
+*)
 let student3 =
-    query {
+    *)
         for student in db.Student do
         where (student.StudentID = 1)
         select student
@@ -129,62 +124,69 @@ let student3 =
         }
 printfn "Student with StudentID = 1 is %s" student3.Name
 
-tagQuery()
-printfn "\nheadOrDefault query operator."
+(**
+headOrDefault query operator
+*)
 let student4 =
-    query {
+    *)
         for student in db.Student do
         select student
         headOrDefault
         }
 printfn "head student is %s" student4.Name
 
-tagQuery()
-printfn "\nselect query operator."
+(**
+select query operator
+*)
 let select5 = 
-    query {
+    *)
         for (student:schema.ServiceTypes.Student) in db.Student do
         select student
         }
 select5 |> Seq.iter (fun (student:schema.ServiceTypes.Student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
-tagQuery()
-printfn "\nwhere query operator."
+(**
+where query operator
+*)
 let select6 = 
-    query {
+    *)
         for student in db.Student do
         where (student.StudentID > 4)
         select student
         }
 select6 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
-tagQuery()
-printfn "\nminBy query operator."
+(**
+minBy query operator
+*)
 let student5 =
-    query {
+    *)
         for student in db.Student do
         minBy student.StudentID
     }
 
-tagQuery()
-printfn "\nmaxBy query operator."
+(**
+maxBy query operator
+*)
 let student6 =
     query {
         for student in db.Student do
         maxBy student.StudentID
     }
     
-tagQuery()
-printfn "\ngroupBy query operator."
-query {
+(**
+groupBy query operator.
+*)
+*)
     for student in db.Student do
     groupBy student.Age into g
     select (g.Key, g.Count())
     }
 |> Seq.iter (fun (age, count) -> printfn "Age: %s Count at that age: %d" (age.Print()) count)
 
-tagQuery()
-printfn "\nsortBy query operator."
+(**
+sortBy query operator
+*)
 query {
     for student in db.Student do
     sortBy student.Name
@@ -192,8 +194,9 @@ query {
 }
 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
-tagQuery()
-printfn "\nsortByDescending query operator."
+(**
+sortByDescending query operator
+*)
 query {
     for student in db.Student do
     sortByDescending student.Name
@@ -201,8 +204,9 @@ query {
 }
 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
-tagQuery()
-printfn "\nthenBy query operator."
+(**
+thenBy query operator
+*)
 query {
     for student in db.Student do
     where student.Age.HasValue
@@ -212,8 +216,9 @@ query {
 }
 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.Age.Value student.Name)
 
-tagQuery()
-printfn "\nthenByDescending query operator."
+(**
+thenByDescending query operator
+*)
 query {
     for student in db.Student do
     where student.Age.HasValue
@@ -223,8 +228,9 @@ query {
 }
 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.Age.Value student.Name)
 
-tagQuery()
-printfn "\ngroupValBy query operator."
+(**
+groupValBy query operator
+*)
 query {
     for student in db.Student do
     groupValBy student.Name student.Age into g
@@ -234,48 +240,54 @@ query {
     printfn "Age: %s Count at that age: %d" (age.Print()) count
     group |> Seq.iter (fun name -> printfn "Name: %s" name))
 
-tagQuery()
-printfn "\n sumByNullable query operator"
+(**
+ sumByNullable query operator
+*)
 query {
     for student in db.Student do
     sumByNullable student.Age
     }
 |> (fun sum -> printfn "Sum of ages: %s" (sum.Print()))
 
-tagQuery()
-printfn "\n minByNullable"
+(**
+ minByNullable
+*)
 query {
     for student in db.Student do
     minByNullable student.Age
     }
 |> (fun age -> printfn "Minimum age: %s" (age.Print()))
 
-tagQuery()
-printfn "\n maxByNullable"
+(**
+ maxByNullable
+*)
 query {
     for student in db.Student do
     maxByNullable student.Age
     }
 |> (fun age -> printfn "Maximum age: %s" (age.Print()))
 
-tagQuery()
-printfn "\n averageBy"
+(**
+ averageBy
+*)
 query {
     for student in db.Student do
     averageBy (float student.StudentID)
     }
 |> printfn "Average student ID: %f"
 
-tagQuery()
-printfn "\n averageByNullable"
+(**
+ averageByNullable
+*)
 query {
     for student in db.Student do
     averageByNullable (Nullable.float student.Age)
     }
 |> (fun avg -> printfn "Average age: %s" (avg.Print()))
 
-tagQuery()
-printfn "\n find query operator"
+(**
+ find query operator
+*)
 query {
     for student in db.Student do
     find (student.Name = "Abercrombie, Kim")
@@ -283,8 +295,9 @@ query {
 |> (fun student -> printfn "Found a match with StudentID = %d" student.StudentID)
 
 
-tagQuery()
-printfn "\n all query operator"
+(**
+ all query operator
+*)
 query {
     for student in db.Student do
     all (SqlMethods.Like(student.Name, "%,%"))
@@ -292,32 +305,36 @@ query {
 |> printfn "Do all students have a comma in the name? %b"
 
 
-tagQuery()
-printfn "\n head query operator"
+(**
+ head query operator
+*)
 query {
     for student in db.Student do
     head
     }
 |> (fun student -> printfn "Found the head student with StudentID = %d" student.StudentID)
 
-tagQuery()
-printfn "\n nth query operator"
+(**
+ nth query operator
+*)
 query {
     for numbers in data do
     nth 3
     }
 |> printfn "Third number is %d"
 
-tagQuery()
-printfn "\n skip query operator"
+(**
+ skip query operator
+*)
 query {
     for student in db.Student do
     skip 1
     }
 |> Seq.iter (fun student -> printfn "StudentID = %d" student.StudentID)
 
-tagQuery()
-printfn "\n skipWhile query operator"
+(**
+ skipWhile query operator
+*)
 query {
     for number in data do
     skipWhile (number < 3)
@@ -326,16 +343,18 @@ query {
 |> Seq.iter (fun number -> printfn "Number = %d" number)
 
 
-tagQuery()
-printfn "\n sumBy query operator"
+(**
+ sumBy query operator
+*)
 query {
    for student in db.Student do
    sumBy student.StudentID
    }
 |> printfn "Sum of student IDs: %d" 
 
-tagQuery()
-printfn "\n take query operator"
+(**
+ take query operator
+*)
 query {
    for student in db.Student do
    select student
@@ -343,16 +362,18 @@ query {
    }
 |> Seq.iter (fun student -> printfn "StudentID = %d" student.StudentID)
 
-tagQuery()
-printfn "\n takeWhile query operator"
+(**
+ takeWhile query operator
+*)
 query {
     for number in data do
     takeWhile (number < 10)
     }
 |> Seq.iter (fun number -> printfn "Number = %d" number)
 
-tagQuery()
-printfn "\n sortByNullable query operator"
+(**
+ sortByNullable query operator
+*)
 query {
     for student in db.Student do
     sortByNullable student.Age
@@ -361,8 +382,9 @@ query {
 |> Seq.iter (fun student ->
     printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
 
-tagQuery()
-printfn "\n sortByNullableDescending query operator"
+(**
+ sortByNullableDescending query operator
+*)
 query {
     for student in db.Student do
     sortByNullableDescending student.Age
@@ -371,8 +393,9 @@ query {
 |> Seq.iter (fun student ->
     printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
 
-tagQuery()
-printfn "\n thenByNullable query operator"
+(**
+ thenByNullable query operator
+*)
 query {
     for student in db.Student do
     sortBy student.Name
@@ -382,8 +405,9 @@ query {
 |> Seq.iter (fun student ->
     printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
 
-tagQuery()
-printfn "\n thenByNullableDescending query operator"
+(**
+ thenByNullableDescending query operator
+*)
 query {
     for student in db.Student do
     sortBy student.Name
@@ -394,8 +418,9 @@ query {
     printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
 
 
-tagQuery()
-printfn "All students: "
+(**
+All students: 
+*)
 query {
         for student in db.Student do
         select student
@@ -403,16 +428,18 @@ query {
     |> Seq.iter (fun student -> printfn "%s %d %s" student.Name student.StudentID (student.Age.Print()))
 
 
-tagQuery()
-printfn "\nCount of students: "
+(**
+Count of students: 
+*)
 query {
         for student in db.Student do        
         count
     }
 |>  (fun count -> printfn "Student count: %d" count)
 
-tagQuery()
-printfn "\nExists."
+(**
+Exists
+*)
 query {
         for student in db.Student do
         where (ExtraTopLevelOperators.query 
@@ -422,8 +449,9 @@ query {
 |> Seq.iter (fun student -> printfn "%A" student.Name)
 
 
-tagQuery()
-printfn "\n Group by age and count"
+(**
+ Group by age and count
+*)
 query {
         for n in db.Student do
         groupBy n.Age into g
@@ -431,8 +459,9 @@ query {
 }
 |> Seq.iter (fun (age, count) -> printfn "%s %d" (age.Print()) count)
 
-tagQuery()
-printfn "\n Group value by age."
+(**
+ Group value by age
+*)
 query {
         for n in db.Student do
         groupValBy n.Age n.Age into g
@@ -445,8 +474,9 @@ query {
 
 
 
-tagQuery()
-printfn "\nGroup students by age where age > 10."
+(**
+Group students by age where age > 10
+*)
 query {
         for student in db.Student do
         groupBy student.Age into g
@@ -458,8 +488,9 @@ query {
     students
     |> Seq.iter (fun student -> printfn "%s" student.Name))
 
-tagQuery()
-printfn "\nGroup students by age and print counts of number of students at each age with more than 1 student."
+(**
+Group students by age and print counts of number of students at each age with more than 1 student
+*)
 query {
         for student in db.Student do
         groupBy student.Age into group
@@ -469,8 +500,9 @@ query {
 |> Seq.iter (fun (age, ageCount) ->
      printfn "Age: %s Count: %d" (age.Print()) ageCount)
 
-tagQuery()
-printfn "\nGroup students by age and sum ages."
+(**
+Group students by age and sum ages
+*)
 query {
         for student in db.Student do
         groupBy student.Age into g        
@@ -483,8 +515,9 @@ query {
     printfn "Total years: %s" (total.ToString()))
 
 
-tagQuery()
-printfn "\nGroup students by age and count number of students at each age, and display all with count > 1 in descending order of count."
+(**
+Group students by age and count number of students at each age, and display all with count > 1 in descending order of count
+*)
 query {
         for student in db.Student do
         groupBy student.Age into g
@@ -496,8 +529,9 @@ query {
     printfn "Age: %s" (age.Print())
     printfn "Count: %d" myCount)
 
-tagQuery()
-printfn "\n Select students from a set of IDs"
+(**
+ Select students from a set of IDs
+*)
 let idList = [1; 2; 5; 10]
 let idQuery = query { for id in idList do
                        select id }
@@ -509,8 +543,9 @@ query {
 |> Seq.iter (fun student ->
     printfn "Name: %s" student.Name)
 
-tagQuery()
-printfn "\nLook for students with Name match _e%% pattern and take first two."
+(**
+Look for students with Name match _e%% pattern and take first two
+*)
 query {
     for student in db.Student do
     where (SqlMethods.Like( student.Name, "_e%") )
@@ -519,8 +554,9 @@ query {
     }
 |> Seq.iter (fun student -> printfn "%s" student.Name)
 
-tagQuery()
-printfn "\nLook for students with Name matching [abc]%% pattern."
+(**
+Look for students with Name matching [abc]%% pattern
+*)
 query {
     for student in db.Student do
     where (SqlMethods.Like( student.Name, "[abc]%") )
@@ -528,8 +564,9 @@ query {
     }
 |> Seq.iter (fun student -> printfn "%s" student.Name)
 
-tagQuery()
-printfn "\nLook for students with name matching [^abc]%% pattern."
+(**
+Look for students with name matching [^abc]%% pattern
+*)
 query {
     for student in db.Student do
     where (SqlMethods.Like( student.Name, "[^abc]%") )
@@ -537,8 +574,9 @@ query {
     }
 |> Seq.iter (fun student -> printfn "%s" student.Name)
 
-tagQuery()
-printfn "\nLook for students with name matching [^abc]%% pattern and select ID."
+(**
+Look for students with name matching [^abc]%% pattern and select ID
+*)
 query {
     for n in db.Student do
     where (SqlMethods.Like( n.Name, "[^abc]%") )
@@ -546,8 +584,9 @@ query {
     }
 |> Seq.iter (fun id -> printfn "%d" id)
 
-tagQuery()
-printfn "\n Using Contains as a query filter."
+(**
+ Using Contains as a query filter
+*)
 query {
         for student in db.Student do
         where (student.Name.Contains("a"))
@@ -556,16 +595,18 @@ query {
 |> Seq.iter (fun student -> printfn "%s" student.Name)
 
 
-tagQuery()
-printfn "\nSearching for names from a list."
+(**
+Searching for names from a list
 let names = [|"a";"b";"c"|]
+*)
 query {
     for student in db.Student do
     if names.Contains (student.Name) then select student }
 |> Seq.iter (fun student -> printfn "%s" student.Name)
 
-tagQuery()
-printfn "\nJoin Student and CourseSelection tables."
+(**
+Join Student and CourseSelection tables
+*)
 query {
         for student in db.Student do 
         join selection in db.CourseSelection 
@@ -574,8 +615,9 @@ query {
     }
 |> Seq.iter (fun (student, selection) -> printfn "%d %s %d" student.StudentID student.Name selection.CourseID)
 
-tagQuery()
-printfn "\nLeft Join Student and CourseSelection tables."
+(**
+Left Join Student and CourseSelection tables
+*)
 query {
     for student in db.Student do
     leftOuterJoin selection in db.CourseSelection 
@@ -590,8 +632,9 @@ query {
         | sel -> (sel.ID.ToString(), sel.StudentID.ToString(), sel.CourseID.ToString())
     printfn "%d %s %d %s %s %s" student.StudentID student.Name (student.Age.GetValueOrDefault()) selectionID studentID courseID)
 
-tagQuery()
-printfn "\nJoin with count"
+(**
+Join with count
+*)
 query {
         for n in db.Student do 
         join e in db.CourseSelection on (n.StudentID = e.StudentID)
@@ -599,8 +642,9 @@ query {
     }
 |>  printfn "%d"
 
-tagQuery()
-printfn "\n Join with distinct."
+(**
+ Join with distinct
+*)
 query {
         for student in db.Student do 
         join selection in db.CourseSelection on (student.StudentID = selection.StudentID)
@@ -608,8 +652,9 @@ query {
     }
 |> Seq.iter (fun (student, selection) -> printfn "%s %d" student.Name selection.CourseID)
 
-tagQuery()
-printfn "\n Join with distinct and count."
+(**
+ Join with distinct and count
+*)
 query {
         for n in db.Student do 
         join e in db.CourseSelection on (n.StudentID = e.StudentID)
@@ -619,8 +664,9 @@ query {
 |> printfn "%d"
 
 
-tagQuery()
-printfn "\n Selecting students with age between 10 and 15."
+(**
+ Selecting students with age between 10 and 15
+*)
 query {
         for student in db.Student do
         where (student.Age.Value >= 10 && student.Age.Value < 15)
@@ -628,8 +674,9 @@ query {
     }
 |> Seq.iter (fun student -> printfn "%s" student.Name)
 
-tagQuery()
-printfn "\n Selecting students with age either 11 or 12."
+(**
+ Selecting students with age either 11 or 12
+*)
 query {
         for student in db.Student do
         where (student.Age.Value = 11 || student.Age.Value = 12)
@@ -637,8 +684,9 @@ query {
     }
 |> Seq.iter (fun student -> printfn "%s" student.Name)
 
-tagQuery()
-printfn "\n Selecting students in a certain age range and sorting."
+(**
+ Selecting students in a certain age range and sorting
+*)
 query {
         for n in db.Student do
         where (n.Age.Value = 12 || n.Age.Value = 13)
@@ -647,8 +695,9 @@ query {
     }
 |> Seq.iter (fun student -> printfn "%s %s" student.Name (student.Age.Print()))
 
-tagQuery()
-printfn "\n Selecting students with certain ages, taking account of possibility of nulls."
+(**
+ Selecting students with certain ages, taking account of possibility of nulls
+*)
 query {
         for student in db.Student do
         where ((student.Age.HasValue && student.Age.Value = 11) ||
@@ -660,8 +709,9 @@ query {
 |> Seq.iter (fun name -> printfn "%s" name)
 
 
-tagQuery()
-printfn "\n Union of two queries."
+(**
+ Union of two queries
+*)
 module Queries =
     let query1 = query {
             for n in db.Student do
@@ -676,8 +726,9 @@ module Queries =
     query2.Union (query1)
     |> Seq.iter (fun (name, age) -> printfn "%s %s" name (age.Print()))
 
-tagQuery()
-printfn "\n Intersect of two queries."
+(**
+ Intersect of two queries
+*)
 module Queries2 =
     let query1 = query {
            for n in db.Student do
@@ -692,8 +743,9 @@ module Queries2 =
     query1.Intersect(query2)
     |> Seq.iter (fun (name, age) -> printfn "%s %s" name (age.Print()))
 
-tagQuery()
-printfn "\n Using if statement to alter results for special value."
+(**
+ Using if statement to alter results for special value
+*)
 query {
         for student in db.Student do
         select (if student.Age.HasValue && student.Age.Value = -1 then
@@ -702,8 +754,9 @@ query {
     }
 |> Seq.iter (fun (id, value, age) -> printfn "%d %s %s" id (value.Print()) (age.Print()))
 
-tagQuery()
-printfn "\n Using if statement to alter results special values."
+(**
+ Using if statement to alter results special values
+*)
 query {
         for student in db.Student do
         select (if student.Age.HasValue && student.Age.Value = -1 then
@@ -715,8 +768,9 @@ query {
 |> Seq.iter (fun (id, value, age) -> printfn "%d %s %s" id (value.Print()) (age.Print()))
 
 
-tagQuery()
-printfn "\n Multiple table select."
+(**
+ Multiple table select
+*)
 query {
         for student in db.Student do
         for course in db.Course do
@@ -726,8 +780,9 @@ query {
     if (index = 0) then printfn "StudentID Name Age CourseID CourseName"
     printfn "%d %s %s %d %s" student.StudentID student.Name (student.Age.Print()) course.CourseID course.CourseName)
 
-tagQuery()
-printfn "\nMultiple Joins"
+(**
+Multiple Joins
+*)
 query {
     for student in db.Student do
     join courseSelection in db.CourseSelection on
@@ -738,10 +793,11 @@ query {
     }
     |> Seq.iter (fun (studentName, courseName) -> printfn "%s %s" studentName courseName)
 
-tagQuery()
-printfn "\nMultiple Left Outer Joins"
+(**
+Multiple Left Outer Joins
+*)
 query {
-   for student in db.Student do
+    for student in db.Student do
     leftOuterJoin courseSelection in db.CourseSelection 
       on (student.StudentID = courseSelection.StudentID) into g1
     for courseSelection in g1.DefaultIfEmpty() do

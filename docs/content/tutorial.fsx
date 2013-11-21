@@ -5,10 +5,11 @@
 
 (**
 
-(**work in progress**)
 
 Introducing your project 
 ========================
+
+(__work in progress__)
 
 Compositional Query Framework for F# Queries, based on "A Practical Theory of Language-Integrated Query"
  
