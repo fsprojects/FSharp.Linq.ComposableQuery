@@ -81,6 +81,57 @@
     }</pre>
 </td>
 </tr>
+</table><p>In addition, more queries and query compositions work.  We illustrate this through several examples below.</p>
+<h2>Parameterizing a query</h2>
+
+<p>LINQ already supports queries with parameters, as long as those parameters are of base type.  For example, 
+to obntain the set fo people with age between two bounds, you can create a query parameterized by two integers:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+[&lt;<span onmouseout="hideTip(event, 'fs12', 14)" onmouseover="showTip(event, 'fs12', 14)" class="i">Literal</span>&gt;]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="i">ConnectionString</span> <span class="o">=</span> 
+  <span class="s">&quot;</span><span class="s">Data</span><span class="s"> </span><span class="s">Source</span><span class="s">=</span><span class="s">(</span><span class="s">localdb</span><span class="s">)</span><span class="s">\</span><span class="s">MyInstance</span><span class="s">;</span><span class="s">\</span>
+<span class="s">   </span><span class="s">Initial</span><span class="s"> </span><span class="s">Catalog</span><span class="s">=</span><span class="s">MyPeople</span><span class="s">;</span>
+<span class="s">   </span><span class="s">Integrated</span><span class="s"> </span><span class="s">Security</span><span class="s">=</span><span class="s">SSPI</span><span class="s">&quot;</span>;;
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">dbSchema</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">SqlDataConnection</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs13', 18)" onmouseover="showTip(event, 'fs13', 18)" class="i">ConnectionString</span><span class="o">&gt;</span>;;
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="i">db</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="i">dbSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="i">GetDataContext</span>();;
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">People</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 23)" onmouseover="showTip(event, 'fs14', 23)" class="i">dbSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="i">ServiceTypes</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 25)" onmouseover="showTip(event, 'fs20', 25)" class="i">People</span>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs21', 26)" onmouseover="showTip(event, 'fs21', 26)" class="i">PeopleR</span> <span class="o">=</span> {<span onmouseout="hideTip(event, 'fs22', 27)" onmouseover="showTip(event, 'fs22', 27)" class="i">name</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 28)" onmouseover="showTip(event, 'fs23', 28)" class="i">string</span>;<span onmouseout="hideTip(event, 'fs24', 29)" onmouseover="showTip(event, 'fs24', 29)" class="i">age</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 30)" onmouseover="showTip(event, 'fs25', 30)" class="i">int</span>}
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 31)" onmouseover="showTip(event, 'fs26', 31)" class="i">range1</span> <span class="o">=</span> <span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs27', 32)" onmouseover="showTip(event, 'fs27', 32)" class="i">a</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 33)" onmouseover="showTip(event, 'fs25', 33)" class="i">int</span>) (<span onmouseout="hideTip(event, 'fs28', 34)" onmouseover="showTip(event, 'fs28', 34)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 35)" onmouseover="showTip(event, 'fs25', 35)" class="i">int</span>) <span class="k">-&gt;</span> 
+  <span onmouseout="hideTip(event, 'fs8', 36)" onmouseover="showTip(event, 'fs8', 36)" class="i">query</span> {
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 37)" onmouseover="showTip(event, 'fs29', 37)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 38)" onmouseover="showTip(event, 'fs16', 38)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 39)" onmouseover="showTip(event, 'fs30', 39)" class="i">People</span> <span class="k">do</span>
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs27', 40)" onmouseover="showTip(event, 'fs27', 40)" class="i">a</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs29', 41)" onmouseover="showTip(event, 'fs29', 41)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 42)" onmouseover="showTip(event, 'fs31', 42)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs29', 43)" onmouseover="showTip(event, 'fs29', 43)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 44)" onmouseover="showTip(event, 'fs31', 44)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs28', 45)" onmouseover="showTip(event, 'fs28', 45)" class="i">b</span> 
+    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 47)" onmouseover="showTip(event, 'fs32', 47)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 48)" onmouseover="showTip(event, 'fs29', 48)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 49)" onmouseover="showTip(event, 'fs31', 49)" class="i">Age</span>}
+    } 
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 50)" onmouseover="showTip(event, 'fs33', 50)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 51)" onmouseover="showTip(event, 'fs26', 51)" class="i">range1</span> <span class="n">30</span> <span class="n">40</span></pre>
+</td>
+</tr>
 </table>
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
@@ -93,6 +144,28 @@
 <div class="tip" id="fs9">val s : int</div>
 <div class="tip" id="fs10">custom operation: sortBy (&#39;Key)<br /><br />Calls Linq.QueryBuilder.SortBy </div>
 <div class="tip" id="fs11">custom operation: last<br /><br />Calls Linq.QueryBuilder.Last </div>
+<div class="tip" id="fs12">Multiple items<br />type LiteralAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; LiteralAttribute<br /><br />Full name: Microsoft.FSharp.Core.LiteralAttribute<br /><br />--------------------<br />new : unit -&gt; LiteralAttribute</div>
+<div class="tip" id="fs13">val ConnectionString : string<br /><br />Full name: Tutorial.ConnectionString</div>
+<div class="tip" id="fs14">type dbSchema =<br />&#160;&#160;static member GetDataContext : unit -&gt; MyPeople + 1 overload<br />&#160;&#160;nested type ServiceTypes<br /><br />Full name: Tutorial.dbSchema<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
+<div class="tip" id="fs15">type SqlDataConnection<br /><br />Full name: Microsoft.FSharp.Data.TypeProviders.SqlDataConnection<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
+<div class="tip" id="fs16">val db : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><br />Full name: Tutorial.db</div>
+<div class="tip" id="fs17">dbSchema.GetDataContext() : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em><br />dbSchema.GetDataContext(connectionString: string) : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em></div>
+<div class="tip" id="fs18">type People = dbSchema.ServiceTypes.People<br /><br />Full name: Tutorial.People</div>
+<div class="tip" id="fs19">type ServiceTypes =<br />&#160;&#160;nested type Couples<br />&#160;&#160;nested type MyPeople<br />&#160;&#160;nested type People<br />&#160;&#160;nested type SimpleDataContextTypes<br /><br />Full name: Tutorial.dbSchema.ServiceTypes<br /><em><br /><br />&lt;summary&gt;&lt;para&gt;The full API to the SQL connection.&lt;/para&gt;&lt;para&gt;To use the service via the full API, create an instance of one of the types &#39;MyPeople&#39;.&lt;/para&gt;&lt;/summary&gt;</em></div>
+<div class="tip" id="fs20">type People =<br />&#160;&#160;interface INotifyPropertyChanging<br />&#160;&#160;interface INotifyPropertyChanged<br />&#160;&#160;new : unit -&gt; People<br />&#160;&#160;member Age : int with get, set<br />&#160;&#160;member Name : string with get, set<br />&#160;&#160;event PropertyChanged : PropertyChangedEventHandler<br />&#160;&#160;event PropertyChanging : PropertyChangingEventHandler<br /><br />Full name: Tutorial.dbSchema.ServiceTypes.People</div>
+<div class="tip" id="fs21">type PeopleR =<br />&#160;&#160;{name: string;<br />&#160;&#160;&#160;age: int;}<br /><br />Full name: Tutorial.PeopleR</div>
+<div class="tip" id="fs22">PeopleR.name: string</div>
+<div class="tip" id="fs23">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs24">PeopleR.age: int</div>
+<div class="tip" id="fs25">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int</div>
+<div class="tip" id="fs26">val range1 : a:int -&gt; b:int -&gt; System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.range1</div>
+<div class="tip" id="fs27">val a : int</div>
+<div class="tip" id="fs28">val b : int</div>
+<div class="tip" id="fs29">val u : dbSchema.ServiceTypes.People</div>
+<div class="tip" id="fs30">property dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople.People: System.Data.Linq.Table&lt;dbSchema.ServiceTypes.People&gt;<br /><em><br /><br />Gets the &#39;People&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
+<div class="tip" id="fs31">property dbSchema.ServiceTypes.People.Age: int</div>
+<div class="tip" id="fs32">property dbSchema.ServiceTypes.People.Name: string</div>
+<div class="tip" id="fs33">val ex1 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex1</div>
 
         </div>
         <div class="span3">
