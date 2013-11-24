@@ -188,7 +188,72 @@ evaluates a quoted query result directly:</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 89)" onmouseover="showTip(event, 'fs44', 89)" class="i">ex2again</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 90)" onmouseover="showTip(event, 'fs41', 90)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 91)" onmouseover="showTip(event, 'fs34', 91)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> @&gt;</pre>
 </td>
 </tr>
-</table>
+</table><h2>Building queries using query combinators</h2>
+
+<p>You can build queries up using other query combinators as follows:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 92)" onmouseover="showTip(event, 'fs45', 92)" class="i">ageFromName</span> <span class="o">=</span> 
+  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs46', 93)" onmouseover="showTip(event, 'fs46', 93)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 94)" onmouseover="showTip(event, 'fs8', 94)" class="i">query</span> {
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 95)" onmouseover="showTip(event, 'fs29', 95)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 96)" onmouseover="showTip(event, 'fs16', 96)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 97)" onmouseover="showTip(event, 'fs30', 97)" class="i">People</span> <span class="k">do</span> 
+        <span class="k">if</span> <span onmouseout="hideTip(event, 'fs46', 98)" onmouseover="showTip(event, 'fs46', 98)" class="i">s</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 99)" onmouseover="showTip(event, 'fs29', 99)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 100)" onmouseover="showTip(event, 'fs32', 100)" class="i">Name</span> <span class="k">then</span> 
+          <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs29', 101)" onmouseover="showTip(event, 'fs29', 101)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 102)" onmouseover="showTip(event, 'fs31', 102)" class="i">Age</span> } @&gt;
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs47', 103)" onmouseover="showTip(event, 'fs47', 103)" class="i">compose</span> <span class="o">=</span> 
+  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs46', 104)" onmouseover="showTip(event, 'fs46', 104)" class="i">s</span> <span onmouseout="hideTip(event, 'fs48', 105)" onmouseover="showTip(event, 'fs48', 105)" class="i">t</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 106)" onmouseover="showTip(event, 'fs8', 106)" class="i">query</span> {
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs27', 107)" onmouseover="showTip(event, 'fs27', 107)" class="i">a</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs45', 108)" onmouseover="showTip(event, 'fs45', 108)" class="i">ageFromName</span>) <span onmouseout="hideTip(event, 'fs46', 109)" onmouseover="showTip(event, 'fs46', 109)" class="i">s</span> <span class="k">do</span>
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs28', 110)" onmouseover="showTip(event, 'fs28', 110)" class="i">b</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs45', 111)" onmouseover="showTip(event, 'fs45', 111)" class="i">ageFromName</span>) <span onmouseout="hideTip(event, 'fs48', 112)" onmouseover="showTip(event, 'fs48', 112)" class="i">t</span> <span class="k">do</span> 
+      <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 113)" onmouseover="showTip(event, 'fs34', 113)" class="i">range</span>) <span onmouseout="hideTip(event, 'fs27', 114)" onmouseover="showTip(event, 'fs27', 114)" class="i">a</span> <span onmouseout="hideTip(event, 'fs28', 115)" onmouseover="showTip(event, 'fs28', 115)" class="i">b</span>
+  } @&gt;</pre>
+</td>
+</tr>
+</table><p>We could have defined this more directly as a single parameterized query as follows:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 116)" onmouseover="showTip(event, 'fs49', 116)" class="i">composeMonolithic</span> <span class="o">=</span> 
+  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs46', 117)" onmouseover="showTip(event, 'fs46', 117)" class="i">s</span> <span onmouseout="hideTip(event, 'fs48', 118)" onmouseover="showTip(event, 'fs48', 118)" class="i">t</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 119)" onmouseover="showTip(event, 'fs8', 119)" class="i">query</span> {
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs50', 120)" onmouseover="showTip(event, 'fs50', 120)" class="i">u1</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 121)" onmouseover="showTip(event, 'fs16', 121)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 122)" onmouseover="showTip(event, 'fs30', 122)" class="i">People</span> <span class="k">do</span>
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs51', 123)" onmouseover="showTip(event, 'fs51', 123)" class="i">u2</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 124)" onmouseover="showTip(event, 'fs16', 124)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 125)" onmouseover="showTip(event, 'fs30', 125)" class="i">People</span> <span class="k">do</span> 
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 126)" onmouseover="showTip(event, 'fs29', 126)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 127)" onmouseover="showTip(event, 'fs16', 127)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 128)" onmouseover="showTip(event, 'fs30', 128)" class="i">People</span> <span class="k">do</span>
+      <span class="k">if</span> <span onmouseout="hideTip(event, 'fs46', 129)" onmouseover="showTip(event, 'fs46', 129)" class="i">s</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs50', 130)" onmouseover="showTip(event, 'fs50', 130)" class="i">u1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 131)" onmouseover="showTip(event, 'fs32', 131)" class="i">Name</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs48', 132)" onmouseover="showTip(event, 'fs48', 132)" class="i">t</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs51', 133)" onmouseover="showTip(event, 'fs51', 133)" class="i">u2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 134)" onmouseover="showTip(event, 'fs32', 134)" class="i">Name</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs50', 135)" onmouseover="showTip(event, 'fs50', 135)" class="i">u1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 136)" onmouseover="showTip(event, 'fs31', 136)" class="i">Age</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs29', 137)" onmouseover="showTip(event, 'fs29', 137)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 138)" onmouseover="showTip(event, 'fs31', 138)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs29', 139)" onmouseover="showTip(event, 'fs29', 139)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 140)" onmouseover="showTip(event, 'fs31', 140)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs51', 141)" onmouseover="showTip(event, 'fs51', 141)" class="i">u2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 142)" onmouseover="showTip(event, 'fs31', 142)" class="i">Age</span> <span class="k">then</span>
+        <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 143)" onmouseover="showTip(event, 'fs29', 143)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 144)" onmouseover="showTip(event, 'fs32', 144)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 145)" onmouseover="showTip(event, 'fs29', 145)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 146)" onmouseover="showTip(event, 'fs31', 146)" class="i">Age</span>}
+  } @&gt;</pre>
+</td>
+</tr>
+</table><p>But this involves some code duplication and renaming, and if the subquery we use to find a person's age from their name were to
+change, then we would have to change both places --- easy to get wrong.  This way of building the query up from 
+components leads to more maintainable code.</p>
+
+<p>Moreover, this small query is easy enough to compose in your head, but as the size of the query and number of tables 
+involved grows, keeping the different parameters and constraints straight becomes more tedious and error-prone.  This
+way of defining a query such as compose means that the logical meaning of the query is easy to see by reading the code, 
+and the FSharpComposableQuery library does the work of normalizing the query to a form that an SQL database can evaluate
+efficiently.</p>
+
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
 <div class="tip" id="fs3">namespace Microsoft.FSharp.Data</div>
@@ -233,6 +298,13 @@ evaluates a quoted query result directly:</p>
 <div class="tip" id="fs42">val q : Quotations.Expr&lt;#System.Linq.IQueryable&lt;&#39;b&gt;&gt;</div>
 <div class="tip" id="fs43">val x : &#39;b</div>
 <div class="tip" id="fs44">val ex2again : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex2again</div>
+<div class="tip" id="fs45">val ageFromName : Quotations.Expr&lt;(string -&gt; System.Linq.IQueryable&lt;int&gt;)&gt;<br /><br />Full name: Tutorial.ageFromName</div>
+<div class="tip" id="fs46">val s : string</div>
+<div class="tip" id="fs47">val compose : Quotations.Expr&lt;(string -&gt; string -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.compose</div>
+<div class="tip" id="fs48">val t : string</div>
+<div class="tip" id="fs49">val composeMonolithic : Quotations.Expr&lt;(string -&gt; string -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.composeMonolithic</div>
+<div class="tip" id="fs50">val u1 : dbSchema.ServiceTypes.People</div>
+<div class="tip" id="fs51">val u2 : dbSchema.ServiceTypes.People</div>
 
         </div>
         <div class="span3">
