@@ -8,7 +8,9 @@
 Lots of sample queries
 ========================
 
-Say more (__work in progress__)
+This file collects the sample queries from the Visual Studio documentation for F#.  The original queries can be found here: 
+
+ * [FSharp Query Expressions](http://msdn.microsoft.com/en-us/library/vstudio/hh225374.aspx)
 
 *)
 #r "FSharp.Data.TypeProviders.dll"
@@ -29,7 +31,11 @@ open FSharpComposableQuery
 (** Query examples  *)
 
 (**
-Accessing a database
+We assume a locally configured SQL Srever database server with the database MyDatabase populated as shown 
+on [this page](http://msdn.microsoft.com/en-us/library/vstudio/hh225374.aspx).  All of the queries run correctly
+with FSharpComposableQuery and produce the same answers as the main implementation of F# query.  This 
+is because FSharpComposableQuery leaves query operations it doesn't recognize in place.
+
 *)
 
 [<Literal>]
@@ -80,31 +86,29 @@ query {
 (**
 last query operator.
 *)
-let result3 =
-    *)
+query {
         for s in data do
         sortBy s
         last
-        }
-printfn "Last: %d" result3
+        } 
+|> printfn "Last: %d" 
 
 
 (**
 lastOrDefault query operator.
 *)
-let result4 =
-    *)
+query {
             for number in data do
             sortBy number
             lastOrDefault
-            }
-result4 |> printfn "lastOrDefault: %d"
+            }  
+|> printfn "lastOrDefault: %d"
 
 (**
 exactlyOne query operator
 *)
 let student2 =
-    *)
+    query {
         for student in db.Student do
         where (student.StudentID = 1)
         select student
@@ -116,7 +120,7 @@ printfn "Student with StudentID = 1 is %s" student2.Name
 exactlyOneOrDefault query operator
 *)
 let student3 =
-    *)
+    query {
         for student in db.Student do
         where (student.StudentID = 1)
         select student
@@ -128,7 +132,7 @@ printfn "Student with StudentID = 1 is %s" student3.Name
 headOrDefault query operator
 *)
 let student4 =
-    *)
+    query {
         for student in db.Student do
         select student
         headOrDefault
@@ -138,33 +142,30 @@ printfn "head student is %s" student4.Name
 (**
 select query operator
 *)
-let select5 = 
-    *)
+query {
         for (student:schema.ServiceTypes.Student) in db.Student do
         select student
         }
-select5 |> Seq.iter (fun (student:schema.ServiceTypes.Student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
+|> Seq.iter (fun (student:schema.ServiceTypes.Student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
 (**
 where query operator
 *)
-let select6 = 
-    *)
+query {
         for student in db.Student do
         where (student.StudentID > 4)
         select student
         }
-select6 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
+|> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
 (**
 minBy query operator
 *)
 let student5 =
-    *)
+    query {
         for student in db.Student do
         minBy student.StudentID
     }
-
 (**
 maxBy query operator
 *)
@@ -177,7 +178,7 @@ let student6 =
 (**
 groupBy query operator.
 *)
-*)
+query {
     for student in db.Student do
     groupBy student.Age into g
     select (g.Key, g.Count())
@@ -597,8 +598,8 @@ query {
 
 (**
 Searching for names from a list
-let names = [|"a";"b";"c"|]
 *)
+let names = [|"a";"b";"c"|]
 query {
     for student in db.Student do
     if names.Contains (student.Name) then select student }
@@ -769,7 +770,7 @@ query {
 
 
 (**
- Multiple table select
+Multiple table select
 *)
 query {
         for student in db.Student do

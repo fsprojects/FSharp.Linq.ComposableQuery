@@ -577,3 +577,6 @@ module TopLevelValues =
     
     query.initMi()
 
+    let runQuery q = query { for x in (%q) do yield x }
+
+

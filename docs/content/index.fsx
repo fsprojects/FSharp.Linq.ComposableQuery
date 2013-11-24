@@ -10,7 +10,7 @@ let ConnectionString =
 
 (**
 FSharpComposableQuery
-===================
+=====================
 
 (__work in progress__)
 
@@ -28,7 +28,7 @@ FSharpComposableQuery
 <img src="img/logo.png" alt="F# Project" style="float:right;width:150px;margin:10px" />
 
 Overview
--------
+--------
 
 When you open 'FSharpComposableQuery', a new 'query' builder is available. The old F# query builder 
 is out-scoped, but can still be accessed as 'Microsoft.FSharp.Core.ExtraTopLevelOperators.query'.
