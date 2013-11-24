@@ -253,6 +253,64 @@ involved grows, keeping the different parameters and constraints straight become
 way of defining a query such as compose means that the logical meaning of the query is easy to see by reading the code, 
 and the FSharpComposableQuery library does the work of normalizing the query to a form that an SQL database can evaluate
 efficiently.</p>
+<h2>Higher-order parameters</h2>
+
+<p>FSharpComposableQuery lifts the restriction that the parameters to a query have to be of base type: instead,
+they can be higher-order functions.<br />
+(Actually, F# does handle some higher-order functions, but FSharpComposableQuery provides a stronger guarantee
+of good behavior.)</p>
+
+<p>For example, we can define a query combinator that takes a function</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs52', 147)" onmouseover="showTip(event, 'fs52', 147)" class="i">satisfies</span>  <span class="o">=</span> 
+ &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs53', 148)" onmouseover="showTip(event, 'fs53', 148)" class="i">p</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 149)" onmouseover="showTip(event, 'fs8', 149)" class="i">query</span> { 
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 150)" onmouseover="showTip(event, 'fs29', 150)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 151)" onmouseover="showTip(event, 'fs16', 151)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 152)" onmouseover="showTip(event, 'fs30', 152)" class="i">People</span> <span class="k">do</span>
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs53', 153)" onmouseover="showTip(event, 'fs53', 153)" class="i">p</span> <span onmouseout="hideTip(event, 'fs29', 154)" onmouseover="showTip(event, 'fs29', 154)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 155)" onmouseover="showTip(event, 'fs31', 155)" class="i">Age</span> 
+    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 156)" onmouseover="showTip(event, 'fs29', 156)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 157)" onmouseover="showTip(event, 'fs32', 157)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 158)" onmouseover="showTip(event, 'fs29', 158)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 159)" onmouseover="showTip(event, 'fs31', 159)" class="i">Age</span>}
+   } @&gt;
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs54', 160)" onmouseover="showTip(event, 'fs54', 160)" class="i">ex3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 161)" onmouseover="showTip(event, 'fs41', 161)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 162)" onmouseover="showTip(event, 'fs52', 162)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 163)" onmouseover="showTip(event, 'fs55', 163)" class="i">x</span> <span class="k">-&gt;</span> <span class="n">20</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs55', 164)" onmouseover="showTip(event, 'fs55', 164)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs55', 165)" onmouseover="showTip(event, 'fs55', 165)" class="i">x</span> <span class="o">&lt;</span> <span class="n">30</span> ) @&gt;
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs56', 166)" onmouseover="showTip(event, 'fs56', 166)" class="i">ex4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 167)" onmouseover="showTip(event, 'fs41', 167)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 168)" onmouseover="showTip(event, 'fs52', 168)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 169)" onmouseover="showTip(event, 'fs55', 169)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs55', 170)" onmouseover="showTip(event, 'fs55', 170)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) @&gt;</pre>
+</td>
+</tr>
+</table><p>This is subject to some side-conditions: basically, the function you pass into a higher-order query combinator
+may only perform operations that are sensible on the database; recursion and side-effects such as printing are not allowed,
+and will result in a run-time error.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs57', 171)" onmouseover="showTip(event, 'fs57', 171)" class="i">wrong1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 172)" onmouseover="showTip(event, 'fs41', 172)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 173)" onmouseover="showTip(event, 'fs52', 173)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 174)" onmouseover="showTip(event, 'fs58', 174)" class="i">age</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs59', 175)" onmouseover="showTip(event, 'fs59', 175)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs58', 176)" onmouseover="showTip(event, 'fs58', 176)" class="i">age</span>; <span class="k">true</span>) @&gt;
+
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs60', 177)" onmouseover="showTip(event, 'fs60', 177)" class="i">even</span> <span onmouseout="hideTip(event, 'fs61', 178)" onmouseover="showTip(event, 'fs61', 178)" class="i">n</span> <span class="o">=</span> <span class="k">if</span> <span onmouseout="hideTip(event, 'fs61', 179)" onmouseover="showTip(event, 'fs61', 179)" class="i">n</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="k">true</span>
+                 <span class="k">else</span> <span class="k">if</span> <span onmouseout="hideTip(event, 'fs61', 180)" onmouseover="showTip(event, 'fs61', 180)" class="i">n</span> <span class="o">=</span> <span class="n">1</span> <span class="k">then</span> <span class="k">false</span>
+                 <span class="k">else</span> <span onmouseout="hideTip(event, 'fs60', 181)" onmouseover="showTip(event, 'fs60', 181)" class="i">even</span>(<span onmouseout="hideTip(event, 'fs61', 182)" onmouseover="showTip(event, 'fs61', 182)" class="i">n</span><span class="o">-</span><span class="n">2</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs62', 183)" onmouseover="showTip(event, 'fs62', 183)" class="i">wrong2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 184)" onmouseover="showTip(event, 'fs41', 184)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 185)" onmouseover="showTip(event, 'fs52', 185)" class="i">satisfies</span>) <span onmouseout="hideTip(event, 'fs60', 186)" onmouseover="showTip(event, 'fs60', 186)" class="i">even</span> @&gt;</pre>
+</td>
+</tr>
+</table><p>Note that wrong2 is morally equivalent to ex4 above (provided ages are nonnegative), but is not allowed.  The library
+is not smart enough to determine that the parameter passed into satisfies is equivalent to an operation that
+can be performed on the database (using modular arithmetic); you have to do this yourself.</p>
 
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
@@ -305,6 +363,17 @@ efficiently.</p>
 <div class="tip" id="fs49">val composeMonolithic : Quotations.Expr&lt;(string -&gt; string -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.composeMonolithic</div>
 <div class="tip" id="fs50">val u1 : dbSchema.ServiceTypes.People</div>
 <div class="tip" id="fs51">val u2 : dbSchema.ServiceTypes.People</div>
+<div class="tip" id="fs52">val satisfies : Quotations.Expr&lt;((int -&gt; bool) -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.satisfies</div>
+<div class="tip" id="fs53">val p : (int -&gt; bool)</div>
+<div class="tip" id="fs54">val ex3 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex3</div>
+<div class="tip" id="fs55">val x : int</div>
+<div class="tip" id="fs56">val ex4 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex4</div>
+<div class="tip" id="fs57">val wrong1 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrong1</div>
+<div class="tip" id="fs58">val age : int</div>
+<div class="tip" id="fs59">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs60">val even : n:int -&gt; bool<br /><br />Full name: Tutorial.even</div>
+<div class="tip" id="fs61">val n : int</div>
+<div class="tip" id="fs62">val wrong2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrong2</div>
 
         </div>
         <div class="span3">
