@@ -155,6 +155,37 @@ to obntain the set fo people with age between two bounds, you can create a query
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 71)" onmouseover="showTip(event, 'fs35', 71)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 72)" onmouseover="showTip(event, 'fs8', 72)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs36', 73)" onmouseover="showTip(event, 'fs36', 73)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 74)" onmouseover="showTip(event, 'fs34', 74)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs36', 75)" onmouseover="showTip(event, 'fs36', 75)" class="i">x</span>}</pre>
 </td>
 </tr>
+</table><h2>The RunQuery operator</h2>
+
+<p>It's a little awkward to evaluate composite queries due to the fact that we can't splice them directly into 
+the query brackets: this typechecks, but doesn't do the right thing.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 76)" onmouseover="showTip(event, 'fs37', 76)" class="i">wrongEx2</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs38', 77)" onmouseover="showTip(event, 'fs38', 77)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 78)" onmouseover="showTip(event, 'fs39', 78)" class="i">Linq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 79)" onmouseover="showTip(event, 'fs40', 79)" class="i">IQueryable</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs21', 80)" onmouseover="showTip(event, 'fs21', 80)" class="i">PeopleR</span><span class="o">&gt;</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 81)" onmouseover="showTip(event, 'fs8', 81)" class="i">query</span> { (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 82)" onmouseover="showTip(event, 'fs34', 82)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> }</pre>
+</td>
+</tr>
+</table><p>To simplify the use of composite queries, we define the following convenience operation that 
+evaluates a quoted query result directly:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 83)" onmouseover="showTip(event, 'fs41', 83)" class="i">runQuery</span> <span onmouseout="hideTip(event, 'fs42', 84)" onmouseover="showTip(event, 'fs42', 84)" class="i">q</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 85)" onmouseover="showTip(event, 'fs8', 85)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs43', 86)" onmouseover="showTip(event, 'fs43', 86)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs42', 87)" onmouseover="showTip(event, 'fs42', 87)" class="i">q</span>) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs43', 88)" onmouseover="showTip(event, 'fs43', 88)" class="i">x</span> }</pre>
+</td>
+</tr>
+</table><p>Then, we can equivalently just do:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 89)" onmouseover="showTip(event, 'fs44', 89)" class="i">ex2again</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 90)" onmouseover="showTip(event, 'fs41', 90)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 91)" onmouseover="showTip(event, 'fs34', 91)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> @&gt;</pre>
+</td>
+</tr>
 </table>
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
@@ -192,6 +223,14 @@ to obntain the set fo people with age between two bounds, you can create a query
 <div class="tip" id="fs34">val range : Quotations.Expr&lt;(int -&gt; int -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.range</div>
 <div class="tip" id="fs35">val ex2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex2</div>
 <div class="tip" id="fs36">val x : PeopleR</div>
+<div class="tip" id="fs37">val wrongEx2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrongEx2</div>
+<div class="tip" id="fs38">namespace System</div>
+<div class="tip" id="fs39">namespace System.Linq</div>
+<div class="tip" id="fs40">Multiple items<br />type IQueryable =<br />&#160;&#160;member ElementType : Type<br />&#160;&#160;member Expression : Expression<br />&#160;&#160;member Provider : IQueryProvider<br /><br />Full name: System.Linq.IQueryable<br /><br />--------------------<br />type IQueryable&lt;&#39;T&gt; =<br /><br />Full name: System.Linq.IQueryable&lt;_&gt;</div>
+<div class="tip" id="fs41">val runQuery : q:Quotations.Expr&lt;#System.Linq.IQueryable&lt;&#39;b&gt;&gt; -&gt; System.Linq.IQueryable&lt;&#39;b&gt;<br /><br />Full name: Tutorial.runQuery</div>
+<div class="tip" id="fs42">val q : Quotations.Expr&lt;#System.Linq.IQueryable&lt;&#39;b&gt;&gt;</div>
+<div class="tip" id="fs43">val x : &#39;b</div>
+<div class="tip" id="fs44">val ex2again : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex2again</div>
 
         </div>
         <div class="span3">
