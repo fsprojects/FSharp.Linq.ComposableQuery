@@ -311,7 +311,117 @@ and will result in a run-time error.</p>
 </table><p>Note that wrong2 is morally equivalent to ex4 above (provided ages are nonnegative), but is not allowed.  The library
 is not smart enough to determine that the parameter passed into satisfies is equivalent to an operation that
 can be performed on the database (using modular arithmetic); you have to do this yourself.</p>
+<h2>Building queries using recursion</h2>
 
+<p>Although recursion is not allowed <em>within</em> a query, you can still use recursion to <em>build</em> a query.</p>
+
+<p>Consider the following datatype defining some Boolean predicates on ages:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs63', 187)" onmouseover="showTip(event, 'fs63', 187)" class="i">Predicate</span> <span class="o">=</span> 
+  | <span onmouseout="hideTip(event, 'fs64', 188)" onmouseover="showTip(event, 'fs64', 188)" class="i">Above</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs25', 189)" onmouseover="showTip(event, 'fs25', 189)" class="i">int</span>
+  | <span onmouseout="hideTip(event, 'fs65', 190)" onmouseover="showTip(event, 'fs65', 190)" class="i">Below</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs25', 191)" onmouseover="showTip(event, 'fs25', 191)" class="i">int</span>
+  | <span onmouseout="hideTip(event, 'fs66', 192)" onmouseover="showTip(event, 'fs66', 192)" class="i">And</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs63', 193)" onmouseover="showTip(event, 'fs63', 193)" class="i">Predicate</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs63', 194)" onmouseover="showTip(event, 'fs63', 194)" class="i">Predicate</span>
+  | <span onmouseout="hideTip(event, 'fs67', 195)" onmouseover="showTip(event, 'fs67', 195)" class="i">Or</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs63', 196)" onmouseover="showTip(event, 'fs63', 196)" class="i">Predicate</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs63', 197)" onmouseover="showTip(event, 'fs63', 197)" class="i">Predicate</span>
+  | <span onmouseout="hideTip(event, 'fs68', 198)" onmouseover="showTip(event, 'fs68', 198)" class="i">Not</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs63', 199)" onmouseover="showTip(event, 'fs63', 199)" class="i">Predicate</span></pre>
+</td>
+</tr>
+</table><p>For example, we can define the "in their 30s" predicate two different ways as follows:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs69', 200)" onmouseover="showTip(event, 'fs69', 200)" class="i">t0</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs63', 201)" onmouseover="showTip(event, 'fs63', 201)" class="i">Predicate</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs66', 202)" onmouseover="showTip(event, 'fs66', 202)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs64', 203)" onmouseover="showTip(event, 'fs64', 203)" class="i">Above</span> <span class="n">30</span>, <span onmouseout="hideTip(event, 'fs65', 204)" onmouseover="showTip(event, 'fs65', 204)" class="i">Below</span> <span class="n">40</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs70', 205)" onmouseover="showTip(event, 'fs70', 205)" class="i">t1</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs63', 206)" onmouseover="showTip(event, 'fs63', 206)" class="i">Predicate</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs68', 207)" onmouseover="showTip(event, 'fs68', 207)" class="i">Not</span>(<span onmouseout="hideTip(event, 'fs67', 208)" onmouseover="showTip(event, 'fs67', 208)" class="i">Or</span>(<span onmouseout="hideTip(event, 'fs65', 209)" onmouseover="showTip(event, 'fs65', 209)" class="i">Below</span> <span class="n">30</span>, <span onmouseout="hideTip(event, 'fs64', 210)" onmouseover="showTip(event, 'fs64', 210)" class="i">Above</span> <span class="n">40</span>))</pre>
+</td>
+</tr>
+</table><p>We can define an evaluator that takes a predicate and produces a <em>parameterized query</em> as follows:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs71', 211)" onmouseover="showTip(event, 'fs71', 211)" class="i">eval</span>(<span onmouseout="hideTip(event, 'fs72', 212)" onmouseover="showTip(event, 'fs72', 212)" class="i">t</span>) <span class="o">=</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs72', 213)" onmouseover="showTip(event, 'fs72', 213)" class="i">t</span> <span class="k">with</span>
+  | <span onmouseout="hideTip(event, 'fs64', 214)" onmouseover="showTip(event, 'fs64', 214)" class="i">Above</span> <span onmouseout="hideTip(event, 'fs61', 215)" onmouseover="showTip(event, 'fs61', 215)" class="i">n</span> <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 216)" onmouseover="showTip(event, 'fs55', 216)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 217)" onmouseover="showTip(event, 'fs55', 217)" class="i">x</span> <span class="o">&gt;</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs61', 218)" onmouseover="showTip(event, 'fs61', 218)" class="i">n</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs65', 219)" onmouseover="showTip(event, 'fs65', 219)" class="i">Below</span> <span onmouseout="hideTip(event, 'fs61', 220)" onmouseover="showTip(event, 'fs61', 220)" class="i">n</span> <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 221)" onmouseover="showTip(event, 'fs55', 221)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 222)" onmouseover="showTip(event, 'fs55', 222)" class="i">x</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs61', 223)" onmouseover="showTip(event, 'fs61', 223)" class="i">n</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs66', 224)" onmouseover="showTip(event, 'fs66', 224)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs73', 225)" onmouseover="showTip(event, 'fs73', 225)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 226)" onmouseover="showTip(event, 'fs74', 226)" class="i">t2</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 227)" onmouseover="showTip(event, 'fs55', 227)" class="i">x</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 228)" onmouseover="showTip(event, 'fs71', 228)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs73', 229)" onmouseover="showTip(event, 'fs73', 229)" class="i">t1</span>) <span onmouseout="hideTip(event, 'fs55', 230)" onmouseover="showTip(event, 'fs55', 230)" class="i">x</span> <span class="o">&amp;&amp;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 231)" onmouseover="showTip(event, 'fs71', 231)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs74', 232)" onmouseover="showTip(event, 'fs74', 232)" class="i">t2</span>) <span onmouseout="hideTip(event, 'fs55', 233)" onmouseover="showTip(event, 'fs55', 233)" class="i">x</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs67', 234)" onmouseover="showTip(event, 'fs67', 234)" class="i">Or</span> (<span onmouseout="hideTip(event, 'fs73', 235)" onmouseover="showTip(event, 'fs73', 235)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 236)" onmouseover="showTip(event, 'fs74', 236)" class="i">t2</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 237)" onmouseover="showTip(event, 'fs55', 237)" class="i">x</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 238)" onmouseover="showTip(event, 'fs71', 238)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs73', 239)" onmouseover="showTip(event, 'fs73', 239)" class="i">t1</span>) <span onmouseout="hideTip(event, 'fs55', 240)" onmouseover="showTip(event, 'fs55', 240)" class="i">x</span> <span class="o">||</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 241)" onmouseover="showTip(event, 'fs71', 241)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs74', 242)" onmouseover="showTip(event, 'fs74', 242)" class="i">t2</span>) <span onmouseout="hideTip(event, 'fs55', 243)" onmouseover="showTip(event, 'fs55', 243)" class="i">x</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs68', 244)" onmouseover="showTip(event, 'fs68', 244)" class="i">Not</span> (<span onmouseout="hideTip(event, 'fs75', 245)" onmouseover="showTip(event, 'fs75', 245)" class="i">t0</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 246)" onmouseover="showTip(event, 'fs55', 246)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs76', 247)" onmouseover="showTip(event, 'fs76', 247)" class="i">not</span>((<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 248)" onmouseover="showTip(event, 'fs71', 248)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs75', 249)" onmouseover="showTip(event, 'fs75', 249)" class="i">t0</span>) <span onmouseout="hideTip(event, 'fs55', 250)" onmouseover="showTip(event, 'fs55', 250)" class="i">x</span>) @&gt;</pre>
+</td>
+</tr>
+</table><p>Notice that given a predicate t, the return value of this function is a quoted function that takes an integer
+and returns a boolean.  Moreover, all of the operations we used are Boolean or arithmetic comparisons that any
+database can handle in queries.</p>
+<p>So, we can plug the predicate obtained from evaluation into the satisfies query combinator, as follows:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs77', 251)" onmouseover="showTip(event, 'fs77', 251)" class="i">ex6</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 252)" onmouseover="showTip(event, 'fs41', 252)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 253)" onmouseover="showTip(event, 'fs52', 253)" class="i">satisfies</span>) (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 254)" onmouseover="showTip(event, 'fs71', 254)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs69', 255)" onmouseover="showTip(event, 'fs69', 255)" class="i">t0</span>) @&gt;
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs78', 256)" onmouseover="showTip(event, 'fs78', 256)" class="i">ex7</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 257)" onmouseover="showTip(event, 'fs41', 257)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 258)" onmouseover="showTip(event, 'fs52', 258)" class="i">satisfies</span>) (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 259)" onmouseover="showTip(event, 'fs71', 259)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs70', 260)" onmouseover="showTip(event, 'fs70', 260)" class="i">t1</span>) @&gt;</pre>
+</td>
+</tr>
+</table><p>Why is this allowed, even though eval is recursive?<br />
+Again, notice that although the (%eval t0) computes a quotation .  This all happens before satisfies starts 
+working on the</p>
+
+<p>Had we instead tried it in this, simpler way:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs79', 261)" onmouseover="showTip(event, 'fs79', 261)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs72', 262)" onmouseover="showTip(event, 'fs72', 262)" class="i">t</span> <span onmouseout="hideTip(event, 'fs55', 263)" onmouseover="showTip(event, 'fs55', 263)" class="i">x</span> <span class="o">=</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs72', 264)" onmouseover="showTip(event, 'fs72', 264)" class="i">t</span> <span class="k">with</span>
+  | <span onmouseout="hideTip(event, 'fs64', 265)" onmouseover="showTip(event, 'fs64', 265)" class="i">Above</span> <span onmouseout="hideTip(event, 'fs61', 266)" onmouseover="showTip(event, 'fs61', 266)" class="i">n</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 267)" onmouseover="showTip(event, 'fs55', 267)" class="i">x</span> <span class="o">&gt;</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs61', 268)" onmouseover="showTip(event, 'fs61', 268)" class="i">n</span>
+  | <span onmouseout="hideTip(event, 'fs65', 269)" onmouseover="showTip(event, 'fs65', 269)" class="i">Below</span> <span onmouseout="hideTip(event, 'fs61', 270)" onmouseover="showTip(event, 'fs61', 270)" class="i">n</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 271)" onmouseover="showTip(event, 'fs55', 271)" class="i">x</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs61', 272)" onmouseover="showTip(event, 'fs61', 272)" class="i">n</span>
+  | <span onmouseout="hideTip(event, 'fs66', 273)" onmouseover="showTip(event, 'fs66', 273)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs73', 274)" onmouseover="showTip(event, 'fs73', 274)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 275)" onmouseover="showTip(event, 'fs74', 275)" class="i">t2</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 276)" onmouseover="showTip(event, 'fs79', 276)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs73', 277)" onmouseover="showTip(event, 'fs73', 277)" class="i">t1</span> <span onmouseout="hideTip(event, 'fs55', 278)" onmouseover="showTip(event, 'fs55', 278)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs79', 279)" onmouseover="showTip(event, 'fs79', 279)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs74', 280)" onmouseover="showTip(event, 'fs74', 280)" class="i">t2</span> <span onmouseout="hideTip(event, 'fs55', 281)" onmouseover="showTip(event, 'fs55', 281)" class="i">x</span>
+  | <span onmouseout="hideTip(event, 'fs67', 282)" onmouseover="showTip(event, 'fs67', 282)" class="i">Or</span> (<span onmouseout="hideTip(event, 'fs73', 283)" onmouseover="showTip(event, 'fs73', 283)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 284)" onmouseover="showTip(event, 'fs74', 284)" class="i">t2</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 285)" onmouseover="showTip(event, 'fs79', 285)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs73', 286)" onmouseover="showTip(event, 'fs73', 286)" class="i">t1</span> <span onmouseout="hideTip(event, 'fs55', 287)" onmouseover="showTip(event, 'fs55', 287)" class="i">x</span> <span class="o">||</span> <span onmouseout="hideTip(event, 'fs79', 288)" onmouseover="showTip(event, 'fs79', 288)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs74', 289)" onmouseover="showTip(event, 'fs74', 289)" class="i">t2</span> <span onmouseout="hideTip(event, 'fs55', 290)" onmouseover="showTip(event, 'fs55', 290)" class="i">x</span> 
+  | <span onmouseout="hideTip(event, 'fs68', 291)" onmouseover="showTip(event, 'fs68', 291)" class="i">Not</span> (<span onmouseout="hideTip(event, 'fs75', 292)" onmouseover="showTip(event, 'fs75', 292)" class="i">t0</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs76', 293)" onmouseover="showTip(event, 'fs76', 293)" class="i">not</span>(<span onmouseout="hideTip(event, 'fs79', 294)" onmouseover="showTip(event, 'fs79', 294)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs75', 295)" onmouseover="showTip(event, 'fs75', 295)" class="i">t0</span> <span onmouseout="hideTip(event, 'fs55', 296)" onmouseover="showTip(event, 'fs55', 296)" class="i">x</span>)
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs80', 297)" onmouseover="showTip(event, 'fs80', 297)" class="i">wrongEx6</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 298)" onmouseover="showTip(event, 'fs41', 298)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 299)" onmouseover="showTip(event, 'fs52', 299)" class="i">satisfies</span>) (<span onmouseout="hideTip(event, 'fs79', 300)" onmouseover="showTip(event, 'fs79', 300)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs70', 301)" onmouseover="showTip(event, 'fs70', 301)" class="i">t1</span>) @&gt;</pre>
+</td>
+</tr>
+</table><p>then we would run into the same problem as before, because we would be trying to run satisfies on quoted
+  code containing recursive calls, which is not allowed.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="o">*</span>)</pre>
+</td>
+</tr>
+</table>
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
 <div class="tip" id="fs3">namespace Microsoft.FSharp.Data</div>
@@ -374,6 +484,24 @@ can be performed on the database (using modular arithmetic); you have to do this
 <div class="tip" id="fs60">val even : n:int -&gt; bool<br /><br />Full name: Tutorial.even</div>
 <div class="tip" id="fs61">val n : int</div>
 <div class="tip" id="fs62">val wrong2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrong2</div>
+<div class="tip" id="fs63">type Predicate =<br />&#160;&#160;| Above of int<br />&#160;&#160;| Below of int<br />&#160;&#160;| And of Predicate * Predicate<br />&#160;&#160;| Or of Predicate * Predicate<br />&#160;&#160;| Not of Predicate<br /><br />Full name: Tutorial.Predicate</div>
+<div class="tip" id="fs64">union case Predicate.Above: int -&gt; Predicate</div>
+<div class="tip" id="fs65">union case Predicate.Below: int -&gt; Predicate</div>
+<div class="tip" id="fs66">union case Predicate.And: Predicate * Predicate -&gt; Predicate</div>
+<div class="tip" id="fs67">union case Predicate.Or: Predicate * Predicate -&gt; Predicate</div>
+<div class="tip" id="fs68">union case Predicate.Not: Predicate -&gt; Predicate</div>
+<div class="tip" id="fs69">val t0 : Predicate<br /><br />Full name: Tutorial.t0</div>
+<div class="tip" id="fs70">val t1 : Predicate<br /><br />Full name: Tutorial.t1</div>
+<div class="tip" id="fs71">val eval : t:Predicate -&gt; Quotations.Expr&lt;(int -&gt; bool)&gt;<br /><br />Full name: Tutorial.eval</div>
+<div class="tip" id="fs72">val t : Predicate</div>
+<div class="tip" id="fs73">val t1 : Predicate</div>
+<div class="tip" id="fs74">val t2 : Predicate</div>
+<div class="tip" id="fs75">val t0 : Predicate</div>
+<div class="tip" id="fs76">val not : value:bool -&gt; bool<br /><br />Full name: Microsoft.FSharp.Core.Operators.not</div>
+<div class="tip" id="fs77">val ex6 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex6</div>
+<div class="tip" id="fs78">val ex7 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex7</div>
+<div class="tip" id="fs79">val wrongEval : t:Predicate -&gt; x:int -&gt; bool<br /><br />Full name: Tutorial.wrongEval</div>
+<div class="tip" id="fs80">val wrongEx6 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrongEx6</div>
 
         </div>
         <div class="span3">
