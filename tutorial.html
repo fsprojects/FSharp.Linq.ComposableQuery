@@ -132,6 +132,29 @@ to obntain the set fo people with age between two bounds, you can create a query
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 50)" onmouseover="showTip(event, 'fs33', 50)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 51)" onmouseover="showTip(event, 'fs26', 51)" class="i">range1</span> <span class="n">30</span> <span class="n">40</span></pre>
 </td>
 </tr>
+</table><p>However, doing it this way is not especially reusable, and we recommend doing it this way instead:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 52)" onmouseover="showTip(event, 'fs34', 52)" class="i">range</span> <span class="o">=</span> &lt;@ <span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs27', 53)" onmouseover="showTip(event, 'fs27', 53)" class="i">a</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 54)" onmouseover="showTip(event, 'fs25', 54)" class="i">int</span>) (<span onmouseout="hideTip(event, 'fs28', 55)" onmouseover="showTip(event, 'fs28', 55)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 56)" onmouseover="showTip(event, 'fs25', 56)" class="i">int</span>) <span class="k">-&gt;</span> 
+  <span onmouseout="hideTip(event, 'fs8', 57)" onmouseover="showTip(event, 'fs8', 57)" class="i">query</span> {
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 58)" onmouseover="showTip(event, 'fs29', 58)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 59)" onmouseover="showTip(event, 'fs16', 59)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 60)" onmouseover="showTip(event, 'fs30', 60)" class="i">People</span> <span class="k">do</span>
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs27', 61)" onmouseover="showTip(event, 'fs27', 61)" class="i">a</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs29', 62)" onmouseover="showTip(event, 'fs29', 62)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 63)" onmouseover="showTip(event, 'fs31', 63)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs29', 64)" onmouseover="showTip(event, 'fs29', 64)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 65)" onmouseover="showTip(event, 'fs31', 65)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs28', 66)" onmouseover="showTip(event, 'fs28', 66)" class="i">b</span> 
+    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 67)" onmouseover="showTip(event, 'fs29', 67)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 68)" onmouseover="showTip(event, 'fs32', 68)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 69)" onmouseover="showTip(event, 'fs29', 69)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 70)" onmouseover="showTip(event, 'fs31', 70)" class="i">Age</span>}
+    }  @&gt;
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 71)" onmouseover="showTip(event, 'fs35', 71)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 72)" onmouseover="showTip(event, 'fs8', 72)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs36', 73)" onmouseover="showTip(event, 'fs36', 73)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 74)" onmouseover="showTip(event, 'fs34', 74)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs36', 75)" onmouseover="showTip(event, 'fs36', 75)" class="i">x</span>}</pre>
+</td>
+</tr>
 </table>
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
@@ -166,6 +189,9 @@ to obntain the set fo people with age between two bounds, you can create a query
 <div class="tip" id="fs31">property dbSchema.ServiceTypes.People.Age: int</div>
 <div class="tip" id="fs32">property dbSchema.ServiceTypes.People.Name: string</div>
 <div class="tip" id="fs33">val ex1 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex1</div>
+<div class="tip" id="fs34">val range : Quotations.Expr&lt;(int -&gt; int -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.range</div>
+<div class="tip" id="fs35">val ex2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex2</div>
+<div class="tip" id="fs36">val x : PeopleR</div>
 
         </div>
         <div class="span3">
