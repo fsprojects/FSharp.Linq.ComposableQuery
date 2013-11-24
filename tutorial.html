@@ -155,7 +155,7 @@ to obntain the set fo people with age between two bounds, you can create a query
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 71)" onmouseover="showTip(event, 'fs35', 71)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 72)" onmouseover="showTip(event, 'fs8', 72)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs36', 73)" onmouseover="showTip(event, 'fs36', 73)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 74)" onmouseover="showTip(event, 'fs34', 74)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs36', 75)" onmouseover="showTip(event, 'fs36', 75)" class="i">x</span>}</pre>
 </td>
 </tr>
-</table><p>The first approach only works if the parameters are constants of base type.
+</table><p>The reason is that the first approach only works if the parameters are constants of base type.
 The second is more flexible.</p>
 <h2>The RunQuery operator</h2>
 
@@ -188,9 +188,7 @@ evaluates a quoted query result directly:</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 89)" onmouseover="showTip(event, 'fs44', 89)" class="i">ex2again</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 90)" onmouseover="showTip(event, 'fs41', 90)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 91)" onmouseover="showTip(event, 'fs34', 91)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> @&gt;</pre>
 </td>
 </tr>
-</table><p>Semicolons are a useful punctuation symbol in English; 
-unfortunately, FSharp.Literate fails if you use one at the end of a line inside a comment.</p>
-
+</table>
 <div class="tip" id="fs1">namespace Microsoft</div>
 <div class="tip" id="fs2">namespace Microsoft.FSharp</div>
 <div class="tip" id="fs3">namespace Microsoft.FSharp.Data</div>
