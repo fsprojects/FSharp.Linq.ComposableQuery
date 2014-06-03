@@ -14,6 +14,8 @@ open Microsoft.FSharp.Linq
 open FSharpComposableQuery
 
 
+
+
 [<Literal>]
 let ConnectionString = 
   "Data Source=(localdb)\MyInstance;\
@@ -393,7 +395,18 @@ query {
     }
 |>  (fun count -> printfn "Student count: %d" count)
 
+(* This example demonstrates the bug *)
 tagQuery()
+printfn "\nExists (bug)."
+query {
+        for student in db.Student do
+        where (query 
+                      { for courseSelection in db.CourseSelection do
+                        exists (courseSelection.StudentID = student.StudentID) })
+        select student }
+|> Seq.iter (fun student -> printfn "%A" student.Name)
+
+(* This example is the same as above but works, because we use ExtraTopLevelOperators.query *)
 printfn "\nExists."
 query {
         for student in db.Student do
