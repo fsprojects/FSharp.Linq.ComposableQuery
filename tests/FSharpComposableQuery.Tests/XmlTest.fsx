@@ -7,7 +7,10 @@
 #r "System.Xml.Linq.dll"
 #r "FSharp.PowerPack.Linq.dll"
 #load "Test.fsx"
+
 #endif
+
+#load "DbStrings.fs"
 
 open FSharpComposableQuery
 open Test
@@ -20,9 +23,7 @@ open Microsoft.FSharp.Linq.QuotationEvaluation
 open System.Xml.Linq
 
 
-[<Literal>]
-let connectionString = "Data Source=(localdb)\MyInstance;Initial Catalog=MyXml;Integrated Security=SSPI;"
-type schema = SqlDataConnection<connectionString>
+type schema = SqlDataConnection<FSharpComposableQuery.TestsDbStrings.xml>
 
 let db = schema.GetDataContext()
 
@@ -30,6 +31,7 @@ let db = schema.GetDataContext()
 
 let data = db.Data
 type Data = schema.ServiceTypes.Data
+
 let text = db.Text
 type Text = schema.ServiceTypes.Text
 
@@ -75,8 +77,10 @@ let rec traverseXml entry parent i (node:XNode) =
           text.InsertOnSubmit(t);
           i+1
        | _ -> i
+
 and traverseChildren entry parent i (xmls) = 
       Seq.fold (traverseXml entry parent) i xmls
+
 and traverseAttribute entry parent att = 
     let a = new Attribute() in
     a.Element <- parent;
@@ -110,6 +114,11 @@ let dropTables() =
 ;;
 
 let defaultXml = XElement.Parse "<a id='1'><b><c>foo</c></b><d><e/><f/></d></a>";;
+
+let loadBasicXml() =
+    dropTables()
+    insertXml 0 defaultXml
+
 
 
 type Axis = Self
@@ -225,6 +234,8 @@ let precedingsibling = Axis (Rev FollowingSibling)
 let (.%.) path name = Seq(path,Name name)
 let (.^.) path1 path2 = Seq(path1,Filter(path2))
 
+
+
 let pathQuery data (path) = 
   let rec pathQ' path = 
       match path with 
@@ -295,6 +306,7 @@ let xpath' i data path = <@ query { for row in %data do
 let countRows xs = printfn "%d" (Seq.length xs)
 let testXPath xp = 
   testAll (xpath 0 <@data@> xp) (xpath' 0 <@data@> xp) countRows
+
 let timeXPath xp = 
   timeAll (xpath 0 <@data@> xp) (xpath' 0 <@data@> xp) forceRows
 let timeXPath' xp = 
@@ -316,6 +328,9 @@ let xp2 = descendant ./. (Filter (followingsibling .%. "dirn"))
 let xp3 = descendant .%. "year" ./. Filter(ancestor ./. preceding .%. "dir")
 
 let doBasicTest() = 
+    printfn "Populating db"
+    loadBasicXml()
+
     printfn "xp0"
     //testXPath xp0
     timeXPath xp0

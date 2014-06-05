@@ -3,6 +3,7 @@
 #r "System.Data.dll"
 #r "System.Data.Linq.dll"
 #r "FSharp.PowerPack.Linq.dll"
+
 #r @"bin\Debug\FSharpComposableQuery.dll"
 
 #nowarn "62"
@@ -15,11 +16,16 @@ open System.Linq
 
 open FSharpComposableQuery
 
-
+// Gets the middle element of a list
 let median (l : float list) = 
-    if l.Length = 0 then -1.0
-    else List.nth l (l.Length / 2)
+    if l.Length = 0 then 
+        -1.0
+    else
+        List.nth l (l.Length / 2)
 
+
+// Runs a test n times and returns the first result 
+// paired w/ the median time taken for a test
 let timeIt n f = 
     let l = 
         List.map (fun _ -> 
@@ -31,21 +37,28 @@ let timeIt n f =
     let (vs, ts) = List.unzip l
     (List.head vs, median ts)
 
+
+// Runs a test n times and returns the result. 
+// TODO: purpose?
 let withDuration n f = 
     let returnValue, elapsed = timeIt n f
     returnValue, elapsed
 
+// Runs a test n times and prints the given message with the results 
 let duration n msg f = 
     let returnValue, elapsed = withDuration n f
     printfn "%s: \t %f ms" msg elapsed
     returnValue
-// Testing stuff
+
+
+// Runs a test once and returns whether it was successful, i.e. no Exception was thrown.
 let test msg f = try f ()
                      printfn "%s: \tSuccess" msg 
                  with exn -> printfn "%s: \tFailure %A" msg exn
 
 
-let testNaive msg (q:Expr<'T>) p = test msg (fun x -> q.Eval() |> p)
+
+//let testNaive msg (q:Expr<'T>) p = test msg (fun x -> q.Eval() |> p)
 let testFS2 msg (q:Expr<'T>) p = test msg (fun x -> q |> Query.query |> p)
 let testFS3 msg (q:Expr<'T>) p = test msg (fun x -> ExtraTopLevelOperators.query { for x in (%q) do yield x } |> p)
 //let testPLinq msg (q:Expr<seq<'T>>) p = test msg (fun x -> q |> runQuery |> p)
@@ -81,6 +94,7 @@ let timeFS3 msg (q:Expr<'T>) p = testTime msg (fun x -> timeFS3' q p)
 //let timePLinq msg (q:Expr<seq<'T>>) p = testTime msg (fun x -> timePLinq' q p)
 let timePLinqQ msg (q:Expr<'T>) p = testTime msg (fun x -> timePLinqQ' q p)
 //let timeNorm msg (q:Expr<'T>) = testTime msg (fun x -> timeNorm' q)
+
 
 let timeAll (q:Expr<seq<'T>>) (q':Expr<IQueryable<'T>>) (p:seq<'T> -> unit) = 
   //timeNaive "Naive" q p

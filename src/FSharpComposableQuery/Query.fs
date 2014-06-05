@@ -269,7 +269,7 @@ module QueryImpl =
             recognizeUnion exp// evil hack to compute method info efficiently
   #endif
                               
-            // store dummy MethodInfor records; replace them with real ones later
+            // store dummy MethodInfo records; replace them with real ones later
         let yieldMi = ref (getGenericMethodInfo <@@ id @@>)
         let zeroMi = ref  (getGenericMethodInfo <@@ id @@>)
         let forMi = ref (getGenericMethodInfo <@@ id @@>)
@@ -291,10 +291,28 @@ module QueryImpl =
           //sourceMi :=  ( getGenericMethodInfo <@@ this.Source @@>)
           let q = <@ query { if query{for x in [1] do exists(x=1)} then yield 1 }@> 
           let mi = match q with 
-                        Application (Lambda (_,Call (_, 
-                                                     _run,
-                                                     [Quote (Patterns.IfThenElse(Application (Lambda (_,
-                                                                                                      Call (_, x,_)),_),_,_))])),_)
+                        Application (Lambda (
+                                        _, 
+                                        Call (
+                                            _, 
+                                            _run,
+                                            [Quote (
+                                                Patterns.IfThenElse(
+                                                    Application (
+                                                        Lambda (
+                                                            _,
+                                                            Call (_, x,_)
+                                                        ),
+                                                        _
+                                                    ),
+                                                    _,
+                                                    _
+                                                )
+                                            )]
+                                        )
+                                    ),
+                                    _
+                                )
                         -> x.GetGenericMethodDefinition()
                       | _ -> raise NYI 
           runQueryAsValueMi :=  mi
@@ -329,9 +347,11 @@ module QueryImpl =
             else if methodInfo = applMi then AppLF
             else if methodInfo = !selectMi then  SelectF
             //else if methodInfo = !sourceMi then  SourceF
-            else if methodInfo = !runQueryAsValueMi then  RunQueryAsValueF
+            else if methodInfo = !runQueryAsValueMi then  
+                RunQueryAsValueF
 
-            else UnknownF
+            else
+                UnknownF
          
         member internal this.emptyExp ty = Expr.Call(Expr.Value this,(!zeroMi).MakeGenericMethod([|ty;IQueryableTy|]),[]) 
         member internal this.singletonExp (e:Expr) = Expr.Call(Expr.Value this,(!yieldMi).MakeGenericMethod( [|e.Type;IQueryableTy|] ), [e])
@@ -492,7 +512,10 @@ module QueryImpl =
                     getFunTy f.Type (fun ty _ -> 
                                      let x = fresh(new Var("x",ty)) 
                                      Comp(Singleton(App(from f,EVar x)),  x, from e))
-                | _,args -> Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
+//                | RunQueryAsValueF, [e;f] ->
+//                    raise NYI 
+                | _,args -> 
+                    Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
             from expr
 
 

@@ -3,9 +3,11 @@
 #r "System.Data.dll"
 #r "System.Data.Linq.dll"
 #r "FSharp.PowerPack.Linq.dll"
-#load "Test.fsx"
 
 #endif
+
+#load "Test.fsx"
+#load "DbStrings.fs"
 
 
 open FSharpComposableQuery
@@ -18,14 +20,7 @@ open Test
 // Define your library scripting code here
 
 
-
-[<Literal>]
-let ConnectionString = 
-  "Data Source=(localdb)\MyInstance;\
-   Initial Catalog=organisation;
-   Integrated Security=SSPI";;
-
-type dbSchema = SqlDataConnection<ConnectionString>;;
+type dbSchema = SqlDataConnection<FSharpComposableQuery.TestsDbStrings.org>;;
 let db = dbSchema.GetDataContext();;
 
 
@@ -85,6 +80,7 @@ let dropTables() =
   ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[employees] WHERE 1=1"))
   ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[tasks] WHERE 1=1"))
   ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[departments] WHERE 1=1"))
+  ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[contacts] WHERE 1=1"))
 ;;
 
    // Random data generator      
@@ -307,7 +303,7 @@ let doTestAbstraction d n a =
 ;;
 
 
-let doTestSweep ()= 
+let doTestSweep () = 
   let deptSizes = [4;40;400] in
   let abstractions = [0;10;100;1000] in
   let employees = [5000] in

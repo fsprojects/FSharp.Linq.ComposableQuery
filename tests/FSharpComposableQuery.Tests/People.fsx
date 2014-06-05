@@ -5,7 +5,10 @@
 #r "FSharp.PowerPack.Linq.dll"
 
 #load "Test.fsx"
+#load "DbStrings.fs"
+
 #endif
+
 
 open FSharpComposableQuery
 open Test
@@ -14,14 +17,7 @@ open Microsoft.FSharp.Quotations
 open System.Linq
 
 
-
-[<Literal>]
-let ConnectionString = 
-  "Data Source=(localdb)\MyInstance;\
-   Initial Catalog=MyPeople;
-   Integrated Security=SSPI";;
-
-type dbSchema = SqlDataConnection<ConnectionString>;;
+type dbSchema = SqlDataConnection<FSharpComposableQuery.TestsDbStrings.ppl>;;
 let db = dbSchema.GetDataContext();;
 //db.DataContext.Log <- System.Console.Out;;
 
@@ -94,7 +90,10 @@ let forcePeople x = Seq.iter (fun r -> ())    x
 
 type Result = {rname:string;diff:int}
 let printResult x = Seq.iter (fun r -> printfn "%s %i" r.rname r.diff)    x            
-let forceResult x = Seq.iter (fun r -> ())    x            
+let forceResult x = Seq.iter (fun r -> ())    x    
+
+
+// Example 1
 
 let differences = <@ seq {
               for c in db.Couples do
@@ -113,11 +112,11 @@ let differences' = <@ query {
               then yield {rname=w.Name; diff=w.Age - m.Age}
             } @>
 
-// example 1
 let ex1 = differences
 let ex1' = differences'
-//testAll ex1 ex1' printResult
-// SLOW timeAll ex1 ex1'  forceResult
+
+
+// Example 2
 
 let range = <@ fun (a:int) (b:int) -> 
   seq {
@@ -133,14 +132,11 @@ let range' = fun (a:int) (b:int) ->
     then yield {name=u.Name;age=u.Age}
     } 
 
-// Example 2
-
 let ex2 = <@ (%range) 30 40 @>
 let ex2' = <@ range' 30 40 @> 
 
-//testAll ex2 ex2' printPeople
-//timeAll ex2 ex2' forcePeople
 
+// Example 3
 
 let satisfies:Expr<(int -> bool) -> seq<PeopleR>> = 
   <@ fun p -> seq { 
@@ -157,22 +153,18 @@ let satisfies'  =
     then yield {name=u.Name;age=u.Age}
    } @>
 
-// example 3
-
 let ex3 = <@ (%satisfies) (fun x -> 30 <= x && x < 40) @>
 let ex3' = <@  (%satisfies') (fun x -> 20 <= x && x < 30 ) @>
-//testAll ex3 ex3' printPeople
-//timeAll ex3 ex3'  forcePeople
 
 
-// example 4
+// Example 4
 
 let ex4 = <@ (%satisfies) (fun x -> x % 2 = 0) @>
 let ex4' = <@ (%satisfies') (fun x ->  x % 2 = 0 ) @>
-//testAll ex4 ex4' printPeople
-//timeAll ex4 ex4' forcePeople
 
 
+
+// Example 5
 
 let ageFromName = 
   <@ fun s -> seq{
@@ -186,7 +178,6 @@ let compose : Expr<string -> string -> seq<PeopleR>> =
       for b in (%ageFromName) t do 
       yield! (%range) a b
   } @>
-
 
 
 let ageFromName' = 
@@ -203,14 +194,11 @@ let compose' : Expr<string -> string -> IQueryable<PeopleR>> =
   } @>
 
 
-// example 5
-
 let ex5 = <@ (%compose) "Eve" "Bob" @>
 let ex5' = <@  (%compose') "Eve" "Bob"  @> 
 
-//testAll ex5 ex5' printPeople
-//timeAll ex5 ex5' forcePeople
 
+// Example 6
 
 type Predicate = 
   | Above of int
@@ -231,20 +219,18 @@ let rec eval(t:Predicate) : Expr<int -> bool> =
   | Not (t0) -> <@ fun x -> not((%eval t0) x ) @>
 
 
-// example 6
 let ex6 = <@ (%satisfies) (%eval t0)@>
 let ex6' = <@ (%satisfies') (%eval t0) @>
-//testAll ex6 ex6' printPeople
-//timeAll ex6 ex6' forcePeople
 
-// example 7
+
+// Example 7
 
 let ex7 = <@ (%satisfies) (%eval t1)@>
 let ex7' = <@ (%satisfies') (%eval t1) @>
 
-//testAll ex7 ex7' printPeople
-//timeAll ex7 ex7' forcePeople
 
+
+// Runs all tests
 let doBasicTest() = 
     timeAll ex1 ex1' forcePeople
     printfn "ex2"
@@ -260,7 +246,7 @@ let doBasicTest() =
     printfn "ex7"
     timeAll ex7 ex7' forcePeople
 
-
+// Runs all tests, pre-populating the db with a given amount of randomised records
 let doTest n = 
     dropTables()
     addRandom n
@@ -279,7 +265,7 @@ let doTest n =
     printfn "ex7"
     timeAll ex7 ex7' forcePeople
 
-
+// NYI
 let doTest'()  =
 
     [("ex1",    timeAll' ex1 ex1' forcePeople);

@@ -41,7 +41,7 @@ let tags = "F# fsharp LINQ SQL database data query"
 // (<solutionFile>.sln is built during the building process)
 let solutionFile  = "FSharpComposableQuery"
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = ["tests/*/bin/*/FSharpComposableQuery*Tests*.dll"]
+let testAssemblies = ["tests/*/bin/Debug/FSharpComposableQuery*Tests*.exe"]
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted 
@@ -88,7 +88,9 @@ Target "CleanDocs" (fun _ ->
 // Build library & test project
 
 Target "Build" (fun _ ->
-    { BaseDirectories = [__SOURCE_DIRECTORY__]
+//    let bm = getbuil
+    { 
+      BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ solutionFile +       ".sln"
                    solutionFile + ".Tests.sln" ]
       Excludes = [] } 
@@ -100,19 +102,17 @@ Target "Build" (fun _ ->
 // Run the unit tests using test runner & kill test runner when complete
 
 Target "RunTests" (fun _ ->
-    let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
-    let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
-    ActivateFinalTarget "CloseTestRunner"
+//    let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
+//    let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
+//    ActivateFinalTarget "CloseTestRunner"
 
-    { BaseDirectories = [__SOURCE_DIRECTORY__]
+    { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = testAssemblies
       Excludes = [] } 
-    |> NUnit (fun p ->
+    |> MSTest.MSTest (fun p ->
         { p with
-            ToolPath = nunitPath
-            DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
+            })
 )
 
 FinalTarget "CloseTestRunner" (fun _ ->  
