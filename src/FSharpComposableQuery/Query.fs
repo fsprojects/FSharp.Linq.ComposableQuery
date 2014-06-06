@@ -289,8 +289,12 @@ module QueryImpl =
           whereMi :=  ( getGenericMethodInfo  <@@ this.Where @@>)
           selectMi :=  ( getGenericMethodInfo <@@ this.Select @@>)
           //sourceMi :=  ( getGenericMethodInfo <@@ this.Source @@>)
-          let q = <@ query { if query{for x in [1] do exists(x=1)} then yield 1 }@> 
-          let mi = match q with 
+          
+          let qNative = <@ query { if query{for x in [1] do exists(x=1)} then yield 1 }@> 
+//          printfn "%s" (this.prettyPrint 0 (this.fromExpr qNative.Raw))
+          let qOurs = <@ this { if this {for x in [1] do exists(x=1)} then yield 1 }@> 
+//          printfn "%s" (this.prettyPrint 0 (this.fromExpr qOurs.Raw))
+          let mi = match qOurs with 
                         Application (Lambda (
                                         _, 
                                         Call (
@@ -347,7 +351,7 @@ module QueryImpl =
             else if methodInfo = applMi then AppLF
             else if methodInfo = !selectMi then  SelectF
             //else if methodInfo = !sourceMi then  SourceF
-            else if methodInfo = !runQueryAsValueMi then  
+            else if methodInfo.Name = "RunQueryAsValue" then  //hack. Recognises all types of query operators
                 RunQueryAsValueF
 
             else
@@ -400,6 +404,35 @@ module QueryImpl =
             
             toExp exp
 
+
+        member internal this.prettyPrint(lvl : int) (exp : Exp) : string List = 
+            let s = (match exp with
+                | IntC x -> [string x]
+                | BoolC b -> [string b]
+                | StringC s -> [s]
+                | Unit -> ["null"]
+                | Tuple(_tty, es) -> ["Tuple:"] @ List.concat (List.map (this.prettyPrint 1) es)
+                | Proj(e, i) -> ["Proj"] @ (this.prettyPrint 1 e)
+                | IfThenElse(e, e1, e2) -> ["if"] @ (this.prettyPrint 1 e) @ ["then"] @ (this.prettyPrint 1 e1) @ ["else"] @ (this.prettyPrint 1 e2)
+                | EVar x -> [string x]
+                | ELet(x, e1, e2) -> ["Let"] @ (this.prettyPrint 1 e1) @ (this.prettyPrint 1 e2)
+                | BinOp(e1, binop, e2) -> (this.prettyPrint 0 e1) @ [string binop] @ (this.prettyPrint 0 e2)
+                | UnOp(unop, e) -> [(string unop)] @ (this.prettyPrint 1 e)
+                | Field(e, l) -> this.prettyPrint 0 e
+                | Record(rty, r) -> ["Record"]
+                | Lam(x, e) -> this.prettyPrint 0 e
+                | App(e1, e2) -> this.prettyPrint 0 e1
+                | Empty ty -> ["Empty"]
+                | Singleton e -> ["yield"] @ this.prettyPrint 1 e
+                | Comp(e2, x, e1) -> ["foreach var " + (string x) + " in:"] @ (this.prettyPrint 1 e2) @ ["do"] @ (this.prettyPrint 1 e1)
+                | Exists(e) -> ["Exists:"] @ this.prettyPrint 1 e
+                (*| Table(e,ty) -> this.sourceExp( e,ty)*)
+                | Table(e, _ty) -> ["Table:"] @ (this.prettyPrint 1 (this.fromExpr e))
+                | Unknown(unk, _, eopt, es) -> 
+                    (List.concat (List.map (this.prettyPrint 1) es))
+                | _ -> raise NYI)
+            s
+            |> List.map (fun x -> (String.replicate lvl "\t") + x)
 
 
         member internal this.fromExpr expr =
@@ -527,7 +560,7 @@ module QueryImpl =
     
         member internal this.NormRaw (exp:Expr<'T>) : Expr<'T> = 
             let e = this.fromExpr exp.Raw
-            //printfn "norm1 %A : %A" e (getType e)
+            printfn "%s" (String.concat System.Environment.NewLine ((this.prettyPrint 0 e)))
             let e' = nf e
             //printfn "norm2 %A : %A" e' (getType(e'))
             let expR = this.toExpr e'
