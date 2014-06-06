@@ -6,7 +6,6 @@ open Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [<TestClass>]
 type Tests() = 
-//    new() = { }
 
     [<TestMethod>]
     member this.``hello returns 42``() =
