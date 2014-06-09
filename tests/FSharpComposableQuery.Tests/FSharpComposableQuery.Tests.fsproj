@@ -82,7 +82,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
-    <Compile Include="Tests.fs" />
+    <Compile Include="TestExample.fs" />
     <None Include="packages.config" />
     <None Include="Test.fsx" />
     <None Include="People.fsx" />
@@ -92,7 +92,7 @@
     <Compile Include="QueryTests.fs" />
     <Compile Include="DbStrings.fs" />
     <None Include="App.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="RunTests.fs" />
   </ItemGroup>

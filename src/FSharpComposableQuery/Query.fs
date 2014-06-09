@@ -45,6 +45,7 @@ module QueryImpl =
     open System.Reflection
 
     open FSharpComposableQuery.Common
+    open FSharpComposableQuery
     open Helpers
 
 #if TIMING 
@@ -85,6 +86,7 @@ module QueryImpl =
         | UnknownF
 // TODO: Recognize and translate nested RunQueryAsValue
         | RunQueryAsValueF
+        | RunQueryAsValueNativeF
 
     type QueryBuilder() = 
         inherit Microsoft.FSharp.Linq.QueryBuilder()
@@ -278,7 +280,11 @@ module QueryImpl =
         let whereMi = ref (getGenericMethodInfo <@@ id @@>)
         let selectMi = ref (getGenericMethodInfo <@@ id @@>)
        // let sourceMi = ref(getGenericMethodInfo <@@ id @@>)
-        let runQueryAsValueMi = ref(getGenericMethodInfo <@@ id @@>)
+        let runQueryAsValueMi = ref(getGenericMethodInfo <@@ id @@>)        //unused at the moment
+        let runQueryAsValueNativeMi = ref(getGenericMethodInfo <@@ id @@>)
+
+        [<DefaultValue>]
+        val mutable internal runQueryDefaultBuilder : Expr
 
         member internal this.initMi() = 
           yieldMi :=  (getGenericMethodInfo <@@ this.Yield @@>)
@@ -290,10 +296,7 @@ module QueryImpl =
           selectMi :=  ( getGenericMethodInfo <@@ this.Select @@>)
           //sourceMi :=  ( getGenericMethodInfo <@@ this.Source @@>)
           
-          let qNative = <@ query { if query{for x in [1] do exists(x=1)} then yield 1 }@> 
-//          printfn "%s" (this.prettyPrint 0 (this.fromExpr qNative.Raw))
           let qOurs = <@ this { if this {for x in [1] do exists(x=1)} then yield 1 }@> 
-//          printfn "%s" (this.prettyPrint 0 (this.fromExpr qOurs.Raw))
           let mi = match qOurs with 
                         Application (Lambda (
                                         _, 
@@ -319,7 +322,38 @@ module QueryImpl =
                                 )
                         -> x.GetGenericMethodDefinition()
                       | _ -> raise NYI 
+
+          let qNative = <@ query { if query{for x in [1] do exists(x=1)} then yield 1 }@> 
+          let miNat, qNat = match qNative with 
+                                Application (Lambda (
+                                                _, 
+                                                Call (
+                                                    _, 
+                                                    _run,
+                                                    [Quote (
+                                                        Patterns.IfThenElse(
+                                                            Application (
+                                                                Lambda (
+                                                                    _,
+                                                                    Call (_, x, [q;_])
+                                                                ),
+                                                                _
+                                                            ),
+                                                            _,
+                                                            _
+                                                        )
+                                                    )]
+                                                )
+                                            ),
+                                            _
+                                        )
+                                -> x.GetGenericMethodDefinition(), q
+                              | _ -> raise NYI
+
+          this.runQueryDefaultBuilder <- qNat
+
           runQueryAsValueMi :=  mi
+          runQueryAsValueNativeMi :=  miNat
    
 
         member internal this.recognizeFunc (methodInfo':System.Reflection.MethodInfo) = 
@@ -351,9 +385,10 @@ module QueryImpl =
             else if methodInfo = applMi then AppLF
             else if methodInfo = !selectMi then  SelectF
             //else if methodInfo = !sourceMi then  SourceF
-            else if methodInfo.Name = "RunQueryAsValue" then  //hack. Recognises all types of query operators
+            else if methodInfo = !runQueryAsValueNativeMi then
+                RunQueryAsValueNativeF
+            else if methodInfo.DeclaringType.FullName.StartsWith "FSharpComposableQuery." then  //another hack
                 RunQueryAsValueF
-
             else
                 UnknownF
          
@@ -403,38 +438,7 @@ module QueryImpl =
                 | _ -> raise NYI
             
             toExp exp
-
-
-        member internal this.prettyPrint(lvl : int) (exp : Exp) : string List = 
-            let s = (match exp with
-                | IntC x -> [string x]
-                | BoolC b -> [string b]
-                | StringC s -> [s]
-                | Unit -> ["null"]
-                | Tuple(_tty, es) -> ["Tuple:"] @ List.concat (List.map (this.prettyPrint 1) es)
-                | Proj(e, i) -> ["Proj"] @ (this.prettyPrint 1 e)
-                | IfThenElse(e, e1, e2) -> ["if"] @ (this.prettyPrint 1 e) @ ["then"] @ (this.prettyPrint 1 e1) @ ["else"] @ (this.prettyPrint 1 e2)
-                | EVar x -> [string x]
-                | ELet(x, e1, e2) -> ["Let"] @ (this.prettyPrint 1 e1) @ (this.prettyPrint 1 e2)
-                | BinOp(e1, binop, e2) -> (this.prettyPrint 0 e1) @ [string binop] @ (this.prettyPrint 0 e2)
-                | UnOp(unop, e) -> [(string unop)] @ (this.prettyPrint 1 e)
-                | Field(e, l) -> this.prettyPrint 0 e
-                | Record(rty, r) -> ["Record"]
-                | Lam(x, e) -> this.prettyPrint 0 e
-                | App(e1, e2) -> this.prettyPrint 0 e1
-                | Empty ty -> ["Empty"]
-                | Singleton e -> ["yield"] @ this.prettyPrint 1 e
-                | Comp(e2, x, e1) -> ["foreach var " + (string x) + " in:"] @ (this.prettyPrint 1 e2) @ ["do"] @ (this.prettyPrint 1 e1)
-                | Exists(e) -> ["Exists:"] @ this.prettyPrint 1 e
-                (*| Table(e,ty) -> this.sourceExp( e,ty)*)
-                | Table(e, _ty) -> ["Table:"] @ (this.prettyPrint 1 (this.fromExpr e))
-                | Unknown(unk, _, eopt, es) -> 
-                    (List.concat (List.map (this.prettyPrint 1) es))
-                | _ -> raise NYI)
-            s
-            |> List.map (fun x -> (String.replicate lvl "\t") + x)
-
-
+            
         member internal this.fromExpr expr =
             let rec from expr = 
                 match expr with
@@ -545,26 +549,28 @@ module QueryImpl =
                     getFunTy f.Type (fun ty _ -> 
                                      let x = fresh(new Var("x",ty)) 
                                      Comp(Singleton(App(from f,EVar x)),  x, from e))
-//                | RunQueryAsValueF, [e;f] ->
-//                    raise NYI 
-                | _,args -> 
+                | RunQueryAsValueF, [_;args] ->     //replace our query operator with the default one
+                    Unknown(UnknownCall (runQueryAsValueNativeMi.Value.MakeGenericMethod (args.Type.GetGenericArguments())), expr_ty, Option.map from obj, List.map from [this.runQueryDefaultBuilder;args])
+                | _,args ->                         //just pass the args along otherwise
                     Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
             from expr
 
-
+            
         member internal this.ToFrom (exp:Expr<'T>) : Expr<'T> = 
             let e = this.fromExpr exp.Raw
             //printfn "tofrom %A : %A" e (getType e)
             let expR = this.toExpr e
             Expr.Cast<'T>(expR)
     
-        member internal this.NormRaw (exp:Expr<'T>) : Expr<'T> = 
-            let e = this.fromExpr exp.Raw
-            printfn "%s" (String.concat System.Environment.NewLine ((this.prettyPrint 0 e)))
-            let e' = nf e
-            //printfn "norm2 %A : %A" e' (getType(e'))
-            let expR = this.toExpr e'
-            Expr.Cast<'T>(expR)
+        member internal this.NormRaw (expr:Expr<'T>) : Expr<'T> = 
+            let exp = this.fromExpr expr.Raw
+//            printfn "%s" (Debug.prettyPrint exp)
+
+            let expNorm = nf exp
+            //printfn "norm2 %A : %A" expNorm (getType(expNorm))
+
+            let exprNorm = this.toExpr expNorm
+            Expr.Cast<'T>(exprNorm)
     
         member internal this.Norm (exp:Expr<'T>) : Expr<'T> = 
             let e',_t = withDuration 1 (fun () ->  this.NormRaw exp)
@@ -584,14 +590,14 @@ module QueryImpl =
             //printfn "run2 %A : %A %A" q' q'.Type (q' = q)
             base.Run(q')
         
-        member internal this.RunAsEnumerable(q : Expr<Linq.QuerySource<'T, System.Collections.IEnumerable>>) : seq<'T> = 
+        member this.RunAsEnumerable(q : Expr<Linq.QuerySource<'T, System.Collections.IEnumerable>>) : seq<'T> = 
             //printfn "run seq %A : %A" q q.Type
             let q' = this.Norm q
             //printfn "run2 %A : %A %A" q' q'.Type (q' = q)
             base.Run(q')
         
         [<CompiledName("RunQueryAsValue")>]
-        member internal this.RunAsValue(q : Expr<'T>) : 'T = 
+        member this.RunAsValue(q : Expr<'T>) : 'T = 
             //printfn "run base %A : %A" q q.Type
             //let timer = new System.Diagnostics.Stopwatch()
             //timer.Start()

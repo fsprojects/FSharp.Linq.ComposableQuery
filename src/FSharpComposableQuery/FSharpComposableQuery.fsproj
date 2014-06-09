@@ -68,6 +68,7 @@
     <Compile Include="Common.fs" />
     <Compile Include="Expr.fs" />
     <Compile Include="SQL.fs" />
+    <Compile Include="Debug.fs" />
     <Compile Include="Query.fs" />
   </ItemGroup>
   <ItemGroup>

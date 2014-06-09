@@ -25,7 +25,7 @@ let median (l : float list) =
 
 
 // Runs a test n times and returns the first result 
-// paired w/ the median time taken for a test
+// paired w/ the median time taken for a test run
 let timeIt n f = 
     let l = 
         List.map (fun _ -> 
@@ -70,6 +70,7 @@ let testAll (q:Expr<seq<'T>>) (q':Expr<IQueryable<'T>>) (p:seq<'T> -> unit) =
   testFS3 "FSharp 3.0" q' p
   //testPLinq "FSharpComposableQuery" q p
   testPLinqQ "PLinqQ" q' p
+
 
 let testTime msg f = try let _,time = f ()
                          printfn "%s: \tSuccess\t %f ms" msg time

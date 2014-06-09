@@ -112,6 +112,7 @@ Target "RunTests" (fun _ ->
     |> MSTest.MSTest (fun p ->
         { p with
             TimeOut = TimeSpan.FromMinutes 20.
+            WorkingDir = __SOURCE_DIRECTORY__
             })
 )
 
