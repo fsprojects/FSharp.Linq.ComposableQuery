@@ -4,14 +4,14 @@
 #r "System.Data.Linq.dll"
 #r "FSharp.PowerPack.Linq.dll"
 
-#load "Test.fsx"
+#load "TestUtils.fs"
 #load "DbStrings.fs"
 
 #endif
 
 
 open FSharpComposableQuery
-open Test
+open FSharpComposableQuery
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
 open System.Linq

@@ -3,19 +3,19 @@
   <connectionStrings>
     <add name= "QueryConnectionString"
       providerName="System.Data.SqlClient"
-      connectionString="Data Source=IxHP\SQLEXPRESS;Initial Catalog=MyDatabase;Integrated Security=SSPI;"
+      connectionString="Data Source=ServerName\DbName;Initial Catalog=MyDatabase;Integrated Security=SSPI;"
     />
     <add name= "PeopleConnectionString"
       providerName="System.Data.SqlClient"
-      connectionString="Data Source=IxHP\SQLEXPRESS;Initial Catalog=MyPeople;Integrated Security=SSPI;"
+      connectionString="Data Source=ServerName\DbName;Initial Catalog=MyPeople;Integrated Security=SSPI;"
     />
     <add name= "XmlConnectionString"
       providerName="System.Data.SqlClient"
-      connectionString="Data Source=IxHP\SQLEXPRESS;Initial Catalog=MyXml;Integrated Security=SSPI;"
+      connectionString="Data Source=ServerName\DbName;Initial Catalog=MyXml;Integrated Security=SSPI;"
     />
     <add name= "OrgConnectionString"
       providerName="System.Data.SqlClient"
-      connectionString="Data Source=IxHP\SQLEXPRESS;Initial Catalog=organisation;Integrated Security=SSPI;"
+      connectionString="Data Source=ServerName\DbName;Initial Catalog=organisation;Integrated Security=SSPI;"
     />
   </connectionStrings>
 </configuration>

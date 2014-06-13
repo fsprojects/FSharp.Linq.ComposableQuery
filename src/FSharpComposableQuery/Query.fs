@@ -56,6 +56,15 @@ module QueryImpl =
       median(!lastQueryNormTime)
 #endif
 
+    //Used to mark functions that should be replaced by native ones when parsing queries
+    type internal NativeFunc = 
+        | Run = 0
+        | RunValue = 1
+        | RunEnum = 2
+
+    type internal ReplaceWithAttribute(ftype : NativeFunc) = 
+        member this.FType = ftype
+
     type internal Func = 
         | ExistsF
         | ForallF
@@ -84,9 +93,7 @@ module QueryImpl =
         | ZeroF
         | YieldF
         | UnknownF
-// TODO: Recognize and translate nested RunQueryAsValue
-        | RunQueryAsValueF
-        | RunQueryAsValueNativeF
+        | RunQueryF of NativeFunc
 
     type QueryBuilder() = 
         inherit Microsoft.FSharp.Linq.QueryBuilder()
@@ -280,83 +287,42 @@ module QueryImpl =
         let whereMi = ref (getGenericMethodInfo <@@ id @@>)
         let selectMi = ref (getGenericMethodInfo <@@ id @@>)
        // let sourceMi = ref(getGenericMethodInfo <@@ id @@>)
-        let runQueryAsValueMi = ref(getGenericMethodInfo <@@ id @@>)        //unused at the moment
-        let runQueryAsValueNativeMi = ref(getGenericMethodInfo <@@ id @@>)
 
-        [<DefaultValue>]
-        val mutable internal runQueryDefaultBuilder : Expr
+        let mutable queryOpPrototypes = Map.empty
 
         member internal this.initMi() = 
-          yieldMi :=  (getGenericMethodInfo <@@ this.Yield @@>)
-          zeroMi :=  (getGenericMethodInfo <@@ this.Zero @@>)
-          forMi :=  ( getGenericMethodInfo <@@ this.For @@>)
-          existsMi :=  ( getGenericMethodInfo  <@@ this.Exists @@>)
-          forallMi :=  ( getGenericMethodInfo <@@ this.All @@>)
-          whereMi :=  ( getGenericMethodInfo  <@@ this.Where @@>)
-          selectMi :=  ( getGenericMethodInfo <@@ this.Select @@>)
-          //sourceMi :=  ( getGenericMethodInfo <@@ this.Source @@>)
-          
-          let qOurs = <@ this { if this {for x in [1] do exists(x=1)} then yield 1 }@> 
-          let mi = match qOurs with 
-                        Application (Lambda (
-                                        _, 
-                                        Call (
-                                            _, 
-                                            _run,
-                                            [Quote (
-                                                Patterns.IfThenElse(
-                                                    Application (
-                                                        Lambda (
-                                                            _,
-                                                            Call (_, x,_)
-                                                        ),
-                                                        _
-                                                    ),
-                                                    _,
-                                                    _
-                                                )
-                                            )]
-                                        )
-                                    ),
-                                    _
-                                )
-                        -> x.GetGenericMethodDefinition()
-                      | _ -> raise NYI 
+            yieldMi :=  (getGenericMethodInfo <@@ this.Yield @@>)
+            zeroMi :=  (getGenericMethodInfo <@@ this.Zero @@>)
+            forMi :=  ( getGenericMethodInfo <@@ this.For @@>)
+            existsMi :=  ( getGenericMethodInfo  <@@ this.Exists @@>)
+            forallMi :=  ( getGenericMethodInfo <@@ this.All @@>)
+            whereMi :=  ( getGenericMethodInfo  <@@ this.Where @@>)
+            selectMi :=  ( getGenericMethodInfo <@@ this.Select @@>)
+            //sourceMi :=  ( getGenericMethodInfo <@@ this.Source @@>)
+            
+            let qEnum = <@ query { for x in [] do yield x } @>  //run as enumerable
+            let qVal = <@ query { for x in [] do count } @>     //run as value
+            let qQue = <@ query { select 0 } @>                 //run as queryable
 
-          let qNative = <@ query { if query{for x in [1] do exists(x=1)} then yield 1 }@> 
-          let miNat, qNat = match qNative with 
-                                Application (Lambda (
-                                                _, 
-                                                Call (
-                                                    _, 
-                                                    _run,
-                                                    [Quote (
-                                                        Patterns.IfThenElse(
-                                                            Application (
-                                                                Lambda (
-                                                                    _,
-                                                                    Call (_, x, [q;_])
-                                                                ),
-                                                                _
-                                                            ),
-                                                            _,
-                                                            _
-                                                        )
-                                                    )]
-                                                )
-                                            ),
-                                            _
-                                        )
-                                -> x.GetGenericMethodDefinition(), q
-                              | _ -> raise NYI
+            let getCallData q = 
+                match q with
+                | Application (Lambda(_, Call(o, mi, args)), _) -> 
+                    mi.GetGenericMethodDefinition(), ((Option.toList o) @ args) |> (Seq.find (fun _ -> true))
+                | _ -> raise NYI
 
-          this.runQueryDefaultBuilder <- qNat
+            queryOpPrototypes <- queryOpPrototypes
+                .Add(NativeFunc.RunEnum, getCallData qEnum)
+                .Add(NativeFunc.RunValue, getCallData qVal)
+                .Add(NativeFunc.Run, getCallData qQue)
 
-          runQueryAsValueMi :=  mi
-          runQueryAsValueNativeMi :=  miNat
-   
+        member internal this.getNativeQueryOp (mi:MethodInfo) =
+            mi.GetCustomAttributes true
+            |> Seq.filter (fun (a:System.Object) -> 
+                a.GetType().IsAssignableFrom(typedefof<ReplaceWithAttribute>))
+            |> Seq.cast<ReplaceWithAttribute>
+            |> Seq.tryPick Some
 
-        member internal this.recognizeFunc (methodInfo':System.Reflection.MethodInfo) = 
+        member internal this.recognizeFunc (methodInfo':MethodInfo) = 
             let methodInfo = getGenericMethodInfo' methodInfo' 
             if methodInfo = !yieldMi then YieldF
             else if methodInfo = !zeroMi then ZeroF
@@ -385,12 +351,12 @@ module QueryImpl =
             else if methodInfo = applMi then AppLF
             else if methodInfo = !selectMi then  SelectF
             //else if methodInfo = !sourceMi then  SourceF
-            else if methodInfo = !runQueryAsValueNativeMi then
-                RunQueryAsValueNativeF
-            else if methodInfo.DeclaringType.FullName.StartsWith "FSharpComposableQuery." then  //another hack
-                RunQueryAsValueF
-            else
-                UnknownF
+            else 
+                match this.getNativeQueryOp methodInfo with
+                | (Some a) -> 
+                    RunQueryF a.FType
+                | None -> 
+                    UnknownF
          
         member internal this.emptyExp ty = Expr.Call(Expr.Value this,(!zeroMi).MakeGenericMethod([|ty;IQueryableTy|]),[]) 
         member internal this.singletonExp (e:Expr) = Expr.Call(Expr.Value this,(!yieldMi).MakeGenericMethod( [|e.Type;IQueryableTy|] ), [e])
@@ -456,12 +422,12 @@ module QueryImpl =
                 | Patterns.Coerce(PropertyGet(None, _tbl, []) as e, QuerySourceTy(ty, _)) -> 
                     Table(e, ty) // recognize free vars as db table refs
                 | Patterns.Coerce(e, _ty) -> from e // catchall to ignore other coercions
-                | PropertyGet(Some(PropertyGet(None, _db, [])), _tbl, []) as e -> 
+                | Patterns.PropertyGet(Some(PropertyGet(None, _db, [])), _tbl, []) as e -> 
                     match e.Type with
                     | QuerySourceTy(ty, _) -> Table(e, ty) // assume it's a db table ref
                     | TableTy ty -> Table(e, ty) // assume it's a db table ref
                     | ty' -> failwithf "Unexpected table reference %A %A" e ty'
-                | Patterns.PropertyGet(Some(e), l, []) -> 
+                | Patterns.PropertyGet(Some(e), l, []) ->
                     Field(from e, 
                           { name = l.Name
                             info = l }) // otherwise assume field ref
@@ -477,7 +443,7 @@ module QueryImpl =
                 | Patterns.Let(var, expr1, expr2) -> ELet(var, from expr1, from expr2)
                 | Patterns.TupleGet(expr, i) -> Proj(from expr, i)
                 | Patterns.NewTuple(es) -> Tuple(expr.Type, List.map from es)
-                | Call(obj, methodInfo, args) -> 
+                | Patterns.Call(obj, methodInfo, args) -> 
                     handleSpecificCall obj methodInfo args expr.Type
                 | expr -> failwithf "unhandled expr: %A" expr
 
@@ -549,27 +515,46 @@ module QueryImpl =
                     getFunTy f.Type (fun ty _ -> 
                                      let x = fresh(new Var("x",ty)) 
                                      Comp(Singleton(App(from f,EVar x)),  x, from e))
-                | RunQueryAsValueF, [_;args] ->     //replace our query operator with the default one
-                    Unknown(UnknownCall (runQueryAsValueNativeMi.Value.MakeGenericMethod (args.Type.GetGenericArguments())), expr_ty, Option.map from obj, List.map from [this.runQueryDefaultBuilder;args])
-                | _,args ->                         //just pass the args along otherwise
+                | RunQueryF t, _ ->
+                    let (newMi, newBuilder) = queryOpPrototypes.[t]
+                    let newMi' = newMi.MakeGenericMethod (func.GetGenericArguments())
+                    
+                    let actualArgs = ((Option.toList obj) @ args).Tail
+
+                    match newMi.IsStatic with
+                    | true ->
+                        Unknown(
+                            UnknownCall newMi', 
+                            expr_ty, 
+                            None, 
+                            List.map from (newBuilder :: actualArgs))
+                    | false ->
+                        Unknown(
+                            UnknownCall newMi', 
+                            expr_ty, 
+                            Some (from newBuilder), 
+                            List.map from actualArgs)
+                | _, args ->                         //just pass the args along otherwise
                     Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
             from expr
 
             
         member internal this.ToFrom (exp:Expr<'T>) : Expr<'T> = 
             let e = this.fromExpr exp.Raw
-            //printfn "tofrom %A : %A" e (getType e)
             let expR = this.toExpr e
             Expr.Cast<'T>(expR)
     
         member internal this.NormRaw (expr:Expr<'T>) : Expr<'T> = 
+//            Debug.printfn("Input expr:\n%s\n", expr.ToString())
             let exp = this.fromExpr expr.Raw
-//            printfn "%s" (Debug.prettyPrint exp)
-
+            
+//            Debug.printfn("Initial exp:\n%s\n", Debug.prettyPrint this.fromExpr exp)
             let expNorm = nf exp
-            //printfn "norm2 %A : %A" expNorm (getType(expNorm))
 
+//            Debug.printfn("Norm exp:\n%s\n", Debug.prettyPrint this.fromExpr expNorm)
             let exprNorm = this.toExpr expNorm
+
+//            Debug.printfn("Final expr:\n%s\n", exprNorm.ToString())
             Expr.Cast<'T>(exprNorm)
     
         member internal this.Norm (exp:Expr<'T>) : Expr<'T> = 
@@ -583,21 +568,21 @@ module QueryImpl =
             //printfn "Quote"
             base.Quote(q)
 
-
+            
+        [<ReplaceWith(NativeFunc.Run)>]
         member this.Run(q : Expr<Linq.QuerySource<'T, System.Linq.IQueryable>>) : System.Linq.IQueryable<'T> = 
             //printfn "run queryable %A : %A" q q.Type
             let q' = this.Norm q
             //printfn "run2 %A : %A %A" q' q'.Type (q' = q)
             base.Run(q')
         
-        member this.RunAsEnumerable(q : Expr<Linq.QuerySource<'T, System.Collections.IEnumerable>>) : seq<'T> = 
+        member internal this.RunAsEnumerable(q : Expr<Linq.QuerySource<'T, System.Collections.IEnumerable>>) : seq<'T> = 
             //printfn "run seq %A : %A" q q.Type
             let q' = this.Norm q
             //printfn "run2 %A : %A %A" q' q'.Type (q' = q)
             base.Run(q')
         
-        [<CompiledName("RunQueryAsValue")>]
-        member this.RunAsValue(q : Expr<'T>) : 'T = 
+        member internal this.RunAsValue(q : Expr<'T>) : 'T = 
             //printfn "run base %A : %A" q q.Type
             //let timer = new System.Diagnostics.Stopwatch()
             //timer.Start()
@@ -622,6 +607,7 @@ open Microsoft.FSharp.Linq
 [<AutoOpen>]
 module LowPriority = 
     type FSharpComposableQuery.QueryImpl.QueryBuilder with
+        [<ReplaceWith(NativeFunc.RunValue)>]
         [<CompiledName("RunQueryAsValue")>]
         member this.Run(q : Expr<'T>) = 
             this.RunAsValue q
@@ -629,6 +615,7 @@ module LowPriority =
 [<AutoOpen>]
 module HighPriority = 
     type FSharpComposableQuery.QueryImpl.QueryBuilder with
+        [<ReplaceWith(NativeFunc.RunEnum)>]
         [<CompiledName("RunQueryAsEnumerable")>]
         member this.Run(q : Expr<QuerySource<'T, System.Collections.IEnumerable>>) = 
             this.RunAsEnumerable q

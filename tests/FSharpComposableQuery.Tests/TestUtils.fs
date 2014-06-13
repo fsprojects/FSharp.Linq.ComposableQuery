@@ -9,6 +9,8 @@
 #nowarn "62"
 #endif
 
+module FSharpComposableQuery.TestUtils
+
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Linq.QuotationEvaluation
@@ -72,9 +74,12 @@ let testAll (q:Expr<seq<'T>>) (q':Expr<IQueryable<'T>>) (p:seq<'T> -> unit) =
   testPLinqQ "PLinqQ" q' p
 
 
-let testTime msg f = try let _,time = f ()
-                         printfn "%s: \tSuccess\t %f ms" msg time
-                     with exn -> printfn "%s: \tFailure" msg 
+let testTime msg f = 
+    try 
+        let _,time = f ()
+        printfn "%s: \tSuccess\t %f ms" msg time
+    with 
+        exn -> printfn "%s: \tFailure" msg 
 
 let testTime' f = try let _,time = f() 
                       time

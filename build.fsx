@@ -41,7 +41,7 @@ let tags = "F# fsharp LINQ SQL database data query"
 // (<solutionFile>.sln is built during the building process)
 let solutionFile  = "FSharpComposableQuery"
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = ["tests/*/bin/Debug/FSharpComposableQuery*Tests*.exe"]
+let testAssemblies = ["tests/*/bin/Release/FSharpComposableQuery*Tests*.exe"]
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted 
@@ -112,7 +112,6 @@ Target "RunTests" (fun _ ->
     |> MSTest.MSTest (fun p ->
         { p with
             TimeOut = TimeSpan.FromMinutes 20.
-            WorkingDir = __SOURCE_DIRECTORY__
             })
 )
 

@@ -11,30 +11,18 @@ open Microsoft.VisualStudio.TestTools.UnitTesting;
 
 open FSharpComposableQuery
 
-type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=".\\App.config">
 
-type Nullable<'T when 'T : ( new : unit -> 'T) and 'T : struct and 'T :> ValueType > with
-    member this.Print() =
-        if (this.HasValue) then this.Value.ToString()
-        else "NULL"
-
-let internal db = schema.GetDataContext()
-
-let internal student = db.Student
-
-let data = [1; 5; 7; 11; 18; 21]
-let tag = ref 1
-
-let tagQuery() = 
-    let str = sprintf "Q%d: " !tag;
-    printf "%s" str
-    tag := !tag+1
-
-let testQuery f = 
-    f query query
-
+//let test1 = 
+//    <@
+//        ExtraTopLevelOperators.query {
+//            for student in db.Student do
+//            select student.Age.Value
+//            contains 11
+//            }
+//    @>
+//
 //let compare (q:Expr<'T>) = 
-//    let kur = match q with 
+//    let r = match q with 
 //        Application (Lambda (
 //                        _, 
 //                        Call (
@@ -47,7 +35,7 @@ let testQuery f =
 //                )
 //        -> x
 //        | _ -> raise (new Exception())
-//    let nativeRes = ExtraTopLevelOperators.query.Run kur
+//    let nativeRes = ExtraTopLevelOperators.query.Run r
 //    false
 //    
 //let compareVal (q:Expr<'T>) = 
@@ -65,26 +53,34 @@ let testQuery f =
 //    let ourRes = query.Run q
 //    CollectionAssert.AreEquivalent(nativeRes.ToArray(), ourRes.ToArray())
 
-let r1 = 
-    <@
-        ExtraTopLevelOperators.query {
-            for student in db.Student do
-            select student.Age.Value
-            contains 11
-            }
-    @>
+type internal dbSchema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=".\\App.config">
 
-// Start
+type internal Nullable<'T when 'T : ( new : unit -> 'T) and 'T : struct and 'T :> ValueType > with
+    member this.Print() =
+        if (this.HasValue) then this.Value.ToString()
+        else "NULL"
+        
+let internal db = dbSchema.GetDataContext()
+
+let internal student = db.Student
+
+let internal data = [1; 5; 7; 11; 18; 21]
+
 [<TestClass>]
 type QueryTests() = 
 
-    //db.DataContext.Log <- System.Console.Out
 
+    let mutable tag = 0
+    let tagQuery() = 
+        printf "Q%d" tag
+        tag <- tag + 1
+
+    let testQuery f = 
+        f query query
 
     [<TestMethod>]
     member this.``contains query operator``() = 
         tagQuery()
-//        printfn "%b" (compare r1)
         printfn "contains query operator"
         let result1 =
             query {
@@ -182,10 +178,10 @@ type QueryTests() =
         printfn "select query operator."
         let select5 = 
             query {
-                for (student:schema.ServiceTypes.Student) in db.Student do
+                for (student:dbSchema.ServiceTypes.Student) in db.Student do
                 select student
                 }
-        select5 |> Seq.iter (fun (student:schema.ServiceTypes.Student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
+        select5 |> Seq.iter (fun (student:dbSchema.ServiceTypes.Student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
 
     [<TestMethod>]
@@ -973,5 +969,3 @@ type QueryTests() =
             select (student.Name, course.CourseName)
             }
         |> Seq.iter (fun (studentName, courseName) -> printfn "%s %s" studentName courseName)
-
-    // *)

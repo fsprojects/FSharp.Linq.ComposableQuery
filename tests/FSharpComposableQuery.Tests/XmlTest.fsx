@@ -6,14 +6,14 @@
 #r "System.Xml.dll"
 #r "System.Xml.Linq.dll"
 #r "FSharp.PowerPack.Linq.dll"
-#load "Test.fsx"
+#load "TestUtils.fs"
 
 #endif
 
 #load "DbStrings.fs"
 
 open FSharpComposableQuery
-open Test
+open FSharpComposableQuery.TestUtils
 open System
 open Microsoft.FSharp.Data.TypeProviders
 open System.Data.Linq.SqlClient
