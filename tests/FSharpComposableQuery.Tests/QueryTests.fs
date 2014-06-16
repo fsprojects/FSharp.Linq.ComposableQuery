@@ -1,4 +1,4 @@
-﻿module FSharpComposableQuery.QueryTests
+﻿namespace FSharpComposableQuery.Tests
 
 open System
 open System.Data.Linq.SqlClient
@@ -14,7 +14,7 @@ open FSharpComposableQuery
 
 //let test1 = 
 //    <@
-//        ExtraTopLevelOperators.query {
+//        query {
 //            for student in db.Student do
 //            select student.Age.Value
 //            contains 11
@@ -53,30 +53,35 @@ open FSharpComposableQuery
 //    let ourRes = query.Run q
 //    CollectionAssert.AreEquivalent(nativeRes.ToArray(), ourRes.ToArray())
 
-type internal dbSchema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=".\\App.config">
+type dbSchemaSimple = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=".\\App.config">
 
-type internal Nullable<'T when 'T : ( new : unit -> 'T) and 'T : struct and 'T :> ValueType > with
-    member this.Print() =
-        if (this.HasValue) then this.Value.ToString()
-        else "NULL"
-        
-let internal db = dbSchema.GetDataContext()
-
-let internal student = db.Student
-
-let internal data = [1; 5; 7; 11; 18; 21]
 
 [<TestClass>]
 type QueryTests() = 
 
+    let db = dbSchemaSimple.GetDataContext()
+
+    let student = db.Student.Sum (fun (s:dbSchemaSimple.ServiceTypes.Student) -> s.Age)
+
+    let data = [1; 5; 7; 11; 18; 21]
 
     let mutable tag = 0
     let tagQuery() = 
         printf "Q%d" tag
         tag <- tag + 1
 
-    let testQuery f = 
-        f query query
+        
+    let printNullable (v:Nullable<'T>) =
+        if (v.HasValue) then v.Value.ToString()
+        else "NULL"
+
+//    [<TestMethod>]
+//    member this.tst() = 
+//        let q = <@ query { for student in db.Student do
+//                    select student.Age.Value
+//                    contains 11 } @>
+//        (Utils.runQuery Utils.QueryBuilders.TLinq q) |> ignore
+//        0
 
     [<TestMethod>]
     member this.``contains query operator``() = 
@@ -178,10 +183,10 @@ type QueryTests() =
         printfn "select query operator."
         let select5 = 
             query {
-                for (student:dbSchema.ServiceTypes.Student) in db.Student do
+                for (student) in db.Student do
                 select student
                 }
-        select5 |> Seq.iter (fun (student:dbSchema.ServiceTypes.Student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
+        select5 |> Seq.iter (fun (student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
 
     [<TestMethod>]
@@ -231,7 +236,7 @@ type QueryTests() =
             groupBy student.Age into g
             select (g.Key, g.Count())
             }
-        |> Seq.iter (fun (age, count) -> printfn "Age: %s Count at that age: %d" (age.Print()) count)
+        |> Seq.iter (fun (age, count) -> printfn "Age: %s Count at that age: %d" (printNullable age) count)
 
 
     [<TestMethod>]
@@ -296,7 +301,7 @@ type QueryTests() =
             select (g, g.Key, g.Count())
             }
         |> Seq.iter (fun (group, age, count) ->
-            printfn "Age: %s Count at that age: %d" (age.Print()) count
+            printfn "Age: %s Count at that age: %d" (printNullable age) count
             group |> Seq.iter (fun name -> printfn "Name: %s" name))
 
 
@@ -308,7 +313,7 @@ type QueryTests() =
             for student in db.Student do
             sumByNullable student.Age
             }
-        |> (fun sum -> printfn "Sum of ages: %s" (sum.Print()))
+        |> (fun sum -> printfn "Sum of ages: %s" (printNullable sum))
 
 
     [<TestMethod>]
@@ -319,7 +324,7 @@ type QueryTests() =
             for student in db.Student do
             minByNullable student.Age
             }
-        |> (fun age -> printfn "Minimum age: %s" (age.Print()))
+        |> (fun age -> printfn "Minimum age: %s" (printNullable age))
 
 
     [<TestMethod>]
@@ -330,7 +335,7 @@ type QueryTests() =
             for student in db.Student do
             maxByNullable student.Age
             }
-        |> (fun age -> printfn "Maximum age: %s" (age.Print()))
+        |> (fun age -> printfn "Maximum age: %s" (printNullable age))
 
 
     [<TestMethod>]
@@ -352,7 +357,7 @@ type QueryTests() =
             for student in db.Student do
             averageByNullable (Nullable.float student.Age)
             }
-        |> (fun avg -> printfn "Average age: %s" (avg.Print()))
+        |> (fun avg -> printfn "Average age: %s" (printNullable avg))
 
 
     [<TestMethod>]
@@ -466,7 +471,7 @@ type QueryTests() =
             select student
         }
         |> Seq.iter (fun student ->
-            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
+            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
     [<TestMethod>]
@@ -479,7 +484,7 @@ type QueryTests() =
             select student
         }
         |> Seq.iter (fun student ->
-            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
+            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
     [<TestMethod>]
@@ -493,7 +498,7 @@ type QueryTests() =
             select student
         }
         |> Seq.iter (fun student ->
-            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
+            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
     [<TestMethod>]
@@ -507,7 +512,7 @@ type QueryTests() =
             select student
         }
         |> Seq.iter (fun student ->
-            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (student.Age.Print()))
+            printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
     [<TestMethod>]
@@ -518,7 +523,7 @@ type QueryTests() =
                 for student in db.Student do
                 select student
             }
-            |> Seq.iter (fun student -> printfn "%s %d %s" student.Name student.StudentID (student.Age.Print()))
+            |> Seq.iter (fun student -> printfn "%s %d %s" student.Name student.StudentID (printNullable student.Age))
 
 
     [<TestMethod>]
@@ -570,7 +575,7 @@ type QueryTests() =
                 groupBy n.Age into g
                 select (g.Key, g.Count())
         }
-        |> Seq.iter (fun (age, count) -> printfn "%s %d" (age.Print()) count)
+        |> Seq.iter (fun (age, count) -> printfn "%s %d" (printNullable age) count)
 
 
     [<TestMethod>]
@@ -582,7 +587,7 @@ type QueryTests() =
                 groupValBy n.Age n.Age into g
                 select (g.Key, g.Count())
             }
-        |> Seq.iter (fun (age, count) -> printfn "%s %d" (age.Print()) count)
+        |> Seq.iter (fun (age, count) -> printfn "%s %d" (printNullable age) count)
 
 
     
@@ -615,7 +620,7 @@ type QueryTests() =
                 select (group.Key, group.Count())
         }
         |> Seq.iter (fun (age, ageCount) ->
-             printfn "Age: %s Count: %d" (age.Print()) ageCount)
+             printfn "Age: %s Count: %d" (printNullable age) ageCount)
 
 
     [<TestMethod>]
@@ -646,7 +651,7 @@ type QueryTests() =
                 select (g.Key, g.Count())
         }
         |> Seq.iter (fun (age, myCount) ->
-            printfn "Age: %s" (age.Print())
+            printfn "Age: %s" (printNullable age)
             printfn "Count: %d" myCount)
 
 
@@ -841,7 +846,7 @@ type QueryTests() =
                 sortByNullableDescending n.Age
                 select n
             }
-        |> Seq.iter (fun student -> printfn "%s %s" student.Name (student.Age.Print()))
+        |> Seq.iter (fun student -> printfn "%s %s" student.Name (printNullable student.Age))
 
 
     [<TestMethod>]
@@ -875,7 +880,7 @@ type QueryTests() =
                 }
 
         query2.Union (query1)
-        |> Seq.iter (fun (name, age) -> printfn "%s %s" name (age.Print()))
+        |> Seq.iter (fun (name, age) -> printfn "%s %s" name (printNullable age))
 
 
     [<TestMethod>]
@@ -893,7 +898,7 @@ type QueryTests() =
                 }
 
         query1.Intersect(query2)
-        |> Seq.iter (fun (name, age) -> printfn "%s %s" name (age.Print()))
+        |> Seq.iter (fun (name, age) -> printfn "%s %s" name (printNullable age))
 
 
     [<TestMethod>]
@@ -906,7 +911,7 @@ type QueryTests() =
                            (student.StudentID, System.Nullable<int>(100), student.Age)
                         else (student.StudentID, student.Age, student.Age))
             }
-        |> Seq.iter (fun (id, value, age) -> printfn "%d %s %s" id (value.Print()) (age.Print()))
+        |> Seq.iter (fun (id, value, age) -> printfn "%d %s %s" id (printNullable value) (printNullable age))
 
 
     [<TestMethod>]
@@ -921,7 +926,7 @@ type QueryTests() =
                             (student.StudentID, System.Nullable<int>(100), student.Age)
                         else (student.StudentID, student.Age, student.Age))
             }
-        |> Seq.iter (fun (id, value, age) -> printfn "%d %s %s" id (value.Print()) (age.Print()))
+        |> Seq.iter (fun (id, value, age) -> printfn "%d %s %s" id (printNullable value) (printNullable age))
 
 
 
@@ -936,7 +941,7 @@ type QueryTests() =
         }
         |> Seq.iteri (fun index (student, course) ->
             if (index = 0) then printfn "StudentID Name Age CourseID CourseName"
-            printfn "%d %s %s %d %s" student.StudentID student.Name (student.Age.Print()) course.CourseID course.CourseName)
+            printfn "%d %s %s %d %s" student.StudentID student.Name (printNullable student.Age) course.CourseID course.CourseName)
 
 
     [<TestMethod>]

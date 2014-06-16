@@ -82,17 +82,17 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
-    <None Include="packages.config" />
-    <Compile Include="TestUtils.fs" />
-    <None Include="People.fsx" />
-    <Compile Include="Nested.fs" />
-    <None Include="XmlTest.fsx" />
-    <None Include="Script.fsx" />
-    <Compile Include="QueryTests.fs" />
-    <Compile Include="DbStrings.fs" />
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
+    <Compile Include="TestUtilsOld.fs" />
+    <Compile Include="TestUtils.fs" />
+    <Compile Include="People.fs" />
+    <Compile Include="Nesteds.fs" />
+    <None Include="XmlTest.fsx" />
+    <Compile Include="QueryTests.fs" />
+    <Compile Include="DbStrings.fs" />
     <Compile Include="RunTests.fs" />
   </ItemGroup>
   <ItemGroup>

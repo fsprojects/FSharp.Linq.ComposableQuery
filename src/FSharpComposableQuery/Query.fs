@@ -1,6 +1,9 @@
 ﻿namespace FSharpComposableQuery
 
 module internal Helpers = 
+    open Microsoft.FSharp.Quotations
+    open FSharpComposableQuery.Common
+
     let IQueryableTy = typeof<System.Linq.IQueryable>
     let IEnumerableTy = typeof<System.Collections.IEnumerable>
 
@@ -22,6 +25,23 @@ module internal Helpers =
         then Some (ty.GetGenericArguments().[0],ty.GetGenericArguments().[1])
         else None
 
+    //represents a Field or a Property
+    let (|Variable|_|) e =
+        match e with
+        | Patterns.FieldGet(oe, ty) -> 
+            Some ((oe, {
+                    name = ty.Name 
+                    ty = ty.FieldType  
+                    info = ty  
+                    isProperty = false }))
+        | Patterns.PropertyGet(oe, ty, []) ->
+            Some ((oe, {
+                    name = ty.Name 
+                    ty = ty.PropertyType  
+                    info = ty  
+                    isProperty = true }))
+        | _ -> 
+            None
 
     let (|EnumerableTy|_|) (ty:System.Type) = 
         if ty.IsGenericType && ty.GetGenericTypeDefinition() = typeof<System.Collections.Generic.IEnumerable<_>>.GetGenericTypeDefinition()
@@ -56,12 +76,14 @@ module QueryImpl =
       median(!lastQueryNormTime)
 #endif
 
-    //Used to mark functions that should be replaced by native ones when parsing queries
+    // The native method to substitute for
     type internal NativeFunc = 
         | Run = 0
         | RunValue = 1
         | RunEnum = 2
 
+    
+    // Used to tag methods to be replaced by native ones (from Microsoft.FSharp.Core.ExtraTopLevels) when parsing nested queries
     type internal ReplaceWithAttribute(ftype : NativeFunc) = 
         member this.FType = ftype
 
@@ -126,7 +148,7 @@ module QueryImpl =
                 FSharpType.GetTupleElements(tty).[i]
             | IfThenElse(_, e1, _) -> getType e1
             | Record(rty, _) -> rty
-            | Field(_, f) -> f.info.PropertyType
+            | Field(_, f) -> f.ty
             | Empty ty -> QuerySourceTy(ty, IQueryableTy)
             | Singleton e -> QuerySourceTy(getType e, IQueryableTy)
             | Union(e1, _) -> getType e1
@@ -278,37 +300,46 @@ module QueryImpl =
             recognizeUnion exp// evil hack to compute method info efficiently
   #endif
                               
-            // store dummy MethodInfo records; replace them with real ones later
-        let yieldMi = ref (getGenericMethodInfo <@@ id @@>)
-        let zeroMi = ref  (getGenericMethodInfo <@@ id @@>)
-        let forMi = ref (getGenericMethodInfo <@@ id @@>)
-        let existsMi = ref(getGenericMethodInfo <@@ id @@>)
-        let forallMi = ref(getGenericMethodInfo <@@ id @@>)
-        let whereMi = ref (getGenericMethodInfo <@@ id @@>)
-        let selectMi = ref (getGenericMethodInfo <@@ id @@>)
-       // let sourceMi = ref(getGenericMethodInfo <@@ id @@>)
+        // store dummy MethodInfo records; replace them with real ones later
+        let mutable yieldMi = getGenericMethodInfo <@@ id @@>
+        let mutable zeroMi = getGenericMethodInfo <@@ id @@>
+        let mutable forMi = getGenericMethodInfo <@@ id @@>
+        let mutable existsMi = getGenericMethodInfo <@@ id @@>
+        let mutable whereMi = getGenericMethodInfo <@@ id @@>
+        let mutable selectMi = getGenericMethodInfo <@@ id @@>
+//        let mutable sourceMi = getGenericMethodInfo <@@ id @@>
+//        let mutable forallMi = getGenericMethodInfo <@@ id @@>
 
+        //contains mappings from NativeFunc to MethodInfo * Expr)
         let mutable queryOpPrototypes = Map.empty
 
         member internal this.initMi() = 
-            yieldMi :=  (getGenericMethodInfo <@@ this.Yield @@>)
-            zeroMi :=  (getGenericMethodInfo <@@ this.Zero @@>)
-            forMi :=  ( getGenericMethodInfo <@@ this.For @@>)
-            existsMi :=  ( getGenericMethodInfo  <@@ this.Exists @@>)
-            forallMi :=  ( getGenericMethodInfo <@@ this.All @@>)
-            whereMi :=  ( getGenericMethodInfo  <@@ this.Where @@>)
-            selectMi :=  ( getGenericMethodInfo <@@ this.Select @@>)
-            //sourceMi :=  ( getGenericMethodInfo <@@ this.Source @@>)
+            yieldMi <-  (getGenericMethodInfo <@@ this.Yield @@>)
+            zeroMi <-  (getGenericMethodInfo <@@ this.Zero @@>)
+            forMi <-  ( getGenericMethodInfo <@@ this.For @@>)
+            existsMi <-  ( getGenericMethodInfo  <@@ this.Exists @@>)
+            whereMi <-  ( getGenericMethodInfo  <@@ this.Where @@>)
+            selectMi <-  ( getGenericMethodInfo <@@ this.Select @@>)
+//            sourceMi <-  ( getGenericMethodInfo <@@ this.Source @@>)
+//            forallMi <-  ( getGenericMethodInfo <@@ this.All @@>)
             
-            let qEnum = <@ query { for x in [] do yield x } @>  //run as enumerable
-            let qVal = <@ query { for x in [] do count } @>     //run as value
+            let qEnum = <@ query { for _ in [] do yield 0 } @>  //run as enumerable
+            let qVal = <@ query { for _ in [] do count } @>     //run as value
             let qQue = <@ query { select 0 } @>                 //run as queryable
 
+            // Gets the builder instance given the caller and args of a function
+            // it is the caller (if there is one), or the first arg otherwise
+            let getBuilder o args = 
+                (Option.toList o) @ args
+                |> Seq.find (fun _ -> true)     //grab first element
+            
+            
             let getCallData q = 
                 match q with
                 | Application (Lambda(_, Call(o, mi, args)), _) -> 
-                    mi.GetGenericMethodDefinition(), ((Option.toList o) @ args) |> (Seq.find (fun _ -> true))
-                | _ -> raise NYI
+                    (mi.GetGenericMethodDefinition(), getBuilder o args)
+                | _ -> 
+                    failwith "Unable to initialize"
 
             queryOpPrototypes <- queryOpPrototypes
                 .Add(NativeFunc.RunEnum, getCallData qEnum)
@@ -324,12 +355,12 @@ module QueryImpl =
 
         member internal this.recognizeFunc (methodInfo':MethodInfo) = 
             let methodInfo = getGenericMethodInfo' methodInfo' 
-            if methodInfo = !yieldMi then YieldF
-            else if methodInfo = !zeroMi then ZeroF
-            else if methodInfo = !forMi then ForF
+            if methodInfo = yieldMi then YieldF
+            else if methodInfo = zeroMi then ZeroF
+            else if methodInfo = forMi then ForF
             //else if methodInfo = this.existsMi then ExistsF
             //else if methodInfo = this.forallMi then ForallF
-            else if methodInfo = !whereMi then WhereF
+            else if methodInfo = whereMi then WhereF
             else if methodInfo = unaryMinusMi then MinusF
             else if methodInfo = plusMi then PlusF
             else if methodInfo = minusMi then MinusF
@@ -349,7 +380,7 @@ module QueryImpl =
             else if methodInfo = notMi then NotF
             else if methodInfo = apprMi then AppRF
             else if methodInfo = applMi then AppLF
-            else if methodInfo = !selectMi then  SelectF
+            else if methodInfo = selectMi then  SelectF
             //else if methodInfo = !sourceMi then  SourceF
             else 
                 match this.getNativeQueryOp methodInfo with
@@ -358,21 +389,23 @@ module QueryImpl =
                 | None -> 
                     UnknownF
          
-        member internal this.emptyExp ty = Expr.Call(Expr.Value this,(!zeroMi).MakeGenericMethod([|ty;IQueryableTy|]),[]) 
-        member internal this.singletonExp (e:Expr) = Expr.Call(Expr.Value this,(!yieldMi).MakeGenericMethod( [|e.Type;IQueryableTy|] ), [e])
+        member internal this.emptyExp ty = 
+            Expr.Call(Expr.Value this,zeroMi.MakeGenericMethod([|ty;IQueryableTy|]),[]) 
 
+        member internal this.singletonExp (e:Expr) = 
+            Expr.Call(Expr.Value this,yieldMi.MakeGenericMethod( [|e.Type;IQueryableTy|] ), [e])
 
         member internal this.existsExp(e':Expr) = 
             match e'.Type with
                 QuerySourceTy (tyinner,qty) ->    
-                    Expr.Call(Expr.Value this,(!existsMi).MakeGenericMethod([|tyinner;qty|]), [ e';Expr.Lambda (new Var("__dummy",tyinner),Expr.Value true)])
+                    Expr.Call(Expr.Value this,existsMi.MakeGenericMethod([|tyinner;qty|]), [ e';Expr.Lambda (new Var("__dummy",tyinner),Expr.Value true)])
               | _ -> failwithf "Unexpected type %A" e'.Type
 
         member internal this.forExp (e2:Expr) (x:Var) (e1:Expr) = 
             match e1.Type,e2.Type with
                 QuerySourceTy (tyCollection,qty1), QuerySourceTy(tyResult,qty2) -> 
                     assert (x.Type = tyCollection)
-                    Expr.Call(Expr.Value this,(!forMi).MakeGenericMethod([|tyCollection;qty1;tyResult;qty2|]), [e1;Expr.Lambda (x,e2)])
+                    Expr.Call(Expr.Value this, forMi.MakeGenericMethod([|tyCollection;qty1;tyResult;qty2|]), [e1;Expr.Lambda (x,e2)])
               | _ -> failwithf "Unexpected type %A %A" e1.Type e2.Type
 
         member internal this.toExpr exp = 
@@ -389,7 +422,11 @@ module QueryImpl =
                 | ELet(x, e1, e2) -> Expr.Let(x, toExp e1, toExp e2)
                 | BinOp(e1, binop, e2) -> getBinOp binop (toExp e1) (toExp e2)
                 | UnOp(unop, e) -> getUnOp unop (toExp e)
-                | Field(e, l) -> Expr.PropertyGet(toExp e, l.info, [])
+                | Field(e, l) -> 
+                    if (l.isProperty) then
+                        Expr.PropertyGet(toExp e, (l.info :?> PropertyInfo), [])
+                    else
+                        Expr.FieldGet(toExp e, (l.info :?> FieldInfo))
                 | Record(rty, r) -> Expr.NewRecord(rty, List.map (fun (_, e) -> toExp e) r)
                 | Lam(x, e) -> Expr.Lambda(x, toExp e)
                 | App(e1, e2) -> Expr.Application(toExp e1, toExp e2)
@@ -397,7 +434,7 @@ module QueryImpl =
                 | Singleton e -> this.singletonExp (toExp e)
                 | Comp(e2, x, e1) -> this.forExp (toExp e2) x (toExp e1)
                 | Exists(e) -> this.existsExp (toExp e)
-                (*| Table(e,ty) -> this.sourceExp( e,ty)*)
+//                | Table(e,ty) -> this.sourceExp( e,ty)
                 | Table(e, _ty) -> e
                 | Unknown(unk, _, eopt, es) -> 
                     unknownToExpr unk (Option.map toExp eopt) (List.map toExp es)
@@ -417,32 +454,37 @@ module QueryImpl =
                 | Quote e -> Unknown(UnknownQuote, expr.Type, None, [ from e ])
                 | Lambda(param, body) -> Lam(param, from body)
                 | Application(e1, e2) -> App(from e1, from e2)
-                | Patterns.Coerce(PropertyGet(Some(PropertyGet(None, _db, [])), _tbl, []) as e, 
-                                  QuerySourceTy(ty, _)) -> Table(e, ty) // recognize free vars as db table refs
+
+                //ToDo: should these PropertyGet calls be replaced with Variable calls instead?
+                | Patterns.Coerce(PropertyGet(Some(Variable(None, _db)), _tbl, []) as e, QuerySourceTy(ty, _)) ->
+                    Table(e, ty)    // recognize free vars as db table refs
                 | Patterns.Coerce(PropertyGet(None, _tbl, []) as e, QuerySourceTy(ty, _)) -> 
-                    Table(e, ty) // recognize free vars as db table refs
-                | Patterns.Coerce(e, _ty) -> from e // catchall to ignore other coercions
-                | Patterns.PropertyGet(Some(PropertyGet(None, _db, [])), _tbl, []) as e -> 
+                    Table(e, ty)    // recognize free vars as db table refs
+                | Patterns.Coerce(e, _ty) -> 
+                    from e          // catchall to ignore other coercions
+                | Patterns.PropertyGet(Some(Variable(None, _db)), _tbl, []) as e -> 
                     match e.Type with
-                    | QuerySourceTy(ty, _) -> Table(e, ty) // assume it's a db table ref
-                    | TableTy ty -> Table(e, ty) // assume it's a db table ref
+                    | QuerySourceTy(ty, _) -> Table(e, ty)  // assume it's a db table ref
+                    | TableTy ty -> Table(e, ty)            // assume it's a db table ref
                     | ty' -> failwithf "Unexpected table reference %A %A" e ty'
-                | Patterns.PropertyGet(Some(e), l, []) ->
-                    Field(from e, 
-                          { name = l.Name
-                            info = l }) // otherwise assume field ref
-                | Patterns.PropertyGet(None, _, []) -> 
+                | Variable(Some(e), l) ->
+                    Field(from e, l)                        // otherwise assume field ref
+                | Variable(None, _) -> 
                     Unknown(UnknownRef(expr), expr.Type, None, []) // otherwise assume global var
                 | Patterns.NewRecord(rty, values) -> 
                     let fields = Reflection.FSharpType.GetRecordFields rty |> Array.toList
-                    let fieldsR = fields |> List.map (fun f -> { name = f.Name; info = f })
+                    let fieldsR = fields |> List.map (fun f -> { name = f.Name; info = f; ty = f.PropertyType; isProperty = true })
                     Record(rty, List.zip fieldsR (List.map from values))
                 | Patterns.NewObject(ci, es) -> 
                     Unknown(UnknownNew(ci), expr.Type, None, List.map from es)
-                | Patterns.IfThenElse(e, e1, e2) -> IfThenElse(from e, from e1, from e2)
-                | Patterns.Let(var, expr1, expr2) -> ELet(var, from expr1, from expr2)
-                | Patterns.TupleGet(expr, i) -> Proj(from expr, i)
-                | Patterns.NewTuple(es) -> Tuple(expr.Type, List.map from es)
+                | Patterns.IfThenElse(e, e1, e2) -> 
+                    IfThenElse(from e, from e1, from e2)
+                | Patterns.Let(var, expr1, expr2) -> 
+                    ELet(var, from expr1, from expr2)
+                | Patterns.TupleGet(expr, i) -> 
+                    Proj(from expr, i)
+                | Patterns.NewTuple(es) -> 
+                    Tuple(expr.Type, List.map from es)
                 | Patterns.Call(obj, methodInfo, args) -> 
                     handleSpecificCall obj methodInfo args expr.Type
                 | expr -> failwithf "unhandled expr: %A" expr

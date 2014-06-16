@@ -112,7 +112,9 @@ let (|TableTy|_|) (ty : System.Type) =
 
 type Field = 
     { name : string
-      info : PropertyInfo }
+      info : MemberInfo
+      ty : System.Type
+      isProperty : bool }
 
 let equalsOn (f : 'T -> bool) x (yobj : obj) = 
     match yobj with

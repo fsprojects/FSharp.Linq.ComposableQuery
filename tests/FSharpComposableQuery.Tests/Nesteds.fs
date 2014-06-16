@@ -1,4 +1,4 @@
-﻿module FSharpComposableQuery.NestedTests
+﻿namespace FSharpComposableQuery.Tests
 
 
 open FSharpComposableQuery
@@ -8,12 +8,12 @@ open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.VisualStudio.TestTools.UnitTesting;
 open System.Linq
 
-type dbSchema = SqlDataConnection<ConnectionStringName="OrgConnectionString", ConfigFile=".\\App.config">
+type dbSchemaNested = SqlDataConnection<ConnectionStringName="OrgConnectionString", ConfigFile=".\\App.config">
 
-type Departments = dbSchema.ServiceTypes.Departments
-type Employees = dbSchema.ServiceTypes.Employees
-type Contacts = dbSchema.ServiceTypes.Contacts
-type Tasks = dbSchema.ServiceTypes.Tasks
+type Departments = dbSchemaNested.ServiceTypes.Departments
+type Employees = dbSchemaNested.ServiceTypes.Employees
+type Contacts = dbSchemaNested.ServiceTypes.Contacts
+type Tasks = dbSchemaNested.ServiceTypes.Tasks
 type Department = {dpt:string}
     
 type Employee = {dpt:string;emp:string}
@@ -32,11 +32,11 @@ type EmployeeTasks' = {emp:string; tasks : System.Linq.IQueryable<string>}
 type DepartmentEmployees' = {dpt : string; employees: System.Linq.IQueryable<EmployeeTasks'> }
 type NestedOrg' = System.Linq.IQueryable<DepartmentEmployees'>
 
-let internal db = dbSchema.GetDataContext()
 
 [<TestClass>]
 type NestedTests() = 
 
+    let db = dbSchemaNested.GetDataContext()
 
     let departments = db.Departments
     let employees = db.Employees
@@ -163,7 +163,7 @@ type NestedTests() =
       let depts = Array.map (fun _ -> (randomDepartment())) [|1..ds|] in
       Array.iter (fun p -> addDept p) depts;
       db.DataContext.SubmitChanges();
-
+      
       // for each department generate up to n  employees
       let employees = randomEmployeesInDepartments depts n in
       List.iter (fun p -> addEmpR p) employees;
@@ -187,6 +187,15 @@ type NestedTests() =
       List.iter (fun (e:Employee) -> addTaskR {emp=e.emp;tsk="abstract"}) employees;
       db.DataContext.SubmitChanges()
               
+
+
+
+
+
+
+
+    // Example 8
+
     let exists() = <@ fun xs -> Seq.exists (fun _ -> true) xs @>
 
     let expertiseNaive =
@@ -212,7 +221,11 @@ type NestedTests() =
         for d in db.Departments do 
         if not(query {
             for e in db.Employees do 
-                exists(e.Dpt = d.Dpt
+                exists(e.Dpt = d.Dpt &&
+                    not (query {for t in db.Tasks do
+                                exists(e.Emp = t.Emp && t.Tsk = u)
+                            }
+                        )
                     )
             })
         then yield {Department.dpt=d.Dpt}
@@ -303,11 +316,11 @@ type NestedTests() =
     let printAny xs = 
         Seq.iter (fun x -> printfn "%A" x) xs
 
-    let ex9 = <@ (%expertise)  "abstract" @>
+    
+    // Example 9
 
+    let ex9 = <@ (%expertise)  "abstract" @>
     let ex9' = <@ (%expertise') "abstract" @>
-    //testAll ex9 ex9' printAny
-    //timeAll ex9 ex9' printDepts
 
     let doBasicTest() = 
         printfn "ex8"
