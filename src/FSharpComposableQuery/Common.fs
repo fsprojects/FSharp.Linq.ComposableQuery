@@ -7,6 +7,8 @@ open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Reflection
 open System.Reflection
 
+#nowarn "62"
+
 type Op = 
     | Plus
     | Minus

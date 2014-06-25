@@ -54,9 +54,12 @@ let duration n msg f =
 
 
 // Runs a test once and returns whether it was successful, i.e. no Exception was thrown.
-let test msg f = try f ()
-                     printfn "%s: \tSuccess" msg 
-                 with exn -> printfn "%s: \tFailure %A" msg exn
+let test msg f = 
+    try 
+        f ()
+        printfn "%s: \tSuccess" msg 
+    with exn -> 
+        printfn "%s: \tFailure" msg
 
 
 
@@ -68,7 +71,7 @@ let testPLinqQ msg (q:Expr<'T>) p = test msg (fun x -> query { for x in (%q) do 
 
 let testAll (q:Expr<seq<'T>>) (q':Expr<IQueryable<'T>>) (p:seq<'T> -> unit) = 
   //testNaive "Naive" q p
-  testFS2 "FSharp 2.0" q p
+//  testFS2 "FSharp 2.0" q p
   testFS3 "FSharp 3.0" q' p
   //testPLinq "FSharpComposableQuery" q p
   testPLinqQ "PLinqQ" q' p
@@ -78,8 +81,8 @@ let testTime msg f =
     try 
         let _,time = f ()
         printfn "%s: \tSuccess\t %f ms" msg time
-    with 
-        exn -> printfn "%s: \tFailure" msg 
+    with exn -> 
+        printfn "%s: \tFailure" msg
 
 let testTime' f = try let _,time = f() 
                       time

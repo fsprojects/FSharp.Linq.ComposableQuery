@@ -15,7 +15,7 @@ type internal Debug() =
     //Example of a Debug-conditional method. 
     //Calls to it get replaced by nops when compiling in 'Release'
     [<Conditional("DEBUG")>]
-    static member prettyPrint (toExp : Quotations.Expr -> Exp) exp = 
+    static member prettyPrint exp = 
     
 
         let printObj (o:obj) = 
@@ -39,9 +39,9 @@ type internal Debug() =
                 | And -> "&&"
                 | Or -> "||"
                 | Concat -> "@"
+                | Like -> "Like" // SQL
                 | Not -> "Not" // unary
                 | Neg -> "Neg" // unary
-                | Like -> "Like" // SQL
 
         let concat = 
             String.concat System.Environment.NewLine
@@ -82,7 +82,7 @@ type internal Debug() =
                         | UnknownNew ci -> [otxt + ".Create_" + ci.Name + "("] @ argstxt @ [")"]
                         | UnknownRef (Patterns.Value (o,_)) -> ["(Ref " + (printObj o) + ")"]
                         | UnknownRef (o) -> ["(Ref " + (printObj o) + ")"]
-                        | UnknownQuote -> [otxt + ":quote {"] @ argstxt @ ["}"]
+                        | UnknownQuote -> [otxt + "<@ "] @ argstxt @ [" @>"]
                 | _ -> raise NYI
             |> List.map (fun x -> (String.replicate lvl "  ") + x)
 
@@ -161,6 +161,6 @@ type internal Debug() =
                 assert (a3.IsSome = b3.IsSome)
                 assert Debug.compExpr (a3.Value, b3.Value)
                 assert cmpList a4 b4
-            | (a, b) -> 
+            | (_, _) -> 
                 assert false
         true

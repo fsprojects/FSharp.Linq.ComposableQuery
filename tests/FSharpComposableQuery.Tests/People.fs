@@ -4,268 +4,276 @@ open FSharpComposableQuery.TestUtils
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
 open System.Linq
+open Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
-type internal dbSchemaPeople = SqlDataConnection<ConnectionStringName="PeopleConnectionString", ConfigFile=".\\App.config">
 
-//db.DataContext.Log <- System.Console.Out
+module People = 
+    
+    [<Literal>]
+    let N_COUPLES = 5000
 
+    type internal dbSchemaPeople = SqlDataConnection<ConnectionStringName="PeopleConnectionString", ConfigFile=".\\App.config">
 
-type internal Couples = dbSchemaPeople.ServiceTypes.Couples
-type internal CoupleR = {him:string; her:string}
+    type internal Couples = dbSchemaPeople.ServiceTypes.Couples
+    type internal CoupleR = {him:string; her:string}
 
-type internal People = dbSchemaPeople.ServiceTypes.People
-type internal PeopleR = {name:string;age:int}
-type internal Result = {rname:string;diff:int}
+    type internal People = dbSchemaPeople.ServiceTypes.People
+    type internal PeopleR = {name:string;age:int}
+    type internal Result = {rname:string;diff:int}
 
-// used in example 6
-type internal Predicate = 
-    | Above of int
-    | Below of int
-    | And of Predicate * Predicate
-    | Or of Predicate * Predicate
-    | Not of Predicate
+    let internal db = dbSchemaPeople.GetDataContext()
 
-type PeopleTests() =
+    // used in example 6
+    type internal Predicate = 
+        | Above of int
+        | Below of int
+        | And of Predicate * Predicate
+        | Or of Predicate * Predicate
+        | Not of Predicate
 
-    let db = dbSchemaPeople.GetDataContext()
+    [<TestClass>]
+    type TestClass() =
+        inherit FSharpComposableQuery.Tests.TestClass()
 
-    let couples = db.DataContext.GetTable<Couples>()
-    let people = db.DataContext.GetTable<People>()
+        static let couples = db.DataContext.GetTable<Couples>()
+        static let people = db.DataContext.GetTable<People>()
 
-    let addCouple (r : Couples) =   
-      couples.InsertOnSubmit(r)
+        static let addCoupleR (r:CoupleR) =
+          let c = new Couples() in 
+          c.Him <- r.him;
+          c.Her <- r.her;  
+          couples.InsertOnSubmit(c)
 
-    let addCouplesR (r:CoupleR) =
-      let c = new Couples() in 
-      c.Him <- r.him;
-      c.Her <- r.her;
-      addCouple(c)
+        static let addPeopleR (r:PeopleR) =
+          let p = new People() in 
+          p.Age <- r.age
+          p.Name <- r.name
+          people.InsertOnSubmit(p)
 
-    let addPeople (r : People) =
-        people.InsertOnSubmit(r)
-
-    let addPeopleR (r:PeopleR) =
-      let p = new People() in 
-      p.Age <- r.age
-      p.Name <- r.name
-      addPeople(p)
-
-    let dropTables() = 
-      ignore(db.DataContext.ExecuteCommand("DELETE FROM [MyPeople].[dbo].[Couples] WHERE 1=1"))
-      ignore(db.DataContext.ExecuteCommand("DELETE FROM [MyPeople].[dbo].[People] WHERE 1=1"))
+        static let dropTables() = 
+          ignore(db.DataContext.ExecuteCommand("DELETE FROM [MyPeople].[dbo].[Couples] WHERE 1=1"))
+          ignore(db.DataContext.ExecuteCommand("DELETE FROM [MyPeople].[dbo].[People] WHERE 1=1"))
     
 
-    // TODO: Random data generator
+        // TODO: Random data generator
 
-    let idx = ref 0
-    let gensym str = let i = !idx in
-                     let () = idx := i+1 in
-                     str + "_" + i.ToString()
+        static let mutable idx = 0
+        static let gensym str = 
+            idx <- idx + 1
+            str + "_" + idx.ToString()
 
-    let rand = new System.Random()
-    let randomArray(arr:'a array) = 
-      let i = rand.Next(arr.Length) in
-      (arr.[i])
+        static let rand = new System.Random()
+        static let randomArray(arr:'a array) = 
+          let i = rand.Next(arr.Length) in
+          (arr.[i])
 
-    let randomMaleName () = gensym (randomArray [|"alan";"bert";"charlie";"david";"edward"|])
-    let randomFemaleName() = gensym (randomArray [|"alice";"betty";"clara";"dora";"eve"|])
-    let randomAge () = rand.Next(18,80)
+        static let randomMaleName () = gensym (randomArray [|"alan";"bert";"charlie";"david";"edward"|])
+        static let randomFemaleName() = gensym (randomArray [|"alice";"betty";"clara";"dora";"eve"|])
+        static let randomAge () = rand.Next(18,80)
 
-    let randomCouples n = List.map (fun _ -> {him=randomMaleName(); her=randomFemaleName()}) [1..n]
+        static let  randomCouples n = List.map (fun _ -> {him=randomMaleName(); her=randomFemaleName()}) [1..n]
 
-    let randomPeople couples = 
-        List.concat (List.map (fun r -> [{name=r.him;age=randomAge()};{name=r.her;age=randomAge()}]) couples)
+        static let randomPeople couples = 
+            List.concat (List.map (fun r -> [{name=r.him;age=randomAge()};{name=r.her;age=randomAge()}]) couples)
 
-    let addRandom n = 
-      let couples = randomCouples n in
-      List.iter (fun c -> addCouplesR c) couples
-      db.DataContext.SubmitChanges()
-      let people = randomPeople couples in
-      List.iter (fun p -> addPeopleR p) people;
-      db.DataContext.SubmitChanges()
+        static let addRandom n = 
+          let couples = randomCouples n
+          List.iter addCoupleR couples
+          db.DataContext.SubmitChanges()
 
-
-
-    let printPeople x = Seq.iter (fun r -> printfn "%s %i" r.name r.age)    x            
-    let forcePeople x = Seq.iter (fun r -> ())    x            
-
-    let printResult x = Seq.iter (fun r -> printfn "%s %i" r.rname r.diff)    x            
-    let forceResult x = Seq.iter (fun r -> ())    x    
-
-
-    // Example 1
-
-    let differences = <@ seq {
-                  for c in db.Couples do
-                  for w in db.People do
-                  for m in db.People do
-                  if c.Her = w.Name && c.Him = m.Name && w.Age > m.Age 
-                  then yield {rname=w.Name; diff=w.Age - m.Age}
-                  } @>
-
-
-    let differences' = <@ query {
-                  for c in db.Couples do
-                  for w in db.People do
-                  for m in db.People do
-                  if c.Her = w.Name && c.Him = m.Name && w.Age > m.Age 
-                  then yield {rname=w.Name; diff=w.Age - m.Age}
-                } @>
-
-    let ex1 = differences
-    let ex1' = differences'
-
-
-    // Example 2
-
-    let range = <@ fun (a:int) (b:int) -> 
-      seq {
-        for u in db.People do
-        if a <= u.Age && u.Age < b 
-        then yield {name=u.Name;age=u.Age}
-        } @>
-
-    let range' = fun (a:int) (b:int) -> 
-      query {
-        for u in db.People do
-        if a <= u.Age && u.Age < b 
-        then yield {name=u.Name;age=u.Age}
-        } 
-
-    let ex2 = <@ (%range) 30 40 @>
-    let ex2' = <@ range' 30 40 @> 
-
-
-    // Example 3
-
-    let satisfies:Expr<(int -> bool) -> seq<PeopleR>> = 
-      <@ fun p -> seq { 
-          for w in db.People do
-          if p w.Age 
-          then yield {name=w.Name;age=w.Age}
-       } @>
-
-
-    let satisfies'  = 
-     <@ fun p -> query { 
-        for u in db.People do
-        if p u.Age 
-        then yield {name=u.Name;age=u.Age}
-       } @>
-
-    let ex3 = <@ (%satisfies) (fun x -> 30 <= x && x < 40) @>
-    let ex3' = <@  (%satisfies') (fun x -> 20 <= x && x < 30 ) @>
-
-
-    // Example 4
-
-    let ex4 = <@ (%satisfies) (fun x -> x % 2 = 0) @>
-    let ex4' = <@ (%satisfies') (fun x ->  x % 2 = 0 ) @>
+          let people = randomPeople couples
+          List.iter addPeopleR people;
+          db.DataContext.SubmitChanges()
 
 
 
-    // Example 5
+        let printPeople x = Seq.iter (fun r -> printfn "%s %i" r.name r.age)    x            
+        let forcePeople x = Seq.iter (fun r -> ())    x            
 
-    let ageFromName = 
-      <@ fun s -> seq{
-            for u in db.People do 
-            if s = u.Name then 
-              yield u.Age } @>
-
-    let compose : Expr<string -> string -> seq<PeopleR>> = 
-      <@ fun s t -> seq {
-          for a in (%ageFromName) s do
-          for b in (%ageFromName) t do 
-          yield! (%range) a b
-      } @>
+        let printResult x = Seq.iter (fun r -> printfn "%s %i" r.rname r.diff)    x            
+        let forceResult x = Seq.iter (fun r -> ())    x    
 
 
-    let ageFromName' = 
-      <@ fun s -> query {
-            for u in db.People do 
-            if s = u.Name then 
-              yield u.Age } @>
+        // Example 1
 
-    let compose' : Expr<string -> string -> IQueryable<PeopleR>> = 
-      <@ fun s t -> query {
-          for a in (%ageFromName') s do
-          for b in (%ageFromName') t do 
-          yield! (%range) a b
-      } @>
+        let differences = <@ seq {
+                      for c in db.Couples do
+                      for w in db.People do
+                      for m in db.People do
+                      if c.Her = w.Name && c.Him = m.Name && w.Age > m.Age 
+                      then yield {rname=w.Name; diff=w.Age - m.Age}
+                      } @>
 
 
-    let ex5 = <@ (%compose) "Eve" "Bob" @>
-    let ex5' = <@  (%compose') "Eve" "Bob"  @> 
+        let differences' = <@ query {
+                      for c in db.Couples do
+                      for w in db.People do
+                      for m in db.People do
+                      if c.Her = w.Name && c.Him = m.Name && w.Age > m.Age 
+                      then yield {rname=w.Name; diff=w.Age - m.Age}
+                    } @>
+
+        let ex1 = differences
+        let ex1' = differences'
 
 
-    // Example 6
+        // Example 2
 
-    let t0 : Predicate = And (Above 20, Below 30)
-    let t1 : Predicate = Not(Or(Below 20, Above 30))
+        let range = <@ fun (a:int) (b:int) -> 
+          seq {
+            for u in db.People do
+            if a <= u.Age && u.Age < b 
+            then yield {name=u.Name;age=u.Age}
+            } @>
 
-    let rec eval(t:Predicate) : Expr<int -> bool> =
-      match t with
-      | Above n -> <@ fun x -> x >= n @>
-      | Below n -> <@ fun x -> x < n @>
-      | And (t1,t2) -> <@ fun x -> (%eval t1) x && (%eval t2) x @>
-      | Or (t1,t2) -> <@ fun x -> (%eval t1) x || (%eval t2) x @>
-      | Not (t0) -> <@ fun x -> not((%eval t0) x ) @>
+        let range' = fun (a:int) (b:int) -> 
+          query {
+            for u in db.People do
+            if a <= u.Age && u.Age < b 
+            then yield {name=u.Name;age=u.Age}
+            }   
 
-
-    let ex6 = <@ (%satisfies) (%eval t0)@>
-    let ex6' = <@ (%satisfies') (%eval t0) @>
-
-
-    // Example 7
-
-    let ex7 = <@ (%satisfies) (%eval t1)@>
-    let ex7' = <@ (%satisfies') (%eval t1) @>
+        let ex2 = <@ (%range) 30 40 @>
+        let ex2' = <@ range' 30 40 @> 
 
 
+        // Example 3
 
-    // Runs all tests once without touching the db. 
-    let doBasicTest() = 
-        timeAll ex1 ex1' forcePeople
-        printfn "ex2"
-        timeAll ex2 ex2' forcePeople
-        printfn "ex3"
-        timeAll ex3 ex3' forcePeople
-        printfn "ex4"
-        timeAll ex4 ex4' forcePeople
-        printfn "ex5"
-        timeAll ex5 ex5' forcePeople
-        printfn "ex6"
-        timeAll ex6 ex6' forcePeople
-        printfn "ex7"
-        timeAll ex7 ex7' forcePeople
+        let satisfies:Expr<(int -> bool) -> seq<PeopleR>> = 
+          <@ fun p -> seq { 
+              for w in db.People do
+              if p w.Age 
+              then yield {name=w.Name;age=w.Age}
+           } @>
 
-    // Runs all tests, pre-populating the db with a given amount of randomised records
-    let doTest n = 
-        dropTables()
-        addRandom n
-        printfn "ex1"
-        timeAll ex1 ex1' forcePeople
-        printfn "ex2"
-        timeAll ex2 ex2' forcePeople
-        printfn "ex3"
-        timeAll ex3 ex3' forcePeople
-        printfn "ex4"
-        timeAll ex4 ex4' forcePeople
-        printfn "ex5"
-        timeAll ex5 ex5' forcePeople
-        printfn "ex6"
-        timeAll ex6 ex6' forcePeople
-        printfn "ex7"
-        timeAll ex7 ex7' forcePeople
 
-    // NYI
-    let doTest'()  =
+        let satisfies'  = 
+         <@ fun p -> query { 
+            for u in db.People do
+            if p u.Age 
+            then yield {name=u.Name;age=u.Age}
+           } @>
 
-        [("ex1",    timeAll' ex1 ex1' forcePeople);
-         ("ex2",    timeAll' ex2 ex2' forcePeople);
-         ("ex3",    timeAll' ex3 ex3' forcePeople);
-         ("ex4",    timeAll' ex4 ex4' forcePeople);
-         ("ex5",    timeAll' ex5 ex5' forcePeople);
-         ("ex6",    timeAll' ex6 ex6' forcePeople);
-         ("ex7",    timeAll' ex7 ex7' forcePeople)]
+        let ex3 = <@ (%satisfies) (fun x -> 30 <= x && x < 40) @>
+        let ex3' = <@  (%satisfies') (fun x -> 20 <= x && x < 30 ) @>
+
+
+        // Example 4
+
+        let ex4 = <@ (%satisfies) (fun x -> x % 2 = 0) @>
+        let ex4' = <@ (%satisfies') (fun x ->  x % 2 = 0 ) @>
+
+
+
+        // Example 5
+        
+        let range'' = <@ fun (a:int) (b:int) -> 
+          query {
+            for u in db.People do
+            if a <= u.Age && u.Age < b 
+            then yield {name=u.Name;age=u.Age}
+            } @>
+
+
+        let ageFromName = 
+          <@ fun s -> seq{
+                for u in db.People do 
+                if s = u.Name then 
+                  yield u.Age } @>
+
+        let compose : Expr<string -> string -> seq<PeopleR>> = 
+          <@ fun s t -> seq {
+              for a in (%ageFromName) s do
+              for b in (%ageFromName) t do 
+              yield! (%range'') a b
+          } @>
+
+
+        let ageFromName' = 
+          <@ fun s -> query {
+                for u in db.People do 
+                if s = u.Name then 
+                  yield u.Age } @>
+
+        let compose' : Expr<string -> string -> IQueryable<PeopleR>> = 
+          <@ fun s t -> query {
+              for a in (%ageFromName') s do
+              for b in (%ageFromName') t do 
+              yield! (%range'') a b
+          } @>
+
+
+        let ex5 = <@ (%compose) "Eve" "Bob" @>
+        let ex5' = <@  (%compose') "Eve" "Bob"  @> 
+
+
+        // Example 6
+
+        let t0 : Predicate = And (Above 20, Below 30)
+        let t1 : Predicate = Not(Or(Below 20, Above 30))
+
+        let rec eval(t:Predicate) : Expr<int -> bool> =
+          match t with
+          | Above n -> <@ fun x -> x >= n @>
+          | Below n -> <@ fun x -> x < n @>
+          | And (t1,t2) -> <@ fun x -> (%eval t1) x && (%eval t2) x @>
+          | Or (t1,t2) -> <@ fun x -> (%eval t1) x || (%eval t2) x @>
+          | Not (t0) -> <@ fun x -> not((%eval t0) x ) @>
+
+
+        let ex6 = <@ (%satisfies) (%eval t0)@>
+        let ex6' = <@ (%satisfies') (%eval t0) @>
+
+
+        // Example 7
+
+        let ex7 = <@ (%satisfies) (%eval t1)@>
+        let ex7' = <@ (%satisfies') (%eval t1) @>
+
+
+
+        [<ClassInitialize>]
+        static member init (c:TestContext) = 
+            printf "People: Rebuilding tables... "
+            dropTables()
+            addRandom N_COUPLES
+            printfn "done!"
+
+        [<TestMethod>]
+        member this.testEx1() = 
+            this.tagQuery "ex1"
+            timeAll ex1 ex1' forcePeople
+
+        [<TestMethod>]
+        member this.testEx2() = 
+            this.tagQuery "ex2"
+            timeAll ex2 ex2' forcePeople
+
+        [<TestMethod>]
+        member this.testEx3() = 
+            this.tagQuery "ex3"
+            timeAll ex3 ex3' forcePeople
+
+        [<TestMethod>]
+        member this.testEx4() = 
+            this.tagQuery "ex4"
+            timeAll ex4 ex4' forcePeople
+
+
+        //fails!
+        [<TestMethod>]
+        member this.testEx5() = 
+            this.tagQuery "ex5"
+            
+            timeAll ex5 ex5' forcePeople
+
+        [<TestMethod>]
+        member this.testEx6() = 
+            this.tagQuery "ex6"
+            timeAll ex6 ex6' forcePeople
+
+        [<TestMethod>]
+        member this.testEx7() = 
+            this.tagQuery "ex7"
+            timeAll ex7 ex7' forcePeople

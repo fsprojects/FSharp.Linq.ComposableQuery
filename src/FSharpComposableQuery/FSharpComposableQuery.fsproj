@@ -69,6 +69,7 @@
     <Compile Include="Expr.fs" />
     <Compile Include="SQL.fs" />
     <Compile Include="Debug.fs" />
+    <Compile Include="QueryTranslator.fs" />
     <Compile Include="Query.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -66,6 +66,7 @@ module QueryImpl =
 
     open FSharpComposableQuery.Common
     open FSharpComposableQuery
+    open FSharpComposableQuery.QueryTranslator
     open Helpers
 
 #if TIMING 
@@ -76,16 +77,8 @@ module QueryImpl =
       median(!lastQueryNormTime)
 #endif
 
-    // The native method to substitute for
-    type internal NativeFunc = 
-        | Run = 0
-        | RunValue = 1
-        | RunEnum = 2
 
-    
-    // Used to tag methods to be replaced by native ones (from Microsoft.FSharp.Core.ExtraTopLevels) when parsing nested queries
-    type internal ReplaceWithAttribute(ftype : NativeFunc) = 
-        member this.FType = ftype
+//        member this.generateCall o args
 
     type internal Func = 
         | ExistsF
@@ -311,7 +304,6 @@ module QueryImpl =
 //        let mutable forallMi = getGenericMethodInfo <@@ id @@>
 
         //contains mappings from NativeFunc to MethodInfo * Expr)
-        let mutable queryOpPrototypes = Map.empty
 
         member internal this.initMi() = 
             yieldMi <-  (getGenericMethodInfo <@@ this.Yield @@>)
@@ -320,38 +312,12 @@ module QueryImpl =
             existsMi <-  ( getGenericMethodInfo  <@@ this.Exists @@>)
             whereMi <-  ( getGenericMethodInfo  <@@ this.Where @@>)
             selectMi <-  ( getGenericMethodInfo <@@ this.Select @@>)
+//            selectMi <-  ( getGenericMethodInfo <@@ this.Se @@>)
 //            sourceMi <-  ( getGenericMethodInfo <@@ this.Source @@>)
 //            forallMi <-  ( getGenericMethodInfo <@@ this.All @@>)
             
-            let qEnum = <@ query { for _ in [] do yield 0 } @>  //run as enumerable
-            let qVal = <@ query { for _ in [] do count } @>     //run as value
-            let qQue = <@ query { select 0 } @>                 //run as queryable
 
-            // Gets the builder instance given the caller and args of a function
-            // it is the caller (if there is one), or the first arg otherwise
-            let getBuilder o args = 
-                (Option.toList o) @ args
-                |> Seq.find (fun _ -> true)     //grab first element
-            
-            
-            let getCallData q = 
-                match q with
-                | Application (Lambda(_, Call(o, mi, args)), _) -> 
-                    (mi.GetGenericMethodDefinition(), getBuilder o args)
-                | _ -> 
-                    failwith "Unable to initialize"
 
-            queryOpPrototypes <- queryOpPrototypes
-                .Add(NativeFunc.RunEnum, getCallData qEnum)
-                .Add(NativeFunc.RunValue, getCallData qVal)
-                .Add(NativeFunc.Run, getCallData qQue)
-
-        member internal this.getNativeQueryOp (mi:MethodInfo) =
-            mi.GetCustomAttributes true
-            |> Seq.filter (fun (a:System.Object) -> 
-                a.GetType().IsAssignableFrom(typedefof<ReplaceWithAttribute>))
-            |> Seq.cast<ReplaceWithAttribute>
-            |> Seq.tryPick Some
 
         member internal this.recognizeFunc (methodInfo':MethodInfo) = 
             let methodInfo = getGenericMethodInfo' methodInfo' 
@@ -383,7 +349,7 @@ module QueryImpl =
             else if methodInfo = selectMi then  SelectF
             //else if methodInfo = !sourceMi then  SourceF
             else 
-                match this.getNativeQueryOp methodInfo with
+                match QueryTranslator.recogniseNativeMethod methodInfo with
                 | (Some a) -> 
                     RunQueryF a.FType
                 | None -> 
@@ -472,7 +438,7 @@ module QueryImpl =
                 | Variable(None, _) -> 
                     Unknown(UnknownRef(expr), expr.Type, None, []) // otherwise assume global var
                 | Patterns.NewRecord(rty, values) -> 
-                    let fields = Reflection.FSharpType.GetRecordFields rty |> Array.toList
+                    let fields = Reflection.FSharpType.GetRecordFields(rty, BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.Instance) |> Array.toList
                     let fieldsR = fields |> List.map (fun f -> { name = f.Name; info = f; ty = f.PropertyType; isProperty = true })
                     Record(rty, List.zip fieldsR (List.map from values))
                 | Patterns.NewObject(ci, es) -> 
@@ -557,25 +523,14 @@ module QueryImpl =
                     getFunTy f.Type (fun ty _ -> 
                                      let x = fresh(new Var("x",ty)) 
                                      Comp(Singleton(App(from f,EVar x)),  x, from e))
-                | RunQueryF t, _ ->
-                    let (newMi, newBuilder) = queryOpPrototypes.[t]
-                    let newMi' = newMi.MakeGenericMethod (func.GetGenericArguments())
-                    
-                    let actualArgs = ((Option.toList obj) @ args).Tail
+                | RunQueryF t, args ->
+                    let (obj, func, args) = QueryTranslator.translateNativeMethod t (obj, func, args)
 
-                    match newMi.IsStatic with
-                    | true ->
-                        Unknown(
-                            UnknownCall newMi', 
-                            expr_ty, 
-                            None, 
-                            List.map from (newBuilder :: actualArgs))
-                    | false ->
-                        Unknown(
-                            UnknownCall newMi', 
-                            expr_ty, 
-                            Some (from newBuilder), 
-                            List.map from actualArgs)
+                    Unknown(
+                        UnknownCall func,
+                        expr_ty,
+                        Option.map from obj,
+                        List.map from args)
                 | _, args ->                         //just pass the args along otherwise
                     Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
             from expr
@@ -590,10 +545,10 @@ module QueryImpl =
 //            Debug.printfn("Input expr:\n%s\n", expr.ToString())
             let exp = this.fromExpr expr.Raw
             
-//            Debug.printfn("Initial exp:\n%s\n", Debug.prettyPrint this.fromExpr exp)
+//            Debug.printfn("Initial exp:\n%s\n", (Debug.prettyPrint exp))
             let expNorm = nf exp
 
-//            Debug.printfn("Norm exp:\n%s\n", Debug.prettyPrint this.fromExpr expNorm)
+//            Debug.printfn("Norm exp:\n%s\n", (Debug.prettyPrint expNorm))
             let exprNorm = this.toExpr expNorm
 
 //            Debug.printfn("Final expr:\n%s\n", exprNorm.ToString())
@@ -645,6 +600,7 @@ namespace FSharpComposableQuery
 open FSharpComposableQuery.QueryImpl
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Linq
+open FSharpComposableQuery.QueryTranslator
 
 [<AutoOpen>]
 module LowPriority = 
