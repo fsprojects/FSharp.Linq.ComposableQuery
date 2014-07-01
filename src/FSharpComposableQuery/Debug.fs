@@ -14,7 +14,6 @@ type internal Debug() =
 
     //Example of a Debug-conditional method. 
     //Calls to it get replaced by nops when compiling in 'Release'
-    [<Conditional("DEBUG")>]
     static member prettyPrint exp = 
     
 
@@ -81,8 +80,9 @@ type internal Debug() =
                         | UnknownCall mi ->  [otxt + "." + mi.Name + "("] @ argstxt @ [")"]
                         | UnknownNew ci -> [otxt + ".Create_" + ci.Name + "("] @ argstxt @ [")"]
                         | UnknownRef (Patterns.Value (o,_)) -> ["(Ref " + (printObj o) + ")"]
-                        | UnknownRef (o) -> ["(Ref " + (printObj o) + ")"]
+                        | UnknownRef (o) -> [printObj o]
                         | UnknownQuote -> [otxt + "<@ "] @ argstxt @ [" @>"]
+                | Union(e1, e2) -> prettyPrintRec 0 e1 @ [ "  U" ] @ prettyPrintRec 0 e2
                 | _ -> raise NYI
             |> List.map (fun x -> (String.replicate lvl "  ") + x)
 
@@ -93,74 +93,3 @@ type internal Debug() =
     static member printfn(f,s) = 
         System.IO.File.AppendAllText(logFile, (sprintf f s) + System.Environment.NewLine)
 
-    static member compExpr (a,b) = 
-        let cmpList a b = 
-            List.zip a b
-            |> List.map Debug.compExpr
-            |> List.fold (&&) true
-        match (a,b) with
-            | (IntC a, IntC b) -> 
-                assert (a = b)
-            | (BoolC a, BoolC b) -> 
-                assert (a = b)
-            | (StringC a, StringC b) -> 
-                assert (a = b)
-            | (Unit, Unit) -> 
-                ()
-            | (Tuple(a1, a2), Tuple(b1, b2)) -> 
-                assert (a1 = b1)
-                assert cmpList a2 b2
-            | (Proj(eA, iA), Proj(eB, iB)) -> 
-                assert Debug.compExpr(eA,eB)
-                assert (iA = iB)
-            | (IfThenElse(a1, a2, a3), IfThenElse(b1, b2, b3)) -> 
-                assert Debug.compExpr(a1,b1)
-                assert Debug.compExpr(a2,b2)
-                assert Debug.compExpr(a3,b3)
-            | (EVar a, EVar b) ->
-                assert (a = b)
-            | (ELet(a1, a2, a3), ELet(b1, b2, b3)) -> 
-                assert (a1 = b1)
-                assert Debug.compExpr(a2,b2)
-                assert Debug.compExpr(a3,b3)
-            | (BinOp(a1, a2, a3), BinOp(b1, b2, b3)) -> 
-                assert (a2 = b2)
-                assert Debug.compExpr(a1,b1)
-                assert Debug.compExpr(a3,b3)
-            | (UnOp(a1, a2), UnOp(b1, b2)) -> 
-                assert (a1 = b1)
-                assert Debug.compExpr(a2,b2)
-            | (Field(a1, a2), Field(b1, b2)) -> 
-                assert (a2 = b2)
-                assert Debug.compExpr(a1,b1)
-            | (Record(a1, a2), Record(b1, b2)) -> 
-                assert (a1 = b1)
-                // NYI
-            | (Lam(a1, a2), Lam(b1, b2)) -> 
-                assert (a1 = b1)
-                assert Debug.compExpr(a2,b2)
-            | (App(a1, a2), App(b1, b2)) -> 
-                assert Debug.compExpr(a1,b1)
-                assert Debug.compExpr(a2,b2)
-            | (Empty a, Empty b) -> 
-                assert (a = b)
-            | (Singleton a, Singleton b) -> 
-                assert Debug.compExpr(a,b)
-            | (Comp(a1, a2, a3), Comp(b1, b2, b3)) -> 
-                assert (a2 = b2)
-                assert Debug.compExpr(a1,b1)
-                assert Debug.compExpr(a3,b3)
-            | (Exists a, Exists b) -> 
-                assert Debug.compExpr(a,b)
-            | (Table(a1, a2), Table(b1, b2)) -> 
-                assert (a2 = b2)
-//                assert Debug.compExpr(a1,b1)     NYI
-            | (Unknown(a1, a2, a3, a4), Unknown(b1, b2, b3, b4)) -> 
-                assert (a1 = b1)
-                assert (a2 = b2)
-                assert (a3.IsSome = b3.IsSome)
-                assert Debug.compExpr (a3.Value, b3.Value)
-                assert cmpList a4 b4
-            | (_, _) -> 
-                assert false
-        true

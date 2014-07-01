@@ -41,43 +41,19 @@ let getOpType op =
     | Concat | Like -> typeof<string>
     | Neg -> typeof<int>
     | Not -> typeof<bool>
-#if TIMING
-
-let median (l : float list) = 
-    if l.Length = 0 then -1.0
-    else List.nth l (l.Length / 2)
-
-let timeIt n f = 
-    let l = 
-        List.map (fun _ -> 
-            let timer = new System.Diagnostics.Stopwatch()
-            timer.Start()
-            let returnValue = f()
-            returnValue, timer.Elapsed.TotalMilliseconds) [ 1..n ]
     
-    let (vs, ts) = List.unzip l
-    (List.head vs, median ts)
-
-let withDuration n f = 
-    let returnValue, elapsed = timeIt n f
-    returnValue, elapsed
-
-let duration n msg f = 
-    let returnValue, elapsed = withDuration n f
-    printfn "%s: \t %f ms" msg elapsed
-    returnValue
-#else
 let withDuration _n f = f(), 0.0
 let duration _n _msg f = f()
-#endif
 
 
 let UnitTy = typeof<unit>
 let IntTy = typeof<int>
 let BoolTy = typeof<bool>
 let StringTy = typeof<string>
+
 let FunTy(ty1 : System.Type, ty2) = 
     typeof<_ -> _>.GetGenericTypeDefinition().MakeGenericType([| ty1; ty2 |])
+
 let TableTy(ty : System.Type) = 
     typeof<System.Data.Linq.Table<_>>.GetGenericTypeDefinition()
         .MakeGenericType([| ty |])
@@ -181,11 +157,10 @@ type Exp =
 
 exception NYI
 
-let tag = ref 0
-
+let mutable tag = 0
 let fresh (x : Var) = 
-    tag := !tag + 1
-    let newname = x.Name.Split('_').[0] + "_" + string (!tag)
+    tag <- tag + 1
+    let newname = x.Name.Split('_').[0] + "_" + string (tag)
     new Var(newname, x.Type, x.IsMutable)
 
 // TODO: Pair var's up with integer tags

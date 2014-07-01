@@ -352,19 +352,27 @@ module Xml =
         [<TestMethod>]
         member this.testXp0() = 
             this.tagQuery "xp0"
-            timeXPath xp0
+            xp0
+            |> xpath' 0 <@data@>
+            |> Utils.Run
         
         [<TestMethod>]
         member this.testXp1() = 
             this.tagQuery "xp1"
-            timeXPath xp1
+            xp1
+            |> xpath' 0 <@data@>
+            |> Utils.Run
         
         [<TestMethod>]
         member this.testXp2() = 
             this.tagQuery "xp2"
-            timeXPath xp2
+            xp2
+            |> xpath' 0 <@data@>
+            |> Utils.Run
         
         [<TestMethod>]
         member this.testXp3() = 
             this.tagQuery "xp3"
-            timeXPath xp3
+            xp3
+            |> xpath' 0 <@data@>
+            |> Utils.Run

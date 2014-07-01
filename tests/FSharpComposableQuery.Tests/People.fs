@@ -134,8 +134,8 @@ module People =
             then yield {name=u.Name;age=u.Age}
             }   
 
-        let ex2 = <@ (%range) 30 40 @>
-        let ex2' = <@ range' 30 40 @> 
+        let ex2 = <@(%range) 30 40 @>
+        let ex2' = <@ query { yield! range' 30 40 } @> 
 
 
         // Example 3
@@ -147,7 +147,6 @@ module People =
               then yield {name=w.Name;age=w.Age}
            } @>
 
-
         let satisfies'  = 
          <@ fun p -> query { 
             for u in db.People do
@@ -156,13 +155,13 @@ module People =
            } @>
 
         let ex3 = <@ (%satisfies) (fun x -> 30 <= x && x < 40) @>
-        let ex3' = <@  (%satisfies') (fun x -> 20 <= x && x < 30 ) @>
+        let ex3' = <@ query { yield! (%satisfies') (fun x -> 20 <= x && x < 30 ) } @>
 
 
         // Example 4
 
         let ex4 = <@ (%satisfies) (fun x -> x % 2 = 0) @>
-        let ex4' = <@ (%satisfies') (fun x ->  x % 2 = 0 ) @>
+        let ex4' = <@ query { yield! (%satisfies') (fun x ->  x % 2 = 0 ) } @>
 
 
 
@@ -205,7 +204,7 @@ module People =
 
 
         let ex5 = <@ (%compose) "Eve" "Bob" @>
-        let ex5' = <@  (%compose') "Eve" "Bob"  @> 
+        let ex5' = <@ query { yield! (%compose') "Eve" "Bob" } @> 
 
 
         // Example 6
@@ -223,19 +222,19 @@ module People =
 
 
         let ex6 = <@ (%satisfies) (%eval t0)@>
-        let ex6' = <@ (%satisfies') (%eval t0) @>
+        let ex6' = <@ query { yield! (%satisfies') (%eval t0) } @>
 
 
         // Example 7
 
         let ex7 = <@ (%satisfies) (%eval t1)@>
-        let ex7' = <@ (%satisfies') (%eval t1) @>
+        let ex7' = <@ query { yield! (%satisfies') (%eval t1) } @>
 
 
 
         [<ClassInitialize>]
         static member init (c:TestContext) = 
-            printf "People: Rebuilding tables... "
+            printf "People: Adding %d couples... " N_COUPLES
             dropTables()
             addRandom N_COUPLES
             printfn "done!"
@@ -243,37 +242,34 @@ module People =
         [<TestMethod>]
         member this.testEx1() = 
             this.tagQuery "ex1"
-            timeAll ex1 ex1' forcePeople
+            Utils.Run ex1'
 
         [<TestMethod>]
         member this.testEx2() = 
             this.tagQuery "ex2"
-            timeAll ex2 ex2' forcePeople
+            Utils.Run ex2'
 
         [<TestMethod>]
         member this.testEx3() = 
             this.tagQuery "ex3"
-            timeAll ex3 ex3' forcePeople
+            Utils.Run ex3'
 
         [<TestMethod>]
         member this.testEx4() = 
             this.tagQuery "ex4"
-            timeAll ex4 ex4' forcePeople
+            Utils.Run ex4'
 
-
-        //fails!
         [<TestMethod>]
         member this.testEx5() = 
             this.tagQuery "ex5"
+            Utils.Run ex5'
             
-            timeAll ex5 ex5' forcePeople
-
         [<TestMethod>]
         member this.testEx6() = 
             this.tagQuery "ex6"
-            timeAll ex6 ex6' forcePeople
-
+            Utils.Run ex6'
+            
         [<TestMethod>]
         member this.testEx7() = 
             this.tagQuery "ex7"
-            timeAll ex7 ex7' forcePeople
+            Utils.Run ex7'

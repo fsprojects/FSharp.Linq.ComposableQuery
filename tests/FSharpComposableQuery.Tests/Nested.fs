@@ -40,6 +40,13 @@ module Nested =
     [<TestClass>]
     type TestClass() = 
         inherit Tests.TestClass()
+        
+        [<Literal>]
+        static let N_DEPARTMENTS = 40
+        [<Literal>]
+        static let N_EMPLOYEES = 5000
+        [<Literal>]
+        static let N_ABSTRACTION = 500
 
         
         static let departments = db.Departments
@@ -69,8 +76,8 @@ module Nested =
             str + "_" + idx.ToString()
     
         static let randomArray(arr:'a array) = 
-            let i = rand.Next(arr.Length) in
-                (arr.[i])
+            let i = rand.Next(arr.Length)
+            arr.[i]
 
         static let randomName() = 
             randomArray [|"alan";"bert";"charlie";"david";"edward";"alice";"betty";"clara";"dora";"eve"|]
@@ -84,19 +91,22 @@ module Nested =
             randomArray [|"Sales";"Research";"Quality";"Product"|]
             |> genId
 
-        static let randomSalary () = 
-            rand.Next(10000,1000000)
+        static let randomSalary() = rand.Next(10000,1000000)
 
+        //Creates n employees at random in the given departments
         static let randomEmployees n depts = 
             [1..n]
-            |> List.map (fun _ -> {emp=randomName();dpt=randomArray depts}:Employee)
+            |> List.map (fun _ -> {emp=randomName();dpt=randomArray depts} : Employee)
 
+        // Creates n employees in each of the given departments
         static let randomEmployeesInDepartments depts n = 
             List.concat (List.map (fun d -> randomEmployees n [|d|]) (Array.toList depts))
 
+        // Creates n contacts at random in the given departments
         static let randomContacts n depts = 
             List.map (fun _ -> {dpt=randomArray depts;contact=randomName();client=rand.Next(2)}) [1..n]
 
+        // Creates 0 to 2 random tasks for each of the given employees
         static let randomTasks emps = 
             List.concat (List.map (fun (r:Employee) -> List.map (fun _ -> {emp=r.emp;tsk=randomTask()}) [1..rand.Next(3)]) emps)
 
@@ -144,48 +154,53 @@ module Nested =
 
 
         static let addRandom ds n = 
-            let depts = Array.map (fun _ -> (randomDepartment())) [|1..ds|] in
-            Array.iter (fun p -> addDept p) depts;
+            let depts = Array.map (ignore >> randomDepartment) [|1..ds|]
+            Array.iter addDept depts;
             db.DataContext.SubmitChanges();
 
-            let employees = randomEmployees n depts in
-            List.iter (fun p -> addEmpR p) employees;
+            let employees = randomEmployees n depts
+            List.iter addEmpR employees;
             db.DataContext.SubmitChanges();
 
-            let contacts = randomContacts n depts in
+            let contacts = randomContacts n depts
             List.iter addContactR contacts
             db.DataContext.SubmitChanges();
 
-            let tasks = randomTasks employees in
-            List.iter (fun c -> addTaskR c) tasks;
+            let tasks = randomTasks employees
+            List.iter addTaskR tasks;
             db.DataContext.SubmitChanges()
         
 
         static let addRandomDepartments ds n = 
-            let depts = Array.map (fun _ -> (randomDepartment())) [|1..ds|] in
-            Array.iter (fun p -> addDept p) depts;
+            let depts = Array.map (ignore >> randomDepartment) [|1..ds|]
+            Array.iter addDept depts;
             db.DataContext.SubmitChanges();
       
-            // for each department generate up to n  employees
-            let employees = randomEmployeesInDepartments depts n in
-            List.iter (fun p -> addEmpR p) employees;
+            // for each department generate n employees
+            let employees = randomEmployeesInDepartments depts n
+            List.iter addEmpR employees;
             db.DataContext.SubmitChanges();
 
-            let contacts = randomContacts n depts in
+            let contacts = randomContacts n depts
             List.iter addContactR contacts
             db.DataContext.SubmitChanges();
 
-            let tasks = randomTasks employees in
-            List.iter (fun c -> addTaskR c) tasks;
+            let tasks = randomTasks employees
+            List.iter addTaskR tasks;
             db.DataContext.SubmitChanges()
 
 
         static let addAbstractionDept n = 
-            let employees = randomEmployees n [|"Abstraction"|] in
-            List.iter (fun p -> addEmpR p) employees;
+
+            addDept "Abstraction"
             db.DataContext.SubmitChanges();
-            let tasks = randomTasks employees in
-            List.iter (fun c -> addTaskR c) tasks;
+
+            let employees = randomEmployees n [|"Abstraction"|]
+            List.iter addEmpR employees;
+            db.DataContext.SubmitChanges();
+
+            let tasks = randomTasks employees
+            List.iter addTaskR tasks;
             List.iter (fun (e:Employee) -> addTaskR {emp=e.emp;tsk="abstract"}) employees;
             db.DataContext.SubmitChanges()
 
@@ -211,7 +226,7 @@ module Nested =
                    )
             then yield {Department.dpt=d.Dpt}
           } @>
-
+          
         let expertiseNaive' = 
           <@ fun u -> query {
             for d in db.Departments do 
@@ -227,9 +242,11 @@ module Nested =
             then yield {Department.dpt=d.Dpt}
           } @>
 
+
         let ex8 = <@ (%expertiseNaive) "abstract"@>
 
         let ex8' = <@ (%expertiseNaive') "abstract" @>
+        let ex8'' = <@ query { for x in (%expertiseNaive') "abstract" do select x} @>
 
         let nestedOrg:Quotations.Expr<seq<DepartmentEmployees>> = 
             <@ seq { 
@@ -315,6 +332,7 @@ module Nested =
 
         let ex9 = <@ (%expertise)  "abstract" @>
         let ex9' = <@ (%expertise') "abstract" @>
+        let ex9'' = <@ query { for x in (%expertise') "abstract" do select x } @>
 
         let doBasicTest() = 
             printfn "ex8"
@@ -364,15 +382,26 @@ module Nested =
          
         let forceSeq = Seq.iter ignore
 
+
+
+
+        [<ClassInitialize>]
+        static member init (c:TestContext) = 
+            printf "Nested: Adding %d departments, %d employees and additional %d people in the Abstraction department... " N_DEPARTMENTS N_EMPLOYEES N_ABSTRACTION
+            dropTables()
+            addRandom N_DEPARTMENTS N_EMPLOYEES
+            addAbstractionDept N_ABSTRACTION
+            printfn "done!"
+
         [<TestMethod>]
         member this.testEx8() = 
              this.tagQuery "ex8"
-             timeAll ex8 ex8' forceSeq
+             Utils.Run ex8''
 
         [<TestMethod>]
         member this.testEx9() = 
              this.tagQuery "ex9"
-             timeAll ex9 ex9' forceSeq
+             Utils.Run ex9''
 
         (*
         let doScaleTest d n = 
