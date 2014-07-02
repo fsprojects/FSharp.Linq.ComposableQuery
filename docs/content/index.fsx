@@ -34,7 +34,7 @@ When you open 'FSharpComposableQuery', a new 'query' builder is available. The o
 is out-scoped, but can still be accessed as 'Microsoft.FSharp.Core.ExtraTopLevelOperators.query'.
 
 
-All existing F# database and in-memory queries shuold work as normal. 
+All existing F# database and in-memory queries should work as normal. 
 
 Example
 -------
@@ -72,7 +72,7 @@ let lastNumberInSortedList =
 Intended use
 ------------
 
-In addition, queries can be *composed* using lambda-abstraction. See the paper 
+In addition to normal usage, queries can be *composed* using lambda-abstraction. See the paper 
 ["A Practical Theory of Language-Integrated Query" (ICFP 2013)](http://dl.acm.org/citation.cfm?id=2500586).  
 Simple forms of query composition (such as abstracting over a value of base type) already work in LINQ, 
 but 'FSharpComposableQuery' in addition supports abstracting over functions, to allow higher-order query 
@@ -85,10 +85,10 @@ pointing to a database with appropriate tables matching the query, namely a 'Peo
 type dbSchema = SqlDataConnection<ConnectionString>;;
 let db = dbSchema.GetDataContext();;
 type People = dbSchema.ServiceTypes.People
-type PeopleR = {name:string;age:int}
+type PeopleR = { name:string; age:int }
 
 (**
-satisfies is a function that takes a predicate on ages and returns all people satisfying the predicate 
+We can then construct a function `satisfies` that takes a predicate on ages and returns all people that satisfy it
 *)
 
 let satisfies  = 
@@ -98,7 +98,7 @@ let satisfies  =
     then yield p
    } @>
 
-(** For example, find all people with age at least 20 and less than 30 *)
+(** We can now use this function in order to, for example, find all people with age at least 20 and less than 30 *)
 
 let ex1 = query { for x in (%satisfies) (fun x -> 20 <= x && x < 30 ) do yield x }
 
@@ -114,17 +114,14 @@ Caveats
 
  * WARNING: F# compiler optimizations are no longer applied to in-memory queries. 
    This library should only be used for database query programming.  If both in-memory querying and 
-   composable database queries are needed, you can explicitly bind 
-*)
+   composable database queries are needed, you can explicitly bind *)
 
 let dbQuery =  FSharpComposableQuery.TopLevelValues.query
 
-(**
-   instead of opening the 'FSharpComposableQuery' namespace, to avoid shadowing the built-in 'query'.
-   to bind dbQuery for use with database queries, without changing the behavior of query {} on in-memory queries.
+(**instead of opening the 'FSharpComposableQuery' namespace, to avoid shadowing the built-in 'query' construct.
+   You can then use the 'dbQuery' construct with database queries, without changing the behavior of query {} on in-memory queries.
 
- * As of the current version (0.1.1-alpha), 'query {}' expressions nested inside other 'query {}' expressions 
-   do not always work, which may prevent some query compositions from working. 
+ * Please check the [issues page on github][issues] for more details. 
 
 
 *)

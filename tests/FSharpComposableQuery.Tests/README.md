@@ -1,10 +1,18 @@
 FSharpComposableQuery Tests
 ===========================
 
-Setting up the database
-----------------------------------
-1. Install Microsoft SQL Server. Tested with Microsoft SQL Server 2014 Express. 
-2. Note the server and database name of the SQL server.
-3. Edit the <connectionStrings> values in the App.config file in this directory so they point to the correct data source (server-name\db-name). You can use the provided App.config.sample file to start with. 
-3. Execute the SQL scripts in the sql/ folder on the SQL Server
-4. You should now be able to execute the tests using the build file. If you get a "file does not exist" error, make sure you run the script from VS Command Prompt or have MSBuild/MSTest in your path. 
+Setting up the environment
+-----------------------
+1. Install a recent version of Microsoft SQL Server. The version used while developing was Microsoft SQL Server 2014 Express. 
+2. Note the server and database name of the newly installed SQL server.
+3. Edit the `<connectionStrings>` values in the App.config file in this directory so they point to the correct data source (server-name\db-name). You can use the provided App.config.sample file as an example. 
+3. Execute the SQL scripts from the [sql](/sql) folder on the SQL Server using e.g. SQL Server Management Studio
+4. You should now be able to run the tests using the default or "RunTests" target. 
+
+Running the tests
+-----------------
+Tests are run after compilation by the default build target and are considered OK as long as the QueryBuilder produced a valid output query and it was executed successfully. 
+
+The results of the ComposableQueryBuilder can also be compared against the output of the native one and both query builders can be benchmarked from within the Visual Studio project by modifying the value of the `Utils.RunMode` variable to either run and raise exceptions (the default mode used by the MSTest), compare and print, or time and print. 
+
+Please note that there are some issues with the result comparison feature (issue #2) and some queries do not evaluate at all using the F# 3.0 default QueryBuilder - the first column of results - which is totally expected. 

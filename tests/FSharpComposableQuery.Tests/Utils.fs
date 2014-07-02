@@ -103,16 +103,15 @@ type Utils() =
         | false -> QueryBuilders.TLinq.Run e
         
         
-    // The methods used to compare the results of the different types of queries. 
-    
+    // The methods used to compare the results of different types of queries. 
 
-    // Compare as unordered sets
+    // Compare queryables
+    // TODO: queries of this type are sometimes ordered
     static let compQuery (a : IQueryable<'T>) (b : IQueryable<'T>) = 
         let aa = a.ToArray()
         let bb = b.ToArray()
-
         
-        let ans = (aa.Length = bb.Length && not (aa.Except( bb).Any()))
+        let ans = (aa.Length = bb.Length && not (aa.Except(bb).Any()))
         ans
 
     // Compare values
@@ -120,7 +119,8 @@ type Utils() =
         let ans = (a = b)
         ans
 
-    // Compare sequences
+    // Compare sequences. 
+    // TODO: are queries of this type always ordered?
     static let compEnum (a : seq<'T>) (b : seq<'T>) = 
         let ans = (a.SequenceEqual b)
         ans
@@ -134,7 +134,7 @@ type Utils() =
         |> substituteBuilder 
         >> runMethod translate
 
-    // Prints the text in green or red, depending on the pass value
+    // Formats and prints the text using a specific color
     static let printResult c text = 
         let old = Console.ForegroundColor 
         try 

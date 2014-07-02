@@ -4,37 +4,44 @@ open Microsoft.VisualStudio.TestTools.UnitTesting;
 open System
 open System.Reflection
 
+
 module RunTests = 
     
-    // Gets all methods in the given type t with the given attribute. 
-    // The extraFlags variable should specify whether to retrieve instance or static methods 
+    // Returns all methods (public or not) of the given type t possessing a specific attribute. 
+    // The extraFlags argument must specify whether to retrieve instance, static or both types of methods.
     let getMethods extraFlags att (t : Type) = 
         t.GetMethods(BindingFlags.Public ||| BindingFlags.NonPublic ||| extraFlags)
         |> Array.filter (fun mi -> not << Array.isEmpty <| mi.GetCustomAttributes(att, true))
 
-    // Gets all the static methods tagged with the ClassInitialize attribute in the given System.Type
+    // Returns all the static methods tagged with the ClassInitialize attribute in the given System.Type
     let getInitMethods t = getMethods BindingFlags.Static typedefof<ClassInitializeAttribute> t
 
-    // Gets all the instance methods tagged with the TestMethod attribute in the given System.Type
+    // Returns all the instance methods tagged with the TestMethod attribute in the given System.Type
     let getTestMethods t = getMethods BindingFlags.Instance typedefof<TestMethodAttribute> t
-
-    let initTests (o : obj) = 
-        let t = o.GetType()
-        
-        // invoke class initializers
-        // TODO: these take a TestContext parameter. 
-        for m in getInitMethods t do
+    
+    // invoke class initializers
+    // TODO: these take a TestContext parameter.
+    let initTests (o : obj) =  
+        for m in getInitMethods (o.GetType()) do
             m.Invoke(o, [|null|]) |> ignore
-
+            
+    // invoke test methods
+    // other types of methods (e.g. test initializers) are not invoked
+    // as they are not currently used in any of the tests
     let runTests (o : obj) = 
-        let t = o.GetType()
-
-        // invoke test methods
-        for m in getTestMethods t do
+        for m in getTestMethods (o.GetType()) do
             m.Invoke(o, null) |> ignore
 
-        // other types of methods (e.g. test initializers) are not invoked
-        // as they are not currently used in any of the tests
+
+
+    let delimiter = ("=" + (String.replicate 10 "-="))
+    let printHeader fmt = 
+        Printf.kprintf
+            (fun s ->
+                printfn "%s" delimiter
+                printfn "%s" s
+                printfn "%s" delimiter) fmt
+            
 
     let tests : TestClass list = [
         (new FSharpComposableQuery.Tests.Simple.TestClass())
@@ -43,33 +50,25 @@ module RunTests =
         (new FSharpComposableQuery.Tests.Xml.TestClass()) 
         ]
 
-
-    let delimiter = ("-" + (String.replicate 10 "=-"))
-
     [<EntryPoint>]
     let Main(args) =
 
+        //init tables
+        printHeader "Setting up database tables"
         List.iter initTests tests
- 
-        //compare results
-        printfn "%s" delimiter
-        printfn "Comparing result values (%s, %s, %s)" "F# 3.0" "TLinq" "Match"
-        printfn "%s" delimiter
 
+        //compare results
         Utils.RunMode <- UtilsMode.CompPrint
+        printHeader "Comparing result values (%s, %s, %s)" "F# 3.0" "TLinq" "Match"
         List.iter runTests tests
 
         //run benchmarks
-        printfn "%s" delimiter
-        printfn "Mean execution time (%s, %s)" "F# 3.0" "TLinq"
-        printfn "%s" delimiter
-
         Utils.RunMode <- UtilsMode.TimePrint
+        printHeader "Mean execution time (%s, %s)" "F# 3.0" "TLinq"
         List.iter runTests tests
         
-
-        printfn "%s" delimiter
-        printfn "Done!"
+        printHeader "Done!"
         Console.Read()
 
 
+        
