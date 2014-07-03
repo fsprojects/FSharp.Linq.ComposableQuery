@@ -86,7 +86,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="tests.fsx" />
     <Compile Include="TestUtilsOld.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="TestClass.fs" />

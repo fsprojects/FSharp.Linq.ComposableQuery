@@ -129,9 +129,8 @@ type Utils() =
     // Runs the given expression using the runMethod, 
     static let run runMethod translate = 
         match translate with
-        | true -> QueryBuilders.FSharp3 
-        | false -> QueryBuilders.TLinq :> QueryBuilder
-        |> substituteBuilder 
+        | true -> substituteBuilder QueryBuilders.FSharp3 
+        | false -> id
         >> runMethod translate
 
     // Formats and prints the text using a specific color
