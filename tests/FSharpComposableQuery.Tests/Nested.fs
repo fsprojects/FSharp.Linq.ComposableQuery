@@ -288,7 +288,7 @@ module Nested =
 
 
         let nestedOrg'  = 
-          query { 
+          <@ query { 
             for d in db.Departments do
             yield {dpt = d.Dpt; 
                    employees= query {
@@ -303,7 +303,7 @@ module Nested =
                                    }
                      }
                   }
-          }
+          } @>
 
 
 
@@ -318,7 +318,7 @@ module Nested =
 
         let expertise' =
           <@ fun u -> query {
-            for d in (nestedOrg') do 
+            for d in (%nestedOrg') do 
             if (%all'()) (d.employees) (fun e -> (%contains'()) e.tasks u)
             then yield {Department.dpt=d.dpt}
             } @>

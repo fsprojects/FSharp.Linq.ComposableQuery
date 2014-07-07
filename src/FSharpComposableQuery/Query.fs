@@ -61,24 +61,13 @@ module QueryImpl =
     open Microsoft.FSharp.Quotations.Patterns
     open Microsoft.FSharp.Quotations.DerivedPatterns
     open Microsoft.FSharp.Reflection
-    open Microsoft.FSharp.Reflection
+    open Microsoft.FSharp.Linq
+    open System.Linq
     open System.Reflection
 
     open FSharpComposableQuery.Common
     open FSharpComposableQuery
-    open FSharpComposableQuery.QueryTranslator
     open Helpers
-
-#if TIMING 
-    let lastQueryNormTime = ref []
-    let resetNormTimes() = lastQueryNormTime := []
-    let addNormTime(t) = lastQueryNormTime := t :: (!lastQueryNormTime)
-    let medianNormTime() = 
-      median(!lastQueryNormTime)
-#endif
-
-
-//        member this.generateCall o args
 
     type internal Func = 
         | ExistsF
@@ -109,7 +98,10 @@ module QueryImpl =
         | YieldF
         | UnknownF
         | UnionF
-        | RunQueryF of NativeFunc
+        | RunQueryAsValueF
+        | RunQueryAsEnumerableF
+        | RunQueryAsQueryableF
+
 
     type QueryBuilder() = 
         inherit Microsoft.FSharp.Linq.QueryBuilder()
@@ -245,32 +237,18 @@ module QueryImpl =
             else 
                 nf expR
              
-        // store dummy MethodInfo records; replace them with real ones later
-        let mutable yieldMi = getGenericMethodInfo <@@ id @@>
-        let mutable zeroMi = getGenericMethodInfo <@@ id @@>
-        let mutable forMi = getGenericMethodInfo <@@ id @@>
-        let mutable existsMi = getGenericMethodInfo <@@ id @@>
-        let mutable whereMi = getGenericMethodInfo <@@ id @@>
-        let mutable selectMi = getGenericMethodInfo <@@ id @@>
-        let mutable unionQueryMi = getGenericMethodInfo <@@ id @@>
-        let mutable unionEnumMi = getGenericMethodInfo <@@ id @@>
-
-        member internal this.initMi() = 
-            yieldMi <- getGenericMethodInfo <@@ this.Yield @@>
-            zeroMi <- getGenericMethodInfo <@@ this.Zero @@>
-            forMi <- getGenericMethodInfo <@@ this.For @@>
-            existsMi <- getGenericMethodInfo  <@@ this.Exists @@>
-            whereMi <- getGenericMethodInfo  <@@ this.Where @@>
-            selectMi <- getGenericMethodInfo <@@ this.Select @@>
-            unionQueryMi <- getGenericMethodInfo <@@ System.Linq.Queryable.Union(null, null) @@>
-            unionEnumMi <- getGenericMethodInfo <@@ System.Linq.Enumerable.Union(null, null) @@>
-//            selectMi <- getGenericMethodInfo <@@ this.Run @@>
-//            selectMi <- getGenericMethodInfo <@@ this.Run @@>
-//            selectMi <- getGenericMethodInfo <@@ this.Run @@>
-
+        // MethodInfo data
+        let yieldMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Yield @>
+        let zeroMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Zero @>
+        let forMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.For @>
+        let existsMi = getGenericMethodInfo  <@ fun (q:QueryBuilder) -> q.Exists @>
+        let whereMi = getGenericMethodInfo  <@ fun (q:QueryBuilder) -> q.Where @>
+        let selectMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Select @>
+        let unionQueryMi = getGenericMethodInfo <@ fun (qa : IQueryable<_>) (qb : IQueryable<_>) -> Queryable.Union(qa, qb) @>
+        let unionEnumMi = getGenericMethodInfo <@ fun (qa : seq<_>) (qb : seq<_>) -> System.Linq.Enumerable.Union(qa, qb) @>
 
         member internal this.recognizeFunc (methodInfo':MethodInfo) = 
-            let methodInfo = getGenericMethodInfo' methodInfo' 
+            let methodInfo = getGenericMethodDefinition methodInfo' 
             if methodInfo = yieldMi then YieldF
             else if methodInfo = zeroMi then ZeroF
             else if methodInfo = forMi then ForF
@@ -297,12 +275,10 @@ module QueryImpl =
             else if methodInfo = selectMi then SelectF
             else if methodInfo = unionEnumMi then UnionF
             else if methodInfo = unionQueryMi then UnionF
-            else 
-                match QueryTranslator.recogniseNativeMethod methodInfo with
-                | (Some a) -> 
-                    RunQueryF a.FType
-                | None -> 
-                    UnknownF
+            else if methodInfo = ForwardDeclarations.RunQueryMi.Enum then RunQueryAsEnumerableF
+            else if methodInfo = ForwardDeclarations.RunQueryMi.Value then RunQueryAsValueF
+            else if methodInfo = ForwardDeclarations.RunQueryMi.Query then RunQueryAsQueryableF
+            else UnknownF
          
         member internal this.emptyExp ty = 
             Expr.Call(Expr.Value this,zeroMi.MakeGenericMethod([|ty;IQueryableTy|]),[]) 
@@ -489,26 +465,37 @@ module QueryImpl =
                                      Comp(Singleton(App(from f,EVar x)),  x, from e))
                 | UnionF, [e1;e2] ->
                     Union(from e1, from e2)
-                | RunQueryF t, args ->
-                    // replaces func with its native version; rebuilds obj and args depending on whether the method is static
-                    let (obj, func, args) = QueryTranslator.translateNativeMethod t (obj, func, args)
 
+                | RunQueryAsValueF, [_;e1] ->
+                    let tArgs = expr_ty
+                    let runMi = runNativeValueMi.MakeGenericMethod tArgs
                     Unknown(
-                        UnknownCall func,
+                        UnknownCall runMi,
                         expr_ty,
-                        Option.map from obj,
-                        List.map from args)
+                        None,
+                        List.map from [nativeBuilderExpr; e1])
+                | RunQueryAsEnumerableF, [_;e1] ->
+                    let tArgs = expr_ty.GetGenericArguments()
+                    let runMi = runNativeEnumMi.MakeGenericMethod tArgs
+                    Unknown(
+                        UnknownCall runMi,
+                        expr_ty,
+                        None,
+                        List.map from [nativeBuilderExpr; e1])
+                | RunQueryAsQueryableF, [e1] ->
+                    let tArgs = expr_ty.GetGenericArguments()
+                    let runMi = runNativeQueryMi.MakeGenericMethod tArgs
+                    Unknown(
+                        UnknownCall runMi,
+                        expr_ty,
+                        Some (from nativeBuilderExpr),
+                        [from e1])
                 | _, args ->                         //just pass the call along
                     Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
             from expr
 
-            
-        member internal this.ToFrom (exp:Expr<'T>) : Expr<'T> = 
-            let e = this.fromExpr exp.Raw
-            let expR = this.toExpr e
-            Expr.Cast<'T>(expR)
     
-        member internal this.NormRaw (expr:Expr<'T>) : Expr<'T> = 
+        member internal this.Norm (expr:Expr<'T>) : Expr<'T> = 
             Debug.printfn("Input expr:\n%s\n", expr.ToString(false))
             let exp = this.fromExpr expr.Raw
             
@@ -520,52 +507,47 @@ module QueryImpl =
 
             Debug.printfn("Final expr:\n%s\n", exprNorm.ToString(false))
             Expr.Cast<'T>(exprNorm)
-    
-        member internal this.Norm (exp:Expr<'T>) : Expr<'T> = 
-            //used to be timing code here
-            let e' = this.NormRaw exp
-            e'
         
-        member __.Quote(q:Quotations.Expr<'a>) = 
+        member this.Quote(q:Quotations.Expr<'a>) = 
             base.Quote(q)
 
-            
-        [<ReplaceWith(NativeFunc.Run)>]
         member this.Run(q : Expr<Linq.QuerySource<'T, System.Linq.IQueryable>>) : System.Linq.IQueryable<'T> = 
-            let q' = this.Norm q
-            base.Run q'
+            let qNorm = this.Norm q
+            base.Run qNorm
         
         member internal this.RunAsEnumerable(q : Expr<Linq.QuerySource<'T, System.Collections.IEnumerable>>) : seq<'T> = 
-            let q' = this.Norm q
-            base.Run q'
+            let qNorm = this.Norm q
+            base.Run qNorm
         
         member internal this.RunAsValue(q : Expr<'T>) : 'T = 
-            let q' = this.Norm q
-            base.Run q'
+            let qNorm = this.Norm q
+            base.Run qNorm
         
      
-//namespace FSharpComposableQuery
-
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Linq
-open FSharpComposableQuery.QueryTranslator
+open FSharpComposableQuery.Common
 
 [<AutoOpen>]
 module LowPriority = 
     type QueryImpl.QueryBuilder with
-        [<ReplaceWith(NativeFunc.RunValue)>]
         [<CompiledName("RunQueryAsValue")>]
         member this.Run(q : Expr<'T>) = this.RunAsValue q
 
 [<AutoOpen>]
 module HighPriority = 
     type QueryImpl.QueryBuilder with
-        [<ReplaceWith(NativeFunc.RunEnum)>]
         [<CompiledName("RunQueryAsEnumerable")>]
         member this.Run(q : Expr<QuerySource<'T, System.Collections.IEnumerable>>) = this.RunAsEnumerable q
 
 [<AutoOpen>]
 module TopLevelValues = 
     let query = QueryImpl.QueryBuilder()
-    
-    query.initMi()
+
+    ForwardDeclarations.RunQueryMi <- 
+        {
+            new ForwardDeclarations.IRunQuery with
+                member this.Value = getGenericMethodInfo <@ fun (q:QueryImpl.QueryBuilder) (e:Expr<bool>) -> q.Run e @>
+                member this.Enum = getGenericMethodInfo <@ fun (q:QueryImpl.QueryBuilder) (e : Expr<QuerySource<_, System.Collections.IEnumerable>>) -> q.Run e @>
+                member this.Query = getGenericMethodInfo <@ fun (q:QueryImpl.QueryBuilder) (e : Expr<QuerySource<_, System.Linq.IQueryable>>) -> q.Run e @>
+        }

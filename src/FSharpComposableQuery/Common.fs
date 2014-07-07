@@ -282,24 +282,27 @@ let (|RecordWith|_|) l =
         | Some(_, e) -> Some(e)
         | None -> None
     | _ -> None
+    
 
-let rec getMethodInfo q = 
+let getGenericMethodDefinition (mi:MethodInfo) =
+    match mi.IsGenericMethod with
+    | true -> mi.GetGenericMethodDefinition()
+    | false -> mi
+
+let rec getGenericMethodInfo q = 
     match q with
-    | (Patterns.Call(_, info, _)) -> info
-    | Patterns.Lambda(_x, q) -> getMethodInfo q
-    | Patterns.Let(_, _, q) -> getMethodInfo q
-    | Patterns.Coerce(q, _) -> getMethodInfo q
-    | Patterns.LetRecursive(_, q) -> getMethodInfo q
+    | Patterns.Lambda(_, q)
+    | Patterns.Let(_, _, q)
+    | Patterns.Coerce(q, _)
+    | Patterns.LetRecursive(_, q) -> 
+        getGenericMethodInfo q
+    | (Patterns.Call(_, mi, _)) -> 
+        getGenericMethodDefinition mi
     | _ -> failwithf "Unexpected method %A" q
-
-let getGenericMethodInfo' (methodInfo : System.Reflection.MethodInfo) = 
-    if methodInfo.IsGenericMethod then methodInfo.GetGenericMethodDefinition()
-    else methodInfo
-
-let getGenericMethodInfo q = getGenericMethodInfo' (getMethodInfo q)
 
 (* Method recognition stuff *)
 
+let idMi = getGenericMethodInfo <@@ id @@>
 let plusMi = getGenericMethodInfo <@@ (+) @@>
 let minusMi = getGenericMethodInfo <@@ (-) @@>
 let unaryMinusMi = getGenericMethodInfo <@@ fun x -> -x @@>
@@ -319,6 +322,26 @@ let orMi = getGenericMethodInfo <@@ (||) @@>
 let notMi = getGenericMethodInfo <@@ (not) @@>
 let apprMi = getGenericMethodInfo <@@ (|>) @@>
 let applMi = getGenericMethodInfo <@@ (<|) @@>
+
+let runNativeQueryMi = getGenericMethodInfo <@ fun (q:Linq.QueryBuilder) (e:Expr<QuerySource<_, System.Linq.IQueryable>>) -> q.Run e @>
+let runNativeValueMi = getGenericMethodInfo <@ fun (q:Linq.QueryBuilder) (e:Expr<bool>) -> q.Run e @>
+let runNativeEnumMi = getGenericMethodInfo <@ fun (q:Linq.QueryBuilder) (e:Expr<QuerySource<_, System.Collections.IEnumerable>>) -> q.Run e @>
+
+let nativeBuilderExpr = Expr.Value(ExtraTopLevelOperators.query)
+
+module ForwardDeclarations = 
+    type IRunQuery = 
+        abstract Value : System.Reflection.MethodInfo
+        abstract Enum : System.Reflection.MethodInfo
+        abstract Query : System.Reflection.MethodInfo
+
+    let mutable RunQueryMi = 
+        {
+            new IRunQuery with
+                member this.Value = failwith "IRunQuery.Value should never be called"
+                member this.Enum = failwith "IRunQuery.Enum should never be called"
+                member this.Query = failwith "IRunQuery.Query should never be called"
+        }
 
 let getBinOp binop (e1 : Expr) (e2 : Expr) = 
     match binop, e1.Type, e2.Type with

@@ -2,7 +2,6 @@
 
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Linq
-open FSharpComposableQuery.QueryTranslator
 
 module QueryImpl = 
     [<Class>]
@@ -14,14 +13,12 @@ module QueryImpl =
 [<AutoOpen>]
 module LowPriority = 
     type QueryImpl.QueryBuilder with
-        [<ReplaceWith(NativeFunc.RunValue)>]
         [<CompiledName("RunQueryAsValue")>]
         member Run : q:Expr<'T> -> 'T
 
 [<AutoOpen>]
 module HighPriority = 
     type QueryImpl.QueryBuilder with
-        [<ReplaceWith(NativeFunc.RunEnum)>]
         [<CompiledName("RunQueryAsEnumerable")>]
         member Run : q:Expr<QuerySource<'T, System.Collections.IEnumerable>> -> seq<'T>
         

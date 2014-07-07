@@ -65,11 +65,10 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
-    <Compile Include="Common.fs" />
-    <Compile Include="Expr.fs" />
-    <Compile Include="Debug.fs" />
-    <Compile Include="QueryTranslator.fs" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Query.fsi" />
+    <Compile Include="Common.fs" />
+    <Compile Include="Debug.fs" />
     <Compile Include="Query.fs" />
   </ItemGroup>
   <ItemGroup>

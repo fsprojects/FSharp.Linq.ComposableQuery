@@ -2,15 +2,99 @@
 
 open System
 open System.Linq
+open System.Reflection
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Linq.QuotationEvaluation
 open Microsoft.FSharp.Quotations
-
 open FSharpComposableQuery
 
 module QueryBuilders = 
     let TLinq = FSharpComposableQuery.TopLevelValues.query
     let FSharp3 = ExtraTopLevelOperators.query
+
+
+module ExprUtils = 
+    open FSharpComposableQuery.Common
+
+    let runQueryMi = ForwardDeclarations.RunQueryMi.Query
+    let runValueMi = ForwardDeclarations.RunQueryMi.Value
+    let runEnumMi =  ForwardDeclarations.RunQueryMi.Enum
+
+    // Recursively traverses the given expression, applying the given function at every item and replacing it with its result
+    let rec traverseExpr f e = 
+        let rec tExp e =
+            let tList = List.map tExp
+            match f e with
+                | Patterns.AddressOf(e1) -> Expr.AddressOf(tExp e1)
+                | Patterns.AddressSet(e1, e2) -> Expr.AddressSet(tExp e1, tExp e2)
+                | Patterns.Application(e1, e2) -> Expr.Application(tExp e1, tExp e2)
+                | Patterns.Call(e1, mi, l) ->
+                    match e1 with
+                    | Some e1 -> Expr.Call(tExp e1, mi, tList l)
+                    | None -> 
+                        Expr.Call(mi, tList l)
+                | Patterns.Coerce(e1, ty) -> Expr.Coerce(tExp e1, ty)
+                | Patterns.DefaultValue(ty) -> Expr.DefaultValue(ty)
+                | Patterns.FieldGet(e1, fi) ->
+                    match e1 with
+                    | Some e1 -> Expr.FieldGet(tExp e1, fi)
+                    | None -> Expr.FieldGet(fi)
+                | Patterns.FieldSet(e1, fi, e2) ->
+                    match e1 with
+                    | Some e1 -> Expr.FieldSet(tExp e1, fi, tExp e2)
+                    | None -> Expr.FieldSet(fi, tExp e2)
+                | Patterns.ForIntegerRangeLoop(v, e1, e2, e3) -> Expr.ForIntegerRangeLoop(v, tExp e1, tExp e2, tExp e3)
+                | Patterns.IfThenElse(e1, e2, e3) -> Expr.IfThenElse(tExp e1, tExp e2, tExp e3)
+                | Patterns.Lambda(v, e1) -> Expr.Lambda(v, tExp e1)
+                | Patterns.LetRecursive(l, e1) -> Expr.LetRecursive(l, tExp e1)
+                | Patterns.Let(v, e1, e2) -> Expr.Let(v, tExp e1, tExp e2)
+                | Patterns.NewArray(ty, l) -> Expr.NewArray(ty, tList l)
+                | Patterns.NewDelegate(ty, l, e1) -> Expr.NewDelegate(ty, l, tExp e1)
+                | Patterns.NewObject(ci, l) -> Expr.NewObject(ci, tList l)
+                | Patterns.NewRecord(ty, l) -> Expr.NewRecord(ty, tList l)
+                | Patterns.NewTuple(l) -> Expr.NewTuple(l)
+                | Patterns.NewUnionCase(ui, l) -> Expr.NewUnionCase(ui, tList l)
+                | Patterns.PropertyGet(e1, pi, l) ->
+                    match e1 with
+                    | Some e1 -> Expr.PropertyGet(tExp e1, pi, tList l)
+                    | None -> Expr.PropertyGet(pi, tList l)
+                | Patterns.PropertySet(e1, pi, l, e2) ->
+                    match e1 with
+                    | Some e1 -> Expr.PropertySet(tExp e1, pi, tExp e2, tList l)
+                    | None -> Expr.PropertySet(pi, tExp e2, tList l)
+                | Patterns.Quote(e1) -> Expr.Quote(tExp e1)
+                | Patterns.Sequential(e1, e2) -> Expr.Sequential(tExp e1, tExp e2)
+                | Patterns.TryFinally(e1, e2) -> Expr.TryFinally(tExp e1, tExp e2)
+                | Patterns.TryWith(e1, v1, e2, v2, e3) -> Expr.TryWith(tExp e1, v1, tExp e2, v2, tExp e3)
+                | Patterns.TupleGet(e1, int) -> Expr.TupleGet(tExp e1, int)
+                | Patterns.TypeTest(e1, ty) -> Expr.TypeTest(tExp e1, ty)
+                | Patterns.UnionCaseTest(e1, ui) -> Expr.UnionCaseTest(tExp e1, ui)
+                | Patterns.Value(o, ty) -> Expr.Value(o, ty)
+                | Patterns.Var(v) -> Expr.Var(v)
+                | Patterns.VarSet(v, e1) -> Expr.VarSet(v, tExp e1)
+                | Patterns.WhileLoop(e1, e2) -> Expr.WhileLoop(tExp e1, tExp e2)
+                | _ -> failwith "Unrecognized expression!"
+        tExp e
+                    
+    // Substitutes all calls to recognized methods with their native counterparts
+    let replaceNestedQueries (e:Expr<'T>) : Expr<'T> = 
+        e 
+        |> traverseExpr (fun e ->
+            match e with
+            | Patterns.Call(e1, mi, l) ->
+                let genMi = getGenericMethodDefinition mi
+                if genMi = runQueryMi then
+                    let runMi = runNativeQueryMi.MakeGenericMethod(mi.GetGenericArguments())
+                    Expr.Call(nativeBuilderExpr, runMi, l)
+                else if genMi = runEnumMi then
+                    let runMi = runNativeEnumMi.MakeGenericMethod(mi.GetGenericArguments())
+                    Expr.Call(runMi, nativeBuilderExpr :: l.Tail)
+                else if genMi = runValueMi then
+                    let runMi = runNativeValueMi.MakeGenericMethod(mi.GetGenericArguments())
+                    Expr.Call(runMi, nativeBuilderExpr :: l.Tail)
+                else e
+            | _ -> e)
+        |> Expr.Cast
 
 
 type UtilsMode = 
@@ -45,15 +129,15 @@ type Utils() =
 
 
     // Forces the enumeration of a sequence
-    // Requires a type anotation as otherwise tries casting seq<'T> to queryable<'T> (?)
+    // Requires a type anotation as otherwise casts seq<'T> to queryable<'T> (?)
     static let force (l:seq<'T>) = Seq.iter ignore l
 
     // Gets the body of an expression of the type "query { <body> }"
     static let extractBodyRaw(e:Expr<'T>) =
         match e with
-        | Patterns.Application (Patterns.Lambda(_, Patterns.Call(Some _, mi, [Patterns.Quote(b)])), _)
-        | Patterns.Application (Patterns.Lambda(_, Patterns.Call(None,   mi, [_; Patterns.Quote(b)])), _) ->
-            b
+        | Patterns.Application (Patterns.Lambda(_, Patterns.Call(Some _, mi, [Patterns.Quote(q)])), _)
+        | Patterns.Application (Patterns.Lambda(_, Patterns.Call(None,   mi, [_; Patterns.Quote(q)])), _) ->
+            q
         | _ ->
             failwith "Unable to find an outermost query expression"
 
@@ -66,16 +150,19 @@ type Utils() =
         Expr.Cast (extractBodyRaw e)
     
 
-
     // Substitutes the default builder in an expression with the given one
-    static let substituteBuilder (qb : #QueryBuilder) (e:Expr<'T>) : Expr<'T> = 
-        e.Substitute(fun v ->
+    static let substituteBuilder translate =
+        let subst (qb : #QueryBuilder) (e:Expr<'T>) : Expr<'T> = 
+            let qbExpr = Expr.Value(qb, qb.GetType())
+            e.Substitute(fun v ->
                 if(v.Name = "builder@") then
-                    Some (Expr.Value(qb, qb.GetType()))
+                    Some qbExpr
                 else
                     None)
-        |> QueryTranslator.replaceNativeMethods
-        |> Expr.Cast
+            |> Expr.Cast
+        match translate with
+            | true -> ExprUtils.replaceNestedQueries >> (subst QueryBuilders.FSharp3)    //replace query.Run calls as well
+            | false -> subst QueryBuilders.TLinq
 
 
     // The methods used to execute different types of queries under the two different builders
@@ -102,6 +189,11 @@ type Utils() =
         | true -> QueryBuilders.FSharp3.Run e
         | false -> QueryBuilders.TLinq.Run e
         
+    // Runs the given expression
+    static let run runMethod translate = 
+        substituteBuilder translate >> runMethod translate
+
+
         
     // The methods used to compare the results of different types of queries. 
 
@@ -125,13 +217,6 @@ type Utils() =
         let ans = (a.SequenceEqual b)
         ans
 
-
-    // Runs the given expression using the runMethod, 
-    static let run runMethod translate = 
-        match translate with
-        | true -> substituteBuilder QueryBuilders.FSharp3 
-        | false -> id
-        >> runMethod translate
 
     // Formats and prints the text using a specific color
     static let printResult c text = 
@@ -163,6 +248,8 @@ type Utils() =
 
         ans
 
+
+
     // Runs the query using the FSharpComposableQuery builder
     // and throws an exception if unsuccessful. 
     static let runThrow (compMethod : 'b -> 'b -> bool) (runMethod : bool -> Expr<'a> -> 'b) e = 
@@ -190,7 +277,7 @@ type Utils() =
     static let timePrint runMethod e = 
 
         // prepare the simplified expressions so we can time just the execution
-        let expA, expB = substituteBuilder QueryBuilders.FSharp3 e, substituteBuilder (QueryBuilders.TLinq :> QueryBuilder) e
+        let expA, expB = substituteBuilder true e, substituteBuilder false e
         let qbA, qbB = true, false
         
         // gets the timing results for the execution of the Expr e' on the QueryBuilder qb
