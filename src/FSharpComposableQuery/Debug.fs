@@ -75,6 +75,7 @@ type internal Debug() =
                         | UnknownRef (o) -> [printObj o]
                         | UnknownQuote -> [otxt + "<@ "] @ argstxt @ [" @>"]
                 | Union(e1, e2) -> prettyPrintRec 0 e1 @ [ "  U" ] @ prettyPrintRec 0 e2
+                | RunQuery(mi, e1) -> ["query.Run"] @ prettyPrintRec 1 e1
                 | _ -> raise NYI
             |> List.map (fun x -> (String.replicate lvl "  ") + x)
 

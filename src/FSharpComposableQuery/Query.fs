@@ -144,6 +144,7 @@ module QueryImpl =
             | App(e1, _) -> getFunTy (getType (e1)) (fun _ty1 ty2 -> ty2)
             | Table(_, ty) -> QuerySourceTy(ty, IQueryableTy)
             | Unknown(_, ty, _, _) -> ty
+            | RunQuery(mi, _) -> mi.ReturnType
     
 
         let rec reduce exp = 
@@ -214,7 +215,8 @@ module QueryImpl =
             | Table(e, ty) -> Table(e, ty)
             | Unknown(unk, ty, eopt, es) -> 
                 Unknown(unk, ty, Option.map reduce eopt, List.map reduce es)
-        
+            | RunQuery(mi, e1) -> RunQuery(mi, reduce e1)
+
         and reduceIfThenElseSeq test thenExp elseExp ty = 
             match thenExp, elseExp with
             | Empty _, Empty _ -> Empty ty
@@ -342,6 +344,10 @@ module QueryImpl =
                     else
                         assert (tDef = typedefof<seq<_>>)
                         Expr.Call(unionEnumMi.MakeGenericMethod tArgs, e)
+                | RunQuery(mi, e1) ->
+                    match mi.IsStatic with
+                    | true -> Expr.Call(mi, [nativeBuilderExpr; (toExp e1)])
+                    | false -> Expr.Call(nativeBuilderExpr, mi, [toExp e1])
                 | _ -> 
                     raise NYI
             
@@ -467,34 +473,19 @@ module QueryImpl =
                     Union(from e1, from e2)
 
                 | RunQueryAsValueF, [_;e1] ->
-                    let tArgs = expr_ty
-                    let runMi = runNativeValueMi.MakeGenericMethod tArgs
-                    Unknown(
-                        UnknownCall runMi,
-                        expr_ty,
-                        None,
-                        List.map from [nativeBuilderExpr; e1])
+                    let tyMi = runNativeValueMi.MakeGenericMethod expr_ty
+                    RunQuery(tyMi, from e1)
                 | RunQueryAsEnumerableF, [_;e1] ->
-                    let tArgs = expr_ty.GetGenericArguments()
-                    let runMi = runNativeEnumMi.MakeGenericMethod tArgs
-                    Unknown(
-                        UnknownCall runMi,
-                        expr_ty,
-                        None,
-                        List.map from [nativeBuilderExpr; e1])
+                    let tyMi = runNativeEnumMi.MakeGenericMethod (expr_ty.GetGenericArguments())
+                    RunQuery(tyMi, from e1)
                 | RunQueryAsQueryableF, [e1] ->
-                    let tArgs = expr_ty.GetGenericArguments()
-                    let runMi = runNativeQueryMi.MakeGenericMethod tArgs
-                    Unknown(
-                        UnknownCall runMi,
-                        expr_ty,
-                        Some (from nativeBuilderExpr),
-                        [from e1])
+                    let tyMi = runNativeQueryMi.MakeGenericMethod (expr_ty.GetGenericArguments())
+                    RunQuery(tyMi, from e1)
                 | _, args ->                         //just pass the call along
                     Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
             from expr
 
-    
+
         member internal this.Norm (expr:Expr<'T>) : Expr<'T> = 
             Debug.printfn("Input expr:\n%s\n", expr.ToString(false))
             let exp = this.fromExpr expr.Raw

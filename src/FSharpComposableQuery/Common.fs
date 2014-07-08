@@ -153,6 +153,7 @@ type Exp =
     | Lam of Var * Exp
     | App of Exp * Exp
     | Table of Expr * System.Type
+    | RunQuery of MethodInfo * Exp
     | Unknown of UnknownThing * System.Type * Exp option * Exp list
 
 exception NYI
@@ -199,6 +200,7 @@ let rec freshen x x' e0 =
         Unknown
             (unkFreshen x x' unk, ty, Option.map (freshen x x') eopt, 
              List.map (freshen x x') es)
+    | RunQuery(mi, e1) -> RunQuery(mi, freshen x x' e1)
 
 let rec subst e x e0 = 
     match e0 with
@@ -241,6 +243,7 @@ let rec subst e x e0 =
             else ()
         | _ -> ()
         Unknown(unk, ty, Option.map (subst e x) eopt, List.map (subst e x) es)
+    | RunQuery(mi, e1) -> RunQuery(mi, subst e x e1)
 
 type UnitRecord = 
     { unit : int }
@@ -274,6 +277,7 @@ let rec elimTuples exp =
     | Table(expr, ty) -> Table(expr, ty)
     | Unknown(unk, ty, eopt, es) -> 
         Unknown(unk, ty, Option.map elimTuples eopt, List.map (elimTuples) es)
+    | RunQuery(mi, e1) -> RunQuery(mi, elimTuples e1)
 
 let (|RecordWith|_|) l = 
     function 
@@ -299,6 +303,9 @@ let rec getGenericMethodInfo q =
     | (Patterns.Call(_, mi, _)) -> 
         getGenericMethodDefinition mi
     | _ -> failwithf "Unexpected method %A" q
+
+let makeGenericMethodCopy (genericMi:MethodInfo) (typedMi:MethodInfo) = 
+    genericMi.MakeGenericMethod (typedMi.GetGenericArguments())
 
 (* Method recognition stuff *)
 

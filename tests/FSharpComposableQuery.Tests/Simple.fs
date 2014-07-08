@@ -487,7 +487,7 @@ module Simple =
 
 
 
-        (* This example is the same as above but works, because we use ExtraTopLevelOperators.query *)
+        (* This example is the same as below but works, because we use ExtraTopLevelOperators.query *)
         [<TestMethod>]
         member this.``Exists.``() = 
             this.tagQuery "Exists."
