@@ -20,7 +20,6 @@ module QueryTests =
 
         let db = schema.GetDataContext()
 
-//        let student = db.Student.Sum (fun (s:schema.ServiceTypes.Student) -> s.Age)
 
         let data = [1; 5; 7; 11; 18; 21]
 

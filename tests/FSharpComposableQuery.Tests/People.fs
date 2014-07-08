@@ -1,6 +1,5 @@
 ﻿namespace FSharpComposableQuery.Tests
 
-open FSharpComposableQuery.TestUtils
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
 open System.Linq

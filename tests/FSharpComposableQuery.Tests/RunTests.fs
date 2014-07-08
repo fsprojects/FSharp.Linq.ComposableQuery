@@ -53,7 +53,7 @@ module RunTests =
     [<EntryPoint>]
     let Main(args) =
 
-        //init tables
+        //initialise tables
         printHeader "Setting up database tables"
         List.iter initTests tests
 

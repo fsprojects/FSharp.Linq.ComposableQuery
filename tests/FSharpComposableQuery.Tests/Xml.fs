@@ -1,6 +1,5 @@
 ﻿namespace FSharpComposableQuery.Tests
 
-open FSharpComposableQuery.TestUtils
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
 open System.Linq
@@ -10,6 +9,8 @@ open System.Xml.Linq
     
 module Xml = 
 
+    [<Literal>]
+    let xmlPath = "data\movies.xml"
 
     type internal schema = SqlDataConnection<ConnectionStringName="XmlConnectionString", ConfigFile=".\\App.config">
     type internal Data = schema.ServiceTypes.Data
@@ -33,35 +34,40 @@ module Xml =
 
     let rec traverseXml entry parent i (node:XNode) = 
         match node with 
-          | :? XElement as xml -> 
-              let id = new_id() in
-              let j = Seq.iter (traverseAttribute entry id) (xml.Attributes()) in
-              let j = traverseChildren entry id (i+1) (xml.Nodes()) in
-              let d = new Data() in
-              d.Name <- xml.Name.ToString();
-              d.ID <- id;
-              d.Entry <- entry;
-              d.Pre <- i;
-              d.Post <- j;
-              d.Parent <- parent;
-              data.InsertOnSubmit(d);
-              j+1
-          | :? XText as xtext -> 
-              let id = new_id() in
-              let d = new Data() in
-              d.Name <- "#text";
-              d.ID <- id;
-              d.Entry <- entry;
-              d.Pre <- i;
-              d.Post <- i;
-              d.Parent <- parent;
-              data.InsertOnSubmit(d);
-              let t = new Text() in
-              t.ID <- id;
-              t.Value <- xtext.Value;
-              text.InsertOnSubmit(t);
-              i+1
-           | _ -> i
+        | :? XElement as xml -> 
+            let id = new_id() in
+            let j = Seq.iter (traverseAttribute entry id) (xml.Attributes()) in
+            let j = traverseChildren entry id (i+1) (xml.Nodes()) in
+            let d = new Data() in
+            d.Name <- xml.Name.ToString();
+            d.ID <- id;
+            d.Entry <- entry;
+            d.Pre <- i;
+            d.Post <- j;
+            d.Parent <- parent;
+            data.InsertOnSubmit(d);
+            data.Context.SubmitChanges()
+
+            j+1
+        | :? XText as xtext -> 
+            let id = new_id() in
+            let d = new Data() in
+            d.Name <- "#text";
+            d.ID <- id;
+            d.Entry <- entry;
+            d.Pre <- i;
+            d.Post <- i;
+            d.Parent <- parent;
+            data.InsertOnSubmit(d);
+            data.Context.SubmitChanges()
+
+            let t = new Text() in
+            t.ID <- id;
+            t.Value <- xtext.Value;
+            text.InsertOnSubmit(t);
+
+            i+1
+        | _ -> i
 
     and traverseChildren entry parent i (xmls) = 
           Seq.fold (traverseXml entry parent) i xmls
@@ -199,9 +205,6 @@ module Xml =
       in <@ fun row1 -> seq {for row2 in %data do if (%pathP' path) (row1, row2) then yield row2 } @>
 
 
-    // /a == Seq (Axis Child, Name "a")
-    // //a == Seq(Axis DescendantOrSelf, (Seq (Axis Child, Name "a")))
-
     let (./.) p1 p2 = Seq(p1,p2)
 
     let child = Axis Child
@@ -279,29 +282,11 @@ module Xml =
                 if (row.Parent = -1 && row.Entry = i) 
                     then yield row'.ID} @>
 
-
-    let internal printRow (row:Data) = printfn "ID:%d Name:%s Parent:%d Pre:%d Post:%d" row.ID row.Name row.Parent row.Pre row.Post
-    let internal printRows x = x |> Seq.iter printRow
-    let forceRows x = x |> Seq.iter (fun _ -> ())
-
     let internal xpath' i data path = <@ query { 
         for row in %data do 
             for row' in (%(pathQuery2 data path)) row do 
                 if (row.Parent = -1 && row.Entry = i) 
                     then yield row'.ID} @>
-
-    let countRows xs = printfn "%d" (Seq.length xs)
-    let testXPath xp = 
-      testAll (xpath 0 <@data@> xp) (xpath' 0 <@data@> xp) countRows
-
-    let timeXPath xp = 
-      timeAll (xpath 0 <@data@> xp) (xpath' 0 <@data@> xp) forceRows
-    let timeXPath' xp = 
-      timeAll' (xpath 0 <@data@> xp) (xpath' 0 <@data@> xp) forceRows
-
-    //let simfs2 xp = timeFS2 "FSharp 2.0 (NF)" (xpath 0 <@data@> xp |> nf_expr) countRows
-    let simfs3 xp = timeFS3 "FSharp 3.0 (NF)" (xpath' 0 <@data@> xp) countRows
-    let simPLinqq xp = testPLinqQ "PLinqQ" (xpath' 0 <@data@> xp) countRows
 
     let xp0 = child ./. child
 
@@ -314,40 +299,20 @@ module Xml =
 
     let xp3 = descendant .%. "year" ./. Filter(ancestor ./. preceding .%. "dir")
 
-    let doBasicTest() = 
-        printfn "Populating db"
-        loadBasicXml()
 
-        printfn "xp0"
-        //testXPath xp0
-        timeXPath xp0
-        printfn "xp1"
-        //testXPath xp1
-        timeXPath xp1
-        printfn "xp2"
-        //testXPath xp2
-        timeXPath xp2
-        printfn "xp3"
-        //testXPath xp3
-        timeXPath xp3
-
-
-
-    let doTest'()  =
-
-        [("xp0",    timeXPath' xp0);
-         ("xp1",    timeXPath' xp1);
-         ("xp2",    timeXPath' xp2);
-         ("xp3",    timeXPath' xp3)]
 
     [<TestClass>]
+    [<DeploymentItem("data", "data")>]
     type TestClass() = 
         inherit FSharpComposableQuery.Tests.TestClass()
         
         [<ClassInitialize>]
         static member init (c:TestContext) = 
+            printf "Xml: Parsing file %A... " xmlPath
             dropTables()
-            insertXml 0 defaultXml  //simple tests
+            loadXml 0 xmlPath
+            printfn "done!"
+
 
         [<TestMethod>]
         member this.testXp0() = 

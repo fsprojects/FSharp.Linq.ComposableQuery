@@ -24,26 +24,26 @@ USE organisation;
 GO
 
 CREATE TABLE [dbo].[Departments] (
-    [Dpt] NVARCHAR (50) NOT NULL,
+    [Dpt] NVARCHAR (255) NOT NULL,
     PRIMARY KEY CLUSTERED ([Dpt] ASC)
 );
 
 CREATE TABLE [dbo].[Employees] (
-    [Emp] NVARCHAR (50) NOT NULL,
-    [Dpt] NVARCHAR (50) NOT NULL,
+    [Emp] NVARCHAR (255) NOT NULL,
+    [Dpt] NVARCHAR (255) NOT NULL,
     [Salary] INT		NOT NULL,
     PRIMARY KEY CLUSTERED ([Dpt],[Emp] ASC)
 );
 
 CREATE TABLE [dbo].[Contacts] (
-    [Dpt] NVARCHAR (50)		NOT NULL,
-    [Contact] NVARCHAR (50) NOT NULL,
+    [Dpt] NVARCHAR (255)		NOT NULL,
+    [Contact] NVARCHAR (255) NOT NULL,
     [Client] INT			NOT NULL,
     PRIMARY KEY CLUSTERED ([Dpt],[Contact] ASC)
 );
 
 CREATE TABLE [dbo].[Tasks] (
-    [Emp] NVARCHAR (50) NOT NULL,
-    [Tsk] NVARCHAR (50) NOT NULL,
+    [Emp] NVARCHAR (255) NOT NULL,
+    [Tsk] NVARCHAR (255) NOT NULL,
     PRIMARY KEY CLUSTERED ([Tsk],[Emp] ASC)
 );

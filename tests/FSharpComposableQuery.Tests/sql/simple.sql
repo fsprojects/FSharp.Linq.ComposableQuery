@@ -25,13 +25,13 @@ GO
 
 CREATE TABLE [dbo].[Course] (
     [CourseID]   INT           NOT NULL,
-    [CourseName] NVARCHAR (50) NOT NULL,
+    [CourseName] NVARCHAR (255) NOT NULL,
     PRIMARY KEY CLUSTERED ([CourseID] ASC)
 );
 
 CREATE TABLE [dbo].[Student] (
     [StudentID] INT           NOT NULL,
-    [Name]      NVARCHAR (50) NOT NULL,
+    [Name]      NVARCHAR (255) NOT NULL,
     [Age]       INT           NULL,
     PRIMARY KEY CLUSTERED ([StudentID] ASC)
 );
@@ -47,7 +47,7 @@ CREATE TABLE [dbo].[CourseSelection] (
 
 CREATE TABLE [dbo].[LastStudent] (
     [StudentID] INT           NOT NULL,
-    [Name]      NVARCHAR (50) NOT NULL,
+    [Name]      NVARCHAR (255) NOT NULL,
     [Age]       INT           NULL,
     PRIMARY KEY CLUSTERED ([StudentID] ASC)
 );

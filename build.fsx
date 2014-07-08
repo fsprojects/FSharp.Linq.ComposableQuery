@@ -40,7 +40,7 @@ let tags = "F# fsharp LINQ SQL database data query"
 // File system information 
 // (<solutionFile>.sln is built during the building process)
 let solutionFile  = "FSharpComposableQuery"
-// Pattern specifying assemblies to be tested using NUnit
+// Pattern specifying assemblies to be tested using MSTest
 let testAssemblies = ["tests/*/bin/Release/FSharpComposableQuery*Tests*.exe"]
 
 // Git configuration (used for publishing documentation in gh-pages branch)
@@ -89,7 +89,6 @@ Target "CleanDocs" (fun _ ->
 // Build library & test project
 
 Target "Build" (fun _ ->
-//    let bm = getbuil
     { 
       BaseDirectory = __SOURCE_DIRECTORY__
       Includes = [ solutionFile +       ".sln"
@@ -103,9 +102,6 @@ Target "Build" (fun _ ->
 // Run the unit tests using test runner & kill test runner when complete
 
 Target "RunTests" (fun _ ->
-//    let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
-//    let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
-//    ActivateFinalTarget "CloseTestRunner"
 
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = testAssemblies
@@ -114,10 +110,6 @@ Target "RunTests" (fun _ ->
         { p with
             TimeOut = TimeSpan.FromMinutes 20.
             })
-)
-
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
 )
 
 // --------------------------------------------------------------------------------------

@@ -86,7 +86,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <Compile Include="TestUtilsOld.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="TestClass.fs" />
     <Compile Include="Simple.fs" />
@@ -95,6 +94,13 @@
     <Compile Include="Xml.fs" />
     <Compile Include="QueryTests.fs" />
     <Compile Include="RunTests.fs" />
+    <None Include="sql\organisation.sql" />
+    <None Include="sql\simple.sql" />
+    <None Include="sql\xml.sql" />
+    <None Include="sql\people.sql" />
+    <Content Include="data\movies.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharpComposableQuery\FSharpComposableQuery.fsproj">

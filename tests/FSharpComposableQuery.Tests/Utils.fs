@@ -22,58 +22,57 @@ module ExprUtils =
 
     // Recursively traverses the given expression, applying the given function at every item and replacing it with its result
     let rec traverseExpr f e = 
-        let rec tExp e =
+        let rec tExp e = 
             let tList = List.map tExp
             match f e with
-                | Patterns.AddressOf(e1) -> Expr.AddressOf(tExp e1)
-                | Patterns.AddressSet(e1, e2) -> Expr.AddressSet(tExp e1, tExp e2)
-                | Patterns.Application(e1, e2) -> Expr.Application(tExp e1, tExp e2)
-                | Patterns.Call(e1, mi, l) ->
-                    match e1 with
-                    | Some e1 -> Expr.Call(tExp e1, mi, tList l)
-                    | None -> 
-                        Expr.Call(mi, tList l)
-                | Patterns.Coerce(e1, ty) -> Expr.Coerce(tExp e1, ty)
-                | Patterns.DefaultValue(ty) -> Expr.DefaultValue(ty)
-                | Patterns.FieldGet(e1, fi) ->
-                    match e1 with
-                    | Some e1 -> Expr.FieldGet(tExp e1, fi)
-                    | None -> Expr.FieldGet(fi)
-                | Patterns.FieldSet(e1, fi, e2) ->
-                    match e1 with
-                    | Some e1 -> Expr.FieldSet(tExp e1, fi, tExp e2)
-                    | None -> Expr.FieldSet(fi, tExp e2)
-                | Patterns.ForIntegerRangeLoop(v, e1, e2, e3) -> Expr.ForIntegerRangeLoop(v, tExp e1, tExp e2, tExp e3)
-                | Patterns.IfThenElse(e1, e2, e3) -> Expr.IfThenElse(tExp e1, tExp e2, tExp e3)
-                | Patterns.Lambda(v, e1) -> Expr.Lambda(v, tExp e1)
-                | Patterns.LetRecursive(l, e1) -> Expr.LetRecursive(l, tExp e1)
-                | Patterns.Let(v, e1, e2) -> Expr.Let(v, tExp e1, tExp e2)
-                | Patterns.NewArray(ty, l) -> Expr.NewArray(ty, tList l)
-                | Patterns.NewDelegate(ty, l, e1) -> Expr.NewDelegate(ty, l, tExp e1)
-                | Patterns.NewObject(ci, l) -> Expr.NewObject(ci, tList l)
-                | Patterns.NewRecord(ty, l) -> Expr.NewRecord(ty, tList l)
-                | Patterns.NewTuple(l) -> Expr.NewTuple(l)
-                | Patterns.NewUnionCase(ui, l) -> Expr.NewUnionCase(ui, tList l)
-                | Patterns.PropertyGet(e1, pi, l) ->
-                    match e1 with
-                    | Some e1 -> Expr.PropertyGet(tExp e1, pi, tList l)
-                    | None -> Expr.PropertyGet(pi, tList l)
-                | Patterns.PropertySet(e1, pi, l, e2) ->
-                    match e1 with
-                    | Some e1 -> Expr.PropertySet(tExp e1, pi, tExp e2, tList l)
-                    | None -> Expr.PropertySet(pi, tExp e2, tList l)
-                | Patterns.Quote(e1) -> Expr.Quote(tExp e1)
-                | Patterns.Sequential(e1, e2) -> Expr.Sequential(tExp e1, tExp e2)
-                | Patterns.TryFinally(e1, e2) -> Expr.TryFinally(tExp e1, tExp e2)
-                | Patterns.TryWith(e1, v1, e2, v2, e3) -> Expr.TryWith(tExp e1, v1, tExp e2, v2, tExp e3)
-                | Patterns.TupleGet(e1, int) -> Expr.TupleGet(tExp e1, int)
-                | Patterns.TypeTest(e1, ty) -> Expr.TypeTest(tExp e1, ty)
-                | Patterns.UnionCaseTest(e1, ui) -> Expr.UnionCaseTest(tExp e1, ui)
-                | Patterns.Value(o, ty) -> Expr.Value(o, ty)
-                | Patterns.Var(v) -> Expr.Var(v)
-                | Patterns.VarSet(v, e1) -> Expr.VarSet(v, tExp e1)
-                | Patterns.WhileLoop(e1, e2) -> Expr.WhileLoop(tExp e1, tExp e2)
-                | _ -> failwith "Unrecognized expression!"
+            | Patterns.AddressOf(e1) -> Expr.AddressOf(tExp e1)
+            | Patterns.AddressSet(e1, e2) -> Expr.AddressSet(tExp e1, tExp e2)
+            | Patterns.Application(e1, e2) -> Expr.Application(tExp e1, tExp e2)
+            | Patterns.Call(e1, mi, l) -> 
+                match e1 with
+                | Some e1 -> Expr.Call(tExp e1, mi, tList l)
+                | None -> Expr.Call(mi, tList l)
+            | Patterns.Coerce(e1, ty) -> Expr.Coerce(tExp e1, ty)
+            | Patterns.DefaultValue(ty) -> Expr.DefaultValue(ty)
+            | Patterns.FieldGet(e1, fi) -> 
+                match e1 with
+                | Some e1 -> Expr.FieldGet(tExp e1, fi)
+                | None -> Expr.FieldGet(fi)
+            | Patterns.FieldSet(e1, fi, e2) -> 
+                match e1 with
+                | Some e1 -> Expr.FieldSet(tExp e1, fi, tExp e2)
+                | None -> Expr.FieldSet(fi, tExp e2)
+            | Patterns.ForIntegerRangeLoop(v, e1, e2, e3) -> Expr.ForIntegerRangeLoop(v, tExp e1, tExp e2, tExp e3)
+            | Patterns.IfThenElse(e1, e2, e3) -> Expr.IfThenElse(tExp e1, tExp e2, tExp e3)
+            | Patterns.Lambda(v, e1) -> Expr.Lambda(v, tExp e1)
+            | Patterns.LetRecursive(l, e1) -> Expr.LetRecursive(l, tExp e1)
+            | Patterns.Let(v, e1, e2) -> Expr.Let(v, tExp e1, tExp e2)
+            | Patterns.NewArray(ty, l) -> Expr.NewArray(ty, tList l)
+            | Patterns.NewDelegate(ty, l, e1) -> Expr.NewDelegate(ty, l, tExp e1)
+            | Patterns.NewObject(ci, l) -> Expr.NewObject(ci, tList l)
+            | Patterns.NewRecord(ty, l) -> Expr.NewRecord(ty, tList l)
+            | Patterns.NewTuple(l) -> Expr.NewTuple(l)
+            | Patterns.NewUnionCase(ui, l) -> Expr.NewUnionCase(ui, tList l)
+            | Patterns.PropertyGet(e1, pi, l) -> 
+                match e1 with
+                | Some e1 -> Expr.PropertyGet(tExp e1, pi, tList l)
+                | None -> Expr.PropertyGet(pi, tList l)
+            | Patterns.PropertySet(e1, pi, l, e2) -> 
+                match e1 with
+                | Some e1 -> Expr.PropertySet(tExp e1, pi, tExp e2, tList l)
+                | None -> Expr.PropertySet(pi, tExp e2, tList l)
+            | Patterns.Quote(e1) -> Expr.Quote(tExp e1)
+            | Patterns.Sequential(e1, e2) -> Expr.Sequential(tExp e1, tExp e2)
+            | Patterns.TryFinally(e1, e2) -> Expr.TryFinally(tExp e1, tExp e2)
+            | Patterns.TryWith(e1, v1, e2, v2, e3) -> Expr.TryWith(tExp e1, v1, tExp e2, v2, tExp e3)
+            | Patterns.TupleGet(e1, int) -> Expr.TupleGet(tExp e1, int)
+            | Patterns.TypeTest(e1, ty) -> Expr.TypeTest(tExp e1, ty)
+            | Patterns.UnionCaseTest(e1, ui) -> Expr.UnionCaseTest(tExp e1, ui)
+            | Patterns.Value(o, ty) -> Expr.Value(o, ty)
+            | Patterns.Var(v) -> Expr.Var(v)
+            | Patterns.VarSet(v, e1) -> Expr.VarSet(v, tExp e1)
+            | Patterns.WhileLoop(e1, e2) -> Expr.WhileLoop(tExp e1, tExp e2)
+            | _ -> failwith "Unrecognized expression!"
         tExp e
                     
     // Substitutes all calls to recognized methods with their native counterparts

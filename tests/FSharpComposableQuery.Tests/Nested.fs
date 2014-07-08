@@ -2,7 +2,6 @@
 
 
 open FSharpComposableQuery
-open FSharpComposableQuery.TestUtils
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -334,55 +333,6 @@ module Nested =
         let ex9' = <@ (%expertise') "abstract" @>
         let ex9'' = <@ query { for x in (%expertise') "abstract" do select x } @>
 
-        let doBasicTest() = 
-            printfn "ex8"
-            timeAll ex8 ex8' (Seq.iter (fun _ -> ()))
-            printfn "ex9"
-            timeAll ex9 ex9' (Seq.iter (fun _ -> ()))
-
-        let doTest d n = 
-            printfn "[Departments %d, employees %d]" d n
-            dropTables()
-            addRandom d n
-            printfn "ex8"
-            timeAll ex8 ex8' (Seq.iter (fun _ -> ()))
-            printfn "ex9"
-            timeAll ex9 ex9' (Seq.iter (fun _ -> ()))
-    
-        let doTestAbstraction d n a = 
-            printfn "[Departments %d, employees %d, abstraction %d]" d (n+a) a
-            dropTables()
-            addRandom d n
-            addAbstractionDept a
-            printfn "ex8"
-            timeAll ex8 ex8' (Seq.iter (fun _ -> ()))
-            printfn "ex9"
-            timeAll ex9 ex9' (Seq.iter (fun _ -> ()))
-    
-
-
-        let doTestSweep () = 
-          let deptSizes = [4;40;400] in
-          let abstractions = [0;10;100;1000] in
-          let employees = [5000] in
-          Seq.iter (fun (x,y,z) -> if z <> 0 then doTestAbstraction x y z else doTest x y) 
-                   (seq {for x in deptSizes do
-                         for y in employees do
-                         for z in abstractions do
-                         yield(x,y,z)})
-
-        let tabify (d,n,t1,t2) = 
-            printfn "%d \t%d \t%f \t%f" d n t1 t2
-
-
-        let doTest'()  =
-
-            [("ex8",    timeAll' ex8 ex8' forceDepts);
-             ("ex9",    timeAll' ex9 ex9' forceDepts);]
-         
-        let forceSeq = Seq.iter ignore
-
-
 
 
         [<ClassInitialize>]
@@ -402,28 +352,3 @@ module Nested =
         member this.testEx9() = 
              this.tagQuery "ex9"
              Utils.Run ex9''
-
-        (*
-        let doScaleTest d n = 
-            dropTables()
-            addRandomDepartments d n
-            let (),t1 = timeFS3' ex9' forceDepts
-            let (),t2 = timePLinq' ex9 forceDepts
-            tabify (d,n,t1,t2)
-            (d,n,t1,t2)
-    
-
-        let doScaleAbsTest d n = 
-            dropTables()
-            addRandomDepartments (d-1) n
-            addAbstractionDept n
-            let (),t1 = timeFS3' ex9' forceDepts
-            let (),t2 = timePLinq' ex9 forceDepts
-            tabify (d,n,t1,t2)
-            (d,n,t1,t2)
-    
-
-        let results d n k = 
-            List.map (fun d -> List.map (fun _ -> doScaleTest (4*d) n) [1..k]) [1..d]
-
-        *)

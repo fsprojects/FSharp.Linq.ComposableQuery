@@ -24,9 +24,9 @@ USE MyXml;
 GO
 
 CREATE TABLE [dbo].[Data] (
-    [Name] NVARCHAR (50) NOT NULL,
+    [Name] NVARCHAR (255) NOT NULL,
     [ID]     INT         NOT NULL,
-	[Entry]  INT         NOT NULL,
+    [Entry]  INT         NOT NULL,
     [Pre]    INT         NOT NULL,
     [Post]   INT         NOT NULL,
     [Parent] INT         NOT NULL,
@@ -35,13 +35,13 @@ CREATE TABLE [dbo].[Data] (
 
 CREATE TABLE [dbo].[Attribute] (
     [Element]INT         NOT NULL,
-    [Name]   NVARCHAR (50) NOT NULL,
-    [Value]   NVARCHAR (50) NOT NULL,
+    [Name]   NVARCHAR (255) NOT NULL,
+    [Value]   NVARCHAR (255) NOT NULL,
     PRIMARY KEY CLUSTERED ([Element],[Name] ASC)
 );
 
 CREATE TABLE [dbo].[Text] (
     [ID]INT         NOT NULL,
-    [Value]   NVARCHAR (50) NOT NULL,
+    [Value]   NVARCHAR (255) NOT NULL,
     PRIMARY KEY CLUSTERED ([ID] ASC)
 );
