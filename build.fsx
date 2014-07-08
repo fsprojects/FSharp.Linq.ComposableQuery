@@ -61,7 +61,8 @@ let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
 Target "AssemblyInfo" (fun _ ->
   let fileName = "src/" + project + "/AssemblyInfo.fs"
   CreateFSharpAssemblyInfo fileName
-      [ Attribute.Title project
+      [ Attribute.InternalsVisibleTo "FSharpComposableQuery.Tests"
+        Attribute.Title project
         Attribute.Product project
         Attribute.Description summary
         Attribute.Version release.AssemblyVersion

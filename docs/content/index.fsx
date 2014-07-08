@@ -74,9 +74,10 @@ Intended use
 
 In addition to normal usage, queries can be *composed* using lambda-abstraction. See the paper 
 ["A Practical Theory of Language-Integrated Query" (ICFP 2013)](http://dl.acm.org/citation.cfm?id=2500586).  
+
 Simple forms of query composition (such as abstracting over a value of base type) already work in LINQ, 
 but 'FSharpComposableQuery' in addition supports abstracting over functions, to allow higher-order query 
-operations. 
+operations, and provides stronger guarantees on the runtime of composed queries. 
 
 The following is a simple example.  We assume ConnectionString is a database connection string 
 pointing to a database with appropriate tables matching the query, namely a 'People' table with fields 'name:String' and 'age:Int'. 
@@ -98,7 +99,7 @@ let satisfies  =
     then yield p
    } @>
 
-(** We can now use this function in order to, for example, find all people with age at least 20 and less than 30 *)
+(** We can now use it, for example, to find all people with age at least 20 and less than 30 *)
 
 let ex1 = query { for x in (%satisfies) (fun x -> 20 <= x && x < 30 ) do yield x }
 
@@ -121,7 +122,7 @@ let dbQuery =  FSharpComposableQuery.TopLevelValues.query
 (**instead of opening the 'FSharpComposableQuery' namespace, to avoid shadowing the built-in 'query' construct.
    You can then use the 'dbQuery' construct with database queries, without changing the behavior of query {} on in-memory queries.
 
- * Please check the [issues page on github][issues] for more details. 
+ * Please also check the [issues page on GitHub][issues]. 
 
 
 *)

@@ -20,16 +20,16 @@ Compositional Query Framework for F# Queries, based on
 
 Referencing the library
 -----------------------
-
 *)
 
+#if INTERACTIVE
 #r "FSharpComposableQuery.dll"
 #r "FSharp.Data.TypeProviders.dll"
-#r "System.Data.dll"
 #r "System.Data.Linq.dll"
+#endif
 
-open Microsoft.FSharp.Data.TypeProviders
 open FSharpComposableQuery
+open Microsoft.FSharp.Data.TypeProviders
 
 (**
 All existing F# database and in-memory queries should work as normal. For example:
@@ -43,30 +43,19 @@ let lastNumberInSortedList =
         last
     }
 
-
+    
 (**
-In addition, more queries and query compositions work.  We illustrate this through several examples below.
-
-*)
-
-(** 
+In addition, more queries and query compositions work. We illustrate this through several examples below.
 
 Parameterizing a query
 ----------------------
 
-LINQ already supports queries with parameters, as long as those parameters are of base type.  For example, 
-to obntain the set fo people with age between two bounds, you can create a query parameterized by two integers:
+LINQ already supports queries with parameters, as long as those parameters are of base type. For example, 
+to obtain the set of people with age in a given interval, you can create a query parameterized by two integers:
 
 *)
-
-[<Literal>]
-let ConnectionString = 
-  "Data Source=(localdb)\MyInstance;\
-   Initial Catalog=MyPeople;
-   Integrated Security=SSPI";;
-
-type dbSchema = SqlDataConnection<ConnectionString>;;
-let db = dbSchema.GetDataContext();;
+type dbSchema = SqlDataConnection<ConnectionStringName="PeopleConnectionString", ConfigFile=".\\App.config">
+let db = dbSchema.GetDataContext()
 
 type People = dbSchema.ServiceTypes.People
 type PeopleR = {name:string;age:int}
@@ -78,12 +67,12 @@ let range1 = fun (a:int) (b:int) ->
     then yield {name=u.Name;age=u.Age}
     } 
 
+let mutable sad = 1
+
 let ex1 = range1 30 40
 
 (**
-
 However, doing it this way is not especially reusable, and we recommend doing it this way instead:
-
 *)
 
 let range = <@ fun (a:int) (b:int) -> 
@@ -96,37 +85,34 @@ let range = <@ fun (a:int) (b:int) ->
 let ex2 = query { for x in (%range) 30 40 do yield x}
 
 
-(** The reason is that the first approach only works if the parameters are constants of base type;
+(** The reason is that the first approach only works if the parameters are of base type;
 the second is more flexible.  *)
 
 (** 
 
-The RunQuery operator 
+The query.Run method
 ---------------------
 
 It's a little awkward to evaluate composite queries due to the fact that we can't splice them directly into 
-the query brackets: this typechecks, but doesn't do the right thing.
+the query brackets: the following type-checks the arguments, but doesn't do the right thing:
 
 *)
 
-let wrongEx2 : System.Linq.IQueryable<PeopleR> = query { (%range) 30 40 }
+let ex2wrong : System.Linq.IQueryable<PeopleR> = query { (%range) 30 40 }
 
 (**
+This happens since the result of (%range) is not explicitly returned in the outer query and gets discarded instead. 
 
-To simplify the use of composite queries, we define the following convenience operation that 
-evaluates a quoted query result directly:
+To properly use composite queries, we can instead pass the inner query to the query.Run method as a quotation:
+*) 
 
-*)
-
-let runQuery q = query { for x in (%q) do yield x }
+let ex2correct = query.Run <@ (%range) 30 40 @>
 
 (** 
+Or explicitly return the results of the composite query, using the "yield!" keyword in the outer query:
+*) 
 
-Then, we can equivalently just do: 
-
-*)
-
-let ex2again = runQuery <@ (%range) 30 40 @>
+let ex2correct2 = query { yield! (%range) 30 40 }
 
 
 (** 
@@ -134,8 +120,28 @@ let ex2again = runQuery <@ (%range) 30 40 @>
 Building queries using query combinators
 ----------------------------------------
 
-You can build queries up using other query combinators as follows:
+We can also build queries using other query combinators. Suppose we want to find the people who are older than 
+a given person and at the same time younger than another. 
 
+The naive way of doing this, using a single parameterized query, would be:
+*)
+
+let composeMonolithic = 
+    <@ fun s t -> query {
+        for u1 in db.People do
+        for u2 in db.People do 
+        for u in db.People do
+            if s = u1.Name && t = u2.Name && u1.Age <= u.Age && u.Age < u2.Age then
+                yield {name=u.Name;age=u.Age}
+    } @>
+
+(**
+We can see this solution is far from perfect: there is code duplication, renaming of variables, and it may be hard
+to spot the overall structure of the code.  Moreover, while this query is easy enough to compose in one's head, keeping 
+track of the different parameters and constraints becomes more tedious and error-prone as the size and number of tables 
+involved in a query grows.  
+
+Compare the previous example to the following one:
 *)
 
 let ageFromName = 
@@ -151,43 +157,23 @@ let compose =
       yield! (%range) a b
   } @>
 
-(** We could have defined this more directly as a single parameterized query as follows: *)
-
-let composeMonolithic = 
-  <@ fun s t -> query {
-      for u1 in db.People do
-      for u2 in db.People do 
-      for u in db.People do
-      if s = u1.Name && t = u2.Name && u1.Age <= u.Age && u.Age < u2.Age then
-        yield {name=u.Name;age=u.Age}
-  } @>
-
 (**
+This way of defining a query exemplifies the logical meaning of the query, and makes it much easier to understand its purpose
+from the code. 
 
-But this involves some code duplication and renaming, and if the subquery we use to find a person's age from their name were to
-change, then we would have to change both places --- easy to get wrong.  This way of building the query up from 
-components leads to more maintainable code.  
+The role of the FSharpComposableQuery library in the evaluation of this query is to normalize it to such a form which can then
+be evaluated as efficiently as the flat query above. In fact, all composite queries which have an equivalent flat form 
+get reduced to it as part of the normalisation procedure.  
 
-Moreover, this small query is easy enough to compose in your head, but as the size of the query and number of tables 
-involved grows, keeping the different parameters and constraints straight becomes more tedious and error-prone.  This
-way of defining a query such as compose means that the logical meaning of the query is easy to see by reading the code, 
-and the FSharpComposableQuery library does the work of normalizing the query to a form that an SQL database can evaluate
-efficiently.
-
-*)
-
-(**
 
 Higher-order parameters 
 -----------------------
 
 FSharpComposableQuery lifts the restriction that the parameters to a query have to be of base type: instead,
 they can be higher-order functions.  
-(Actually, F# does handle some higher-order functions, but FSharpComposableQuery provides a stronger guarantee
-of good behavior.)
+(Actually, F# does handle some higher-order functions, but FSharpComposableQuery provides a stronger guarantee of good behavior.)
 
-For example, we can define a query combinator that takes a function 
-
+For example, we can define the following query combinator that gets all people whose age matches the argument predicate:
 *)
 
 let satisfies  = 
@@ -197,21 +183,25 @@ let satisfies  =
     then yield {name=u.Name;age=u.Age}
    } @>
 
-let ex3 = runQuery <@ (%satisfies) (fun x -> 20 <= x && x < 30 ) @>
+(**
+We can then use it to find all people in their thirties, or all people with even age:
+*)
 
-let ex4 = runQuery <@ (%satisfies) (fun x ->  x % 2 = 0 ) @>
+let ex3 = query.Run <@ (%satisfies) (fun x -> 20 <= x && x < 30 ) @>
+
+let ex4 = query.Run <@ (%satisfies) (fun x ->  x % 2 = 0 ) @>
 
 (** 
 This is subject to some side-conditions: basically, the function you pass into a higher-order query combinator
 may only perform operations that are sensible on the database; recursion and side-effects such as printing are not allowed,
 and will result in a run-time error. *)
 
-let wrong1 = runQuery <@ (%satisfies) (fun age -> printfn "%d" age; true) @>
+let wrong1 = query.Run <@ (%satisfies) (fun age -> printfn "%d" age; true) @>
 
 let rec even n = if n = 0 then true
                  else if n = 1 then false
                  else even(n-2)
-let wrong2 = runQuery <@ (%satisfies) even @>
+let wrong2 = query.Run <@ (%satisfies) even @>
 
 (** 
 Note that wrong2 is morally equivalent to ex4 above (provided ages are nonnegative), but is not allowed.  The library
@@ -228,7 +218,7 @@ Building queries using recursion
 
 Although recursion is not allowed *within* a query, you can still use recursion to *build* a query.
 
-Consider the following datatype defining some Boolean predicates on ages:
+Consider the following data type defining some Boolean predicates on ages:
 
 *)
 
@@ -265,13 +255,14 @@ database can handle in queries.
 (** So, we can plug the predicate obtained from evaluation into the satisfies query combinator, as follows:
 *)
 
-let ex6 = runQuery <@ (%satisfies) (%eval t0) @>
+let ex6 = query.Run <@ (%satisfies) (%eval t0) @>
 
-let ex7 = runQuery <@ (%satisfies) (%eval t1) @>
+let ex7 = query.Run <@ (%satisfies) (%eval t1) @>
 
-(** Why is this allowed, even though eval is recursive?  
-Again, notice that although the (%eval t0) computes a quotation .  This all happens before satisfies starts 
-working on the 
+(** 
+Why is this allowed, even though the eval function is recursive?  
+Again, notice that although (%eval t) evaluates recursively to a quotation, all of this happens before it is passed 
+as an argument to the satisfies query.  
 
 Had we instead tried it in this, simpler way:
 *)
@@ -284,7 +275,7 @@ let rec wrongEval t x =
   | Or (t1,t2) -> wrongEval t1 x || wrongEval t2 x 
   | Not (t0) -> not(wrongEval t0 x)
 
-let wrongEx6 = runQuery <@ (%satisfies) (wrongEval t1) @>
+let wrongEx6 = query.Run <@ (%satisfies) (wrongEval t1) @>
 
 (** then we would run into the same problem as before, because we would be trying to run satisfies on quoted
   code containing recursive calls, which is not allowed.  *)
