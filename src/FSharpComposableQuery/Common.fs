@@ -103,7 +103,6 @@ type UnknownThing =
     | UnknownCall of MethodInfo
     | UnknownNew of ConstructorInfo
     | UnknownRef of Expr
-    | UnknownQuote
 
 let unkFreshen x x' unk = 
     match unk with
@@ -117,8 +116,10 @@ let castArgs ps args =
     let tys = List.map (fun (p : ParameterInfo) -> p.ParameterType) (ps)
     
     let coerceIfNeeded (arg : Expr, ty) = 
-        if arg.Type = ty then arg
-        else Expr.Coerce(arg, ty)
+        if arg.Type = ty then 
+            arg
+        else 
+            Expr.Coerce(arg, ty)
     List.map coerceIfNeeded (List.zip args tys)
 
 let unknownToExpr unk obj0 args = 
@@ -126,10 +127,10 @@ let unknownToExpr unk obj0 args =
     | UnknownNew ci, None, _ -> 
         Expr.NewObject(ci, castArgs (Array.toList (ci.GetParameters())) args)
     | UnknownRef e, None, _ -> e
-    | UnknownCall(mi), None, _ -> Expr.Call(mi, args)
+    | UnknownCall(mi), None, _ -> 
+        Expr.Call(mi, args)
     | UnknownCall(mi), Some obj, _ -> 
         Expr.Call(obj, mi, castArgs (Array.toList (mi.GetParameters())) args)
-    | UnknownQuote, _, [ e ] -> Expr.Quote(e)
     | _ -> failwith "Impossible case"
 
 type Exp = 
@@ -153,7 +154,11 @@ type Exp =
     | Lam of Var * Exp
     | App of Exp * Exp
     | Table of Expr * System.Type
-    | RunQuery of MethodInfo * Exp
+    | RunAsValue of Exp * System.Type
+    | RunAsQueryable of Exp * System.Type
+    | RunAsEnumerable of Exp * System.Type
+    | Quote of Exp
+    | Source of MethodInfo * Exp
     | Unknown of UnknownThing * System.Type * Exp option * Exp list
 
 exception NYI
@@ -187,7 +192,6 @@ let rec freshen x x' e0 =
     | Field(e0, l) -> Field(freshen x x' e0, l)
     | Empty ty -> Empty ty
     | Singleton(e0) -> Singleton(freshen x x' e0)
-    | Union(e1, e2) -> Union(freshen x x' e1, freshen x x' e2)
     | Comp(e2, y, e1) -> // binding
                          
         Comp(freshen x x' e2, y, freshen x x' e1)
@@ -200,7 +204,12 @@ let rec freshen x x' e0 =
         Unknown
             (unkFreshen x x' unk, ty, Option.map (freshen x x') eopt, 
              List.map (freshen x x') es)
-    | RunQuery(mi, e1) -> RunQuery(mi, freshen x x' e1)
+    | Union(e1, e2) -> Union(freshen x x' e1, freshen x x' e2)
+    | RunAsValue(e1, ty) -> RunAsValue(freshen x x' e1, ty)
+    | RunAsQueryable(e1, ty) -> RunAsQueryable(freshen x x' e1, ty)
+    | RunAsEnumerable(e1, ty) -> RunAsEnumerable(freshen x x' e1, ty)
+    | Quote(e1) -> Quote(freshen x x' e1)
+    | Source(mi, e1) -> Source(mi, freshen x x' e1)
 
 let rec subst e x e0 = 
     match e0 with
@@ -228,7 +237,6 @@ let rec subst e x e0 =
     | Field(e0, l) -> Field(subst e x e0, l)
     | Empty ty -> Empty ty
     | Singleton(e0) -> Singleton(subst e x e0)
-    | Union(e1, e2) -> Union(subst e x e1, subst e x e2)
     | Comp(e2, y, e1) -> // binding
                          
         let y' = fresh y
@@ -243,7 +251,12 @@ let rec subst e x e0 =
             else ()
         | _ -> ()
         Unknown(unk, ty, Option.map (subst e x) eopt, List.map (subst e x) es)
-    | RunQuery(mi, e1) -> RunQuery(mi, subst e x e1)
+    | Union(e1, e2) -> Union(subst e x e1, subst e x e2)
+    | RunAsValue(e1, ty) -> RunAsValue(subst e x e1, ty)
+    | RunAsQueryable(e1, ty) -> RunAsQueryable(subst e x e1, ty)
+    | RunAsEnumerable(e1, ty) -> RunAsEnumerable(subst e x e1, ty)
+    | Quote(e1) -> Quote(subst e x e1)
+    | Source(mi, e1) -> Source(mi, subst e x e1)
 
 type UnitRecord = 
     { unit : int }
@@ -269,7 +282,6 @@ let rec elimTuples exp =
     | Field(e0, l) -> Field(elimTuples e0, l)
     | Empty ty -> Empty ty
     | Singleton(e0) -> Singleton(elimTuples e0)
-    | Union(e1, e2) -> Union(elimTuples e1, elimTuples e2)
     | Comp(e2, y, e1) -> // binding
                          
         Comp(elimTuples e2, y, elimTuples e1)
@@ -277,7 +289,12 @@ let rec elimTuples exp =
     | Table(expr, ty) -> Table(expr, ty)
     | Unknown(unk, ty, eopt, es) -> 
         Unknown(unk, ty, Option.map elimTuples eopt, List.map (elimTuples) es)
-    | RunQuery(mi, e1) -> RunQuery(mi, elimTuples e1)
+    | Union(e1, e2) -> Union(elimTuples e1, elimTuples e2)
+    | RunAsValue(e1, ty) -> RunAsValue(elimTuples e1, ty)
+    | RunAsQueryable(e1, ty) -> RunAsQueryable(elimTuples e1, ty)
+    | RunAsEnumerable(e1, ty) -> RunAsEnumerable(elimTuples e1, ty)
+    | Quote(e1) -> Quote(elimTuples e1)
+    | Source(mi, e1) -> Source(mi, elimTuples e1)
 
 let (|RecordWith|_|) l = 
     function 

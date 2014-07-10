@@ -305,15 +305,15 @@ module Nested =
           } @>
 
 
-
+          
         let any'() = 
-          <@ fun xs -> fun p -> query { for x in xs do exists (p xs) } @>
-
+          <@ fun xs -> fun p -> query { for x in xs do exists (p x) } @>
+          
         let all' () = 
           <@ fun xs -> fun p -> not(query {for x in xs do exists (not (p(x)))}) @>
 
         let contains'() = 
-          <@ fun xs -> fun u -> (%any()) xs (fun x -> x = u) @>
+          <@ fun xs -> fun u -> (%any'()) xs (fun x -> x = u) @>
 
         let expertise' =
           <@ fun u -> query {

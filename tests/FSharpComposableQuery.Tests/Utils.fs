@@ -4,7 +4,6 @@ open System
 open System.Linq
 open System.Reflection
 open Microsoft.FSharp.Linq
-open Microsoft.FSharp.Linq.QuotationEvaluation
 open Microsoft.FSharp.Quotations
 open FSharpComposableQuery
 
