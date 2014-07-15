@@ -42,3 +42,5 @@ module TopLevelValues =
     /// Builds a query using query syntax and operators.
     /// </summary>
     val query : QueryImpl.QueryBuilder
+
+    val runQuery : Expr<System.Linq.IQueryable<'a>> -> 'a array

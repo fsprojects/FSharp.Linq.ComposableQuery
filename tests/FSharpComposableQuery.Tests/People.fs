@@ -87,25 +87,9 @@ module People =
 
 
 
-        let printPeople x = Seq.iter (fun r -> printfn "%s %i" r.name r.age)    x            
-        let forcePeople x = Seq.iter (fun r -> ())    x            
-
-        let printResult x = Seq.iter (fun r -> printfn "%s %i" r.rname r.diff)    x            
-        let forceResult x = Seq.iter (fun r -> ())    x    
-
-
         // Example 1
 
-        let differences = <@ seq {
-                      for c in db.Couples do
-                      for w in db.People do
-                      for m in db.People do
-                      if c.Her = w.Name && c.Him = m.Name && w.Age > m.Age 
-                      then yield {rname=w.Name; diff=w.Age - m.Age}
-                      } @>
-
-
-        let differences' = <@ query {
+        let differences = <@ query {
                       for c in db.Couples do
                       for w in db.People do
                       for m in db.People do
@@ -114,59 +98,41 @@ module People =
                     } @>
 
         let ex1 = differences
-        let ex1' = differences'
 
 
         // Example 2
 
-        let range = <@ fun (a:int) (b:int) -> 
-          seq {
-            for u in db.People do
-            if a <= u.Age && u.Age < b 
-            then yield {name=u.Name;age=u.Age}
-            } @>
-
-        let range' = fun (a:int) (b:int) -> 
+        let rangeSimple = fun (a:int) (b:int) -> 
           query {
             for u in db.People do
             if a <= u.Age && u.Age < b 
             then yield {name=u.Name;age=u.Age}
             }   
 
-        let ex2 = <@(%range) 30 40 @>
-        let ex2' = <@ query { yield! range' 30 40 } @> 
+        let ex2 = <@ query { yield! rangeSimple 30 40 } @> 
 
 
         // Example 3
 
-        let satisfies:Expr<(int -> bool) -> seq<PeopleR>> = 
-          <@ fun p -> seq { 
-              for w in db.People do
-              if p w.Age 
-              then yield {name=w.Name;age=w.Age}
-           } @>
-
-        let satisfies'  = 
+        let satisfies  = 
          <@ fun p -> query { 
             for u in db.People do
             if p u.Age 
             then yield {name=u.Name;age=u.Age}
            } @>
 
-        let ex3 = <@ (%satisfies) (fun x -> 30 <= x && x < 40) @>
-        let ex3' = <@ query { yield! (%satisfies') (fun x -> 20 <= x && x < 30 ) } @>
+        let ex3 = <@ query { yield! (%satisfies) (fun x -> 20 <= x && x < 30 ) } @>
 
 
         // Example 4
 
-        let ex4 = <@ (%satisfies) (fun x -> x % 2 = 0) @>
-        let ex4' = <@ query { yield! (%satisfies') (fun x ->  x % 2 = 0 ) } @>
+        let ex4 = <@ query { yield! (%satisfies) (fun x ->  x % 2 = 0 ) } @>
 
 
 
         // Example 5
         
-        let range'' = <@ fun (a:int) (b:int) -> 
+        let range = <@ fun (a:int) (b:int) -> 
           query {
             for u in db.People do
             if a <= u.Age && u.Age < b 
@@ -175,35 +141,19 @@ module People =
 
 
         let ageFromName = 
-          <@ fun s -> seq{
-                for u in db.People do 
-                if s = u.Name then 
-                  yield u.Age } @>
-
-        let compose : Expr<string -> string -> seq<PeopleR>> = 
-          <@ fun s t -> seq {
-              for a in (%ageFromName) s do
-              for b in (%ageFromName) t do 
-              yield! (%range'') a b
-          } @>
-
-
-        let ageFromName' = 
           <@ fun s -> query {
                 for u in db.People do 
                 if s = u.Name then 
                   yield u.Age } @>
 
-        let compose' : Expr<string -> string -> IQueryable<PeopleR>> = 
+        let compose : Expr<string -> string -> IQueryable<PeopleR>> = 
           <@ fun s t -> query {
-              for a in (%ageFromName') s do
-              for b in (%ageFromName') t do 
-              yield! (%range'') a b
+              for a in (%ageFromName) s do
+              for b in (%ageFromName) t do 
+              yield! (%range) a b
           } @>
 
-
-        let ex5 = <@ (%compose) "Eve" "Bob" @>
-        let ex5' = <@ query { yield! (%compose') "Eve" "Bob" } @> 
+        let ex5' = <@ query { yield! (%compose) "Eve" "Bob" } @> 
 
 
         // Example 6
@@ -220,14 +170,12 @@ module People =
           | Not (t0) -> <@ fun x -> not((%eval t0) x ) @>
 
 
-        let ex6 = <@ (%satisfies) (%eval t0)@>
-        let ex6' = <@ query { yield! (%satisfies') (%eval t0) } @>
+        let ex6' = <@ query { yield! (%satisfies) (%eval t0) } @>
 
 
         // Example 7
 
-        let ex7 = <@ (%satisfies) (%eval t1)@>
-        let ex7' = <@ query { yield! (%satisfies') (%eval t1) } @>
+        let ex7' = <@ query { yield! (%satisfies) (%eval t1) } @>
 
 
 
@@ -241,22 +189,22 @@ module People =
         [<TestMethod>]
         member this.testEx1() = 
             this.tagQuery "ex1"
-            Utils.Run ex1'
+            Utils.Run ex1
 
         [<TestMethod>]
         member this.testEx2() = 
             this.tagQuery "ex2"
-            Utils.Run ex2'
+            Utils.Run ex2
 
         [<TestMethod>]
         member this.testEx3() = 
             this.tagQuery "ex3"
-            Utils.Run ex3'
+            Utils.Run ex3
 
         [<TestMethod>]
         member this.testEx4() = 
             this.tagQuery "ex4"
-            Utils.Run ex4'
+            Utils.Run ex4
 
         [<TestMethod>]
         member this.testEx5() = 

@@ -32,14 +32,6 @@ module Simple =
         [<Literal>]
         static let invalidResult = "Results don't match!"
         
-//        let q = query {
-//            for x in 
-//                query { yield! db.Student }
-//                do yield x }
-//            
-//        let q2 = query {
-//            for x in ( for y in db.Student do yield y)
-//                do yield x }
 
         [<TestMethod>]
         member this.``contains query operator``() = 
@@ -484,13 +476,9 @@ module Simple =
             Utils.Run q
 
 
-
-
-
-        (* This example is the same as below but works, because we use ExtraTopLevelOperators.query *)
         [<TestMethod>]
         member this.``Exists.``() = 
-            this.tagQuery "Exists."
+            this.tagQuery "Exists, native QueryBuilder."
             let q = <@ query {
                     for student in db.Student do
                     where (ExtraTopLevelOperators.query 
@@ -501,10 +489,10 @@ module Simple =
 
     
 
-        (* This example demonstrates the bug *)
+
         [<TestMethod>]
         member this.``Exists (bug).``() = 
-            this.tagQuery "Exists (bug)."
+            this.tagQuery "Exists."
             let q = <@ query {
                     for student in db.Student do
                     where (query 

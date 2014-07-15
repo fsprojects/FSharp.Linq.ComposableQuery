@@ -14,8 +14,11 @@ type internal Debug() =
     
     static let printObj (o:obj) = 
         let ty = o.GetType()
-        let hash = o.GetHashCode() % 100
-        sprintf "%s_%d" ty.Name hash
+        if ty = typedefof<Expr> then
+            (o :?> Expr).ToString(false)
+        else
+            let hash = o.GetHashCode() % 100
+            sprintf "%s_%d" ty.Name hash
 
     static let printOp (x:Op) = 
         match x with
@@ -62,7 +65,7 @@ type internal Debug() =
                 | Singleton e -> ["yield"] @ prettyPrintRec 1 e
                 | Comp(e1, x, e2) -> ["foreach var " + (x.Name) + " in:"] @ (prettyPrintRec 1 e2) @ ["do"] @ (prettyPrintRec 1 e1)
                 | Exists(e) -> ["Exists:"] @ prettyPrintRec 1 e
-                | Table(e, ty) -> ["(Table : " + ty.Name.ToString() + ") -> "; "  " + e.ToString(false)]
+                | Table(e, ty) -> ["Table<" + ty.Name.ToString() + "> = "; "  " + e.ToString(false)]
                 | Unknown(unk, _, eopt, args) -> 
                     let otxt = (concat << List.concat << List.map (prettyPrintRec 0)) (Option.toList eopt)
                     let argstxt = 
@@ -79,12 +82,8 @@ type internal Debug() =
                 | RunAsQueryable(e1, ty) -> ["query.Run[Queryable<" + ty.Name + ">]"] @ prettyPrintRec 1 e1
                 | RunAsValue(e1, ty) -> ["query.Run[" + ty.Name + "]"] @ prettyPrintRec 1 e1
                 | Quote(e1) -> ["<@ "] @ prettyPrintRec 1 e1 @ [" @>"]
-                | Source(mi, e1) -> 
-                    ["query.Source<" + 
-                        mi.GetGenericArguments()
-                            .Select(fun (ty:System.Type) -> ty.Name)
-                            .Aggregate(fun a b -> a + ", " + b)
-                         + ">"] 
+                | Source(eTy, sTy, e1) -> 
+                    ["query.Source<" + eTy.Name + ", " + sTy.Name + ">"] 
                     @ prettyPrintRec 1 e1
                 | _ -> raise NYI
             |> List.map (fun x -> (String.replicate lvl "  ") + x)
@@ -92,8 +91,7 @@ type internal Debug() =
         prettyPrintRec 1 exp
         |> concat
     
-    //Calls to this method will get replaced by nops when compiled in 'Release'
-    [<Conditional("DEBUG")>]
-    static member printfn(f,s) = 
-        System.IO.File.AppendAllText(logFile, (sprintf f s) + System.Environment.NewLine)
+    [<Conditional("DEBUG")>]    //omitted if compiled in Release
+    static member printfn f = 
+        Printf.kprintf (fun s -> System.IO.File.AppendAllText(logFile, s + System.Environment.NewLine)) f
 

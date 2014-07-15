@@ -67,8 +67,6 @@ let range1 = fun (a:int) (b:int) ->
     then yield {name=u.Name;age=u.Age}
     } 
 
-let mutable sad = 1
-
 let ex1 = range1 30 40
 
 (**
@@ -84,6 +82,7 @@ let range = <@ fun (a:int) (b:int) ->
 
 let ex2 = query { for x in (%range) 30 40 do yield x}
 
+let ex2alt = query { yield! (%range) 30 40 }
 
 (** The reason is that the first approach only works if the parameters are of base type;
 the second is more flexible.  *)

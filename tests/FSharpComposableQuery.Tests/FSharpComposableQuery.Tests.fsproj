@@ -93,6 +93,7 @@
     <Compile Include="Nested.fs" />
     <Compile Include="Xml.fs" />
     <Compile Include="QueryTests.fs" />
+    <Compile Include="ExtraTests.fs" />
     <Compile Include="RunTests.fs" />
     <None Include="sql\organisation.sql" />
     <None Include="sql\simple.sql" />

@@ -158,7 +158,7 @@ type Exp =
     | RunAsQueryable of Exp * System.Type
     | RunAsEnumerable of Exp * System.Type
     | Quote of Exp
-    | Source of MethodInfo * Exp
+    | Source of System.Type * System.Type * Exp
     | Unknown of UnknownThing * System.Type * Exp option * Exp list
 
 exception NYI
@@ -209,7 +209,7 @@ let rec freshen x x' e0 =
     | RunAsQueryable(e1, ty) -> RunAsQueryable(freshen x x' e1, ty)
     | RunAsEnumerable(e1, ty) -> RunAsEnumerable(freshen x x' e1, ty)
     | Quote(e1) -> Quote(freshen x x' e1)
-    | Source(mi, e1) -> Source(mi, freshen x x' e1)
+    | Source(ety, sty, e1) -> Source(ety, sty, freshen x x' e1)
 
 let rec subst e x e0 = 
     match e0 with
@@ -256,7 +256,7 @@ let rec subst e x e0 =
     | RunAsQueryable(e1, ty) -> RunAsQueryable(subst e x e1, ty)
     | RunAsEnumerable(e1, ty) -> RunAsEnumerable(subst e x e1, ty)
     | Quote(e1) -> Quote(subst e x e1)
-    | Source(mi, e1) -> Source(mi, subst e x e1)
+    | Source(ety, sty, e1) -> Source(ety, sty, subst e x e1)
 
 type UnitRecord = 
     { unit : int }
@@ -294,7 +294,7 @@ let rec elimTuples exp =
     | RunAsQueryable(e1, ty) -> RunAsQueryable(elimTuples e1, ty)
     | RunAsEnumerable(e1, ty) -> RunAsEnumerable(elimTuples e1, ty)
     | Quote(e1) -> Quote(elimTuples e1)
-    | Source(mi, e1) -> Source(mi, elimTuples e1)
+    | Source(ety, sty, e1) -> Source(ety, sty, elimTuples e1)
 
 let (|RecordWith|_|) l = 
     function 

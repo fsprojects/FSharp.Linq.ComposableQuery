@@ -20,7 +20,7 @@ module RunTests =
     let getTestMethods t = getMethods BindingFlags.Instance typedefof<TestMethodAttribute> t
     
     // invoke class initializers
-    // TODO: these take a TestContext parameter.
+    // TODO: these should take a TestContext parameter.
     let initTests (o : obj) =  
         for m in getInitMethods (o.GetType()) do
             m.Invoke(o, [|null|]) |> ignore
@@ -52,7 +52,7 @@ module RunTests =
 
     [<EntryPoint>]
     let Main(args) =
-
+    
         //initialise tables
         printHeader "Setting up database tables"
         List.iter initTests tests
