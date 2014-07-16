@@ -53,18 +53,6 @@ module Nested =
         static let contacts = db.Contacts
         static let tasks = db.Tasks
 
-        static let printDepts x = 
-            Seq.iter (fun (d:Department) -> printfn "%s" d.dpt) x
-    
-        static let forceDepts x = 
-            Seq.iter (fun _ -> ()) x
-    
-        static let printEmp (e:Employees) = 
-            printfn "Name:L %s Dept: %s Salary: %d" e.Emp e.Dpt e.Salary
-
-        static let printEmps x = 
-            Seq.iter printEmp x
-
 
         // random data generator
         static let rand = new System.Random()
@@ -89,8 +77,6 @@ module Nested =
         static let randomDepartment() = 
             randomArray [|"Sales";"Research";"Quality";"Product"|]
             |> genId
-
-        static let randomSalary() = rand.Next(10000,1000000)
 
         //Creates n employees at random in the given departments
         static let randomEmployees n depts = 
@@ -204,29 +190,10 @@ module Nested =
             db.DataContext.SubmitChanges()
 
 
+
         // Example 8
 
-        let exists() = <@ fun xs -> Seq.exists (fun _ -> true) xs @>
-
-        let expertiseNaive =
-          <@ fun u -> seq {
-            for d in db.Departments do 
-            if not((%exists ()) (seq {for e in db.Employees do 
-                                      if e.Dpt = d.Dpt && 
-                                         not ((%exists()) (seq {for t in db.Tasks do
-                                                                if e.Emp = t.Emp && t.Tsk = u
-                                                                then yield ()
-                                                            }
-                                                     )
-                                          )
-                                      then yield ()
-                               }
-                          )
-                   )
-            then yield {Department.dpt=d.Dpt}
-          } @>
-          
-        let expertiseNaive' = 
+        let expertiseNaive = 
           <@ fun u -> query {
             for d in db.Departments do 
             if not(query {
@@ -242,51 +209,13 @@ module Nested =
           } @>
 
 
-        let ex8 = <@ (%expertiseNaive) "abstract"@>
-
-        let ex8' = <@ (%expertiseNaive') "abstract" @>
-        let ex8'' = <@ query { for x in (%expertiseNaive') "abstract" do select x} @>
-
-        let nestedOrg:Quotations.Expr<seq<DepartmentEmployees>> = 
-            <@ seq { 
-            for d in db.Departments do
-            yield {dpt = d.Dpt; 
-                   employees = 
-                    seq {
-                       for e in db.Employees do
-                       if d.Dpt = e.Dpt
-                       then yield {emp=e.Emp;
-                                   tasks= seq {
-                                       for t in db.Tasks do
-                                       if t.Emp = e.Emp 
-                                       then yield t.Tsk
-                                     }
-                                   }
-                     }
-                  }
-          } @>
+        let ex8 = <@ query { yield! (%expertiseNaive) "abstract" } @>
 
 
 
-        let any() = 
-          <@ fun xs -> fun p -> Seq.exists p xs @>
+        // Example 9
 
-        let all () = 
-          <@ fun xs -> fun p -> not(Seq.exists (fun x -> not (p(x))) xs) @>
-
-        let contains() = 
-          <@ fun xs -> fun u -> (%any()) xs (fun x -> x = u) @>
-
-        let expertise = 
-          <@ fun u -> seq {
-            for d in (%nestedOrg) do 
-            if (%all()) (d.employees) (fun e -> (%contains()) e.tasks u)
-            then yield {Department.dpt=d.dpt}
-            } @>
-
-
-
-        let nestedOrg'  = 
+        let nestedOrg  = 
           <@ query { 
             for d in db.Departments do
             yield {dpt = d.Dpt; 
@@ -304,34 +233,25 @@ module Nested =
                   }
           } @>
 
-
-          
-        let any'() = 
+        let any = 
           <@ fun xs -> fun p -> query { for x in xs do exists (p x) } @>
           
-        let all' () = 
+        let all' = 
           <@ fun xs -> fun p -> not(query {for x in xs do exists (not (p(x)))}) @>
 
-        let contains'() = 
-          <@ fun xs -> fun u -> (%any'()) xs (fun x -> x = u) @>
+        let contains' = 
+          <@ fun xs -> fun u -> (%any) xs (fun x -> x = u) @>
 
-        let expertise' =
+        let expertise =
           <@ fun u -> query {
-            for d in (%nestedOrg') do 
-            if (%all'()) (d.employees) (fun e -> (%contains'()) e.tasks u)
+            for d in (%nestedOrg) do 
+            if (%all') (d.employees) (fun e -> (%contains') e.tasks u)
             then yield {Department.dpt=d.dpt}
             } @>
 
-
-        let printAny xs = 
-            Seq.iter (fun x -> printfn "%A" x) xs
-
     
-        // Example 9
 
-        let ex9 = <@ (%expertise)  "abstract" @>
-        let ex9' = <@ (%expertise') "abstract" @>
-        let ex9'' = <@ query { for x in (%expertise') "abstract" do select x } @>
+        let ex9 = <@ query { yield! (%expertise) "abstract" } @>
 
 
 
@@ -345,10 +265,10 @@ module Nested =
 
         [<TestMethod>]
         member this.testEx8() = 
-             this.tagQuery "ex8"
-             Utils.Run ex8''
+             printfn "%s" "ex8"
+             Utils.Run ex8
 
         [<TestMethod>]
         member this.testEx9() = 
-             this.tagQuery "ex9"
-             Utils.Run ex9''
+             printfn "%s" "ex9"
+             Utils.Run ex9

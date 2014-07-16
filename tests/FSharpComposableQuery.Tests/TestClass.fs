@@ -7,16 +7,11 @@ open System
 /// </summary>
 type TestClass() = 
 
-    static let mutable tag = 0
-
+    let mutable idx = 0
+    
     /// <summary>
-    /// Attaches an unique integer tag to the given string and then prints it. 
+    /// Generates a unique tag for this class instance.
     /// </summary>
-    /// <param name="txt"></param>
-    member this.tagQuery (?txt:string) = 
-        tag <- tag + 1
-        match txt with
-        | Some(s) -> 
-            printfn "Q%02d %s" tag s
-        | None -> 
-            printfn "Q%02d " tag
+    member this.tag() = 
+        idx <- idx + 1
+        idx

@@ -28,7 +28,7 @@ module RunTests =
     // invoke test methods
     // other types of methods (e.g. test initializers) are not invoked
     // as they are not currently used in any of the tests
-    let runTests (o : obj) = 
+    let runTests o = 
         for m in getTestMethods (o.GetType()) do
             m.Invoke(o, null) |> ignore
 
@@ -43,29 +43,27 @@ module RunTests =
                 printfn "%s" delimiter) fmt
             
 
-    let tests : TestClass list = [
-        (new FSharpComposableQuery.Tests.Simple.TestClass())
-        (new FSharpComposableQuery.Tests.People.TestClass())
-        (new FSharpComposableQuery.Tests.Nested.TestClass())
-        (new FSharpComposableQuery.Tests.Xml.TestClass()) 
+    let newTests() : TestClass list = 
+        [
+            (new FSharpComposableQuery.Tests.Simple.TestClass())
+            (new FSharpComposableQuery.Tests.People.TestClass())
+            (new FSharpComposableQuery.Tests.Nested.TestClass())
+            (new FSharpComposableQuery.Tests.Xml.TestClass()) 
         ]
 
     [<EntryPoint>]
     let Main(args) =
     
-        //initialise tables
-        printHeader "Setting up database tables"
-        List.iter initTests tests
+//        printHeader "Setting up database tables"
+//        List.iter initTests tests
 
-        //compare results
-        Utils.RunMode <- UtilsMode.CompPrint
         printHeader "Comparing result values (%s, %s, %s)" "F# 3.0" "TLinq" "Match"
-        List.iter runTests tests
+        Utils.RunMode <- UtilsMode.CompPrint
+        List.iter runTests (newTests())
 
-        //run benchmarks
-        Utils.RunMode <- UtilsMode.TimePrint
         printHeader "Mean execution time (%s, %s)" "F# 3.0" "TLinq"
-        List.iter runTests tests
+        Utils.RunMode <- UtilsMode.TimePrint
+        List.iter runTests (newTests())
         
         printHeader "Done!"
         Console.Read()

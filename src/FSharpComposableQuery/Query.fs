@@ -199,7 +199,7 @@ module QueryImpl =
 //                    Source(eTy, ty, removeInner ty e1)  //change type of Source()
 
             match exp with
-            | RunAsValue(Quote(e), ty) -> removeRunAs ty e  //LINQ would expect to directly receive the expression body
+            | RunAsValue(Quote(e), ty) -> removeRunAs ty e  //LINQ would expect to directly receive the expression body in the case of an outer RunAsValue
             | exp -> removeInner ty exp
 
 

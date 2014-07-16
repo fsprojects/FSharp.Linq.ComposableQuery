@@ -8,7 +8,6 @@ open System.Xml.Linq
 open FSharpComposableQuery
 
 module Xml =
-
     [<Literal>]
     let xmlPath = "data\movies.xml"
 
@@ -24,12 +23,13 @@ module Xml =
     let internal data = db.Data
     let internal text = db.Text
     let internal attributes = db.Attribute
+
     // XML document loading/shredding
     let idx = ref 0
 
     let new_id() =
         let i = !idx
-        idx := i + 1
+        idx := i + 12
         i
 
     let rec traverseXml entry parent i (node : XNode) =
@@ -112,11 +112,6 @@ module Xml =
         | FollowingSibling
         | Rev of Axis
 
-    //          | Preceding
-    //          | PrecedingSibling
-    //          | Parent
-    //          | Ancestor
-    //          | AncestorOrSelf
     let rec internal axisPred' axis =
         match axis with
         | Self -> <@ fun (row1 : Data) (row2 : Data) -> row1.ID = row2.ID @>
@@ -127,11 +122,6 @@ module Xml =
         | FollowingSibling -> <@ fun (row1 : Data) (row2 : Data) -> row1.Post < row2.Pre && row1.Parent = row2.Parent @>
         | Rev axis -> <@ fun row1 row2 -> (%axisPred' axis) row2 row1 @>
 
-    //    | Parent           -> <@ fun (row1:Data) (row2:Data) -> row1.Parent = row2.ID @>
-    //    | Ancestor         -> <@ fun (row1:Data) (row2:Data) -> row2.Pre < row1.Pre && row1.Post < row2.Post @>
-    //    | AncestorOrSelf   -> <@ fun (row1:Data) (row2:Data) -> row2.Pre <= row1.Pre && row1.Post <= row2.Post @>
-    //    | Preceding        -> <@ fun (row1:Data) (row2:Data) -> row2.Pre < row1.Pre @>
-    //    | PrecedingSibling -> <@ fun (row1:Data) (row2:Data) -> row2.Pre < row1.Pre && row1.Parent = row2.Parent @>
     let internal axisPred axis =
         <@ fun (row1 : Data) (row2 : Data) -> row1.Entry = row2.Entry && (%(axisPred' axis)) row1 row2 @>
 
@@ -140,82 +130,6 @@ module Xml =
         | Axis of Axis
         | Name of string
         | Filter of Path
-
-    let internal pathQ data path =
-        let rec pathQ' path =
-            match path with
-            | Seq(p1, p2) -> <@ fun row -> (%pathQ' p1) row |> Seq.collect (fun row' -> (%(pathQ' p2)) row') @>
-            | Axis ax ->
-                <@ fun (row : Data) ->
-                    Seq.filter (fun (row' : Data) -> row.Entry = row'.Entry && (%(axisPred ax)) row row') %data @>
-            | Name name ->
-                <@ fun (row : Data) ->
-                    if row.Name = name then Seq.singleton row
-                    else Seq.empty @>
-            | Filter p ->
-                <@ fun (row : Data) ->
-                    if Seq.exists (fun _ -> true) ((%(pathQ' p)) row) then Seq.singleton row
-                    else Seq.empty @>
-        pathQ' path
-
-    let internal pathQ2 data path =
-        let rec pathQ' path =
-            match path with
-            | Seq(p1, p2) ->
-                <@ fun row ->
-                    seq {
-                        for row1 in (%(pathQ' p1)) row do
-                            for row2 in (%(pathQ' p2)) row1 do
-                                yield row2
-                    } @>
-            | Axis ax ->
-                <@ fun row ->
-                    seq {
-                        for (row' : Data) in %data do
-                            if ((%(axisPred ax)) row row') then yield row'
-                    } @>
-            | Name name ->
-                <@ fun row ->
-                    seq {
-                        if row.Name = name then yield row
-                    } @>
-            | Filter p ->
-                <@ fun row ->
-                    seq {
-                        if Seq.exists (fun _ -> true) ((%pathQ' p) row) then yield row
-                    } @>
-        pathQ' path
-
-    let internal pathP data path =
-        let rec pathP' path =
-            match path with
-            | Seq(p1, p2) ->
-                <@ fun row1 row3 -> Seq.exists (fun row2 -> (%pathP' p1) row1 row2 && (%pathP' p2) row2 row3) %data @>
-            | Axis ax -> axisPred ax
-            | Name name -> <@ fun row1 row2 -> row1.Name = name && row1.ID = row2.ID @>
-            | Filter p ->
-                <@ fun row1 row2 -> row1.ID = row2.ID && Seq.exists (fun row3 -> (%pathP' p) row1 row3) %data @>
-        <@ fun row1 ->
-            seq {
-                for row2 in %data do
-                    if (%pathP' path) row1 row2 then yield row2
-            } @>
-
-    let internal pathP2 data path =
-        let rec pathP' path =
-            match path with
-            | Seq(p1, p2) ->
-                <@ fun (row1 : Data, row3 : Data) ->
-                    Seq.exists (fun row2 -> (%pathP' p1) (row1, row2) && (%pathP' p2) (row2, row3)) %data @>
-            | Axis ax -> <@ fun (row1, row2) -> (%axisPred ax) row1 row2 @>
-            | Name name -> <@ fun (row1, row2) -> row1.Name = name && row1.ID = row2.ID @>
-            | Filter p ->
-                <@ fun (row1, row2) -> row1.ID = row2.ID && Seq.exists (fun row3 -> (%pathP' p) (row1, row3)) %data @>
-        <@ fun row1 ->
-            seq {
-                for row2 in %data do
-                    if (%pathP' path) (row1, row2) then yield row2
-            } @>
 
     let (./.) p1 p2 = Seq(p1, p2)
     let child = Axis Child
@@ -231,74 +145,6 @@ module Xml =
     let precedingsibling = Axis(Rev FollowingSibling)
     let (.%.) path name = Seq(path, Name name)
     let (.^.) path1 path2 = Seq(path1, Filter(path2))
-
-    let internal pathQuery data (path) =
-        let rec pathQ' path =
-            match path with
-            | Seq(p1, p2) ->
-                <@ fun row ->
-                    query {
-                        for row1 in (%(pathQ' p1)) row do
-                            for row2 in (%(pathQ' p2)) row1 do
-                                yield row2
-                    } @>
-            | Axis ax ->
-                <@ fun (row : Data) ->
-                    query {
-                        for (row' : Data) in %data do
-                            where ((%(axisPred ax)) row row')
-                            select row'
-                    } @>
-            | Name name ->
-                <@ fun (row : Data) ->
-                    query {
-                        if row.Name = name then yield row
-                    } @>
-            | Filter p ->
-                <@ fun (row : Data) ->
-                    query {
-                        if query 
-                           {
-                               for row' in ((%(pathQ' p)) row) do
-                                   exists true
-                           }
-                        then yield row
-                    } @>
-        pathQ' path
-
-    let internal pathQuery' data (path) =
-        let rec pathQ' path =
-            match path with
-            | Seq(p1, p2) ->
-                <@ fun row ->
-                    query {
-                        for row1 in (%(pathQ' p1)) row do
-                            for row2 in (%(pathQ' p2)) row1 do
-                                yield row2
-                    } @>
-            | Axis ax ->
-                <@ fun (row : Data) ->
-                    query {
-                        for (row' : Data) in %data do
-                            where ((%(axisPred ax)) row row')
-                            select row'
-                    } @>
-            | Name name ->
-                <@ fun (row : Data) ->
-                    query {
-                        where (row.Name = name)
-                        yield row
-                    } @>
-            | Filter p ->
-                <@ fun (row : Data) ->
-                    query {
-                        where (query {
-                                   for row' in ((%(pathQ' p)) row) do
-                                       exists true
-                               })
-                        yield row
-                    } @>
-        pathQ' path
 
     let internal pathQuery2 data (path) =
         let rec pathQ2 path =
@@ -324,13 +170,6 @@ module Xml =
             } @>
 
     let internal xpath i data path =
-        <@ seq {
-               for row in %data do
-                   for row' in (%(pathP2 data path)) row do
-                       if (row.Parent = -1 && row.Entry = i) then yield row'.ID
-           } @>
-
-    let internal xpath' i data path =
         <@ query {
                for row in %data do
                    for row' in (%(pathQuery2 data path)) row do
@@ -356,28 +195,28 @@ module Xml =
 
         [<TestMethod>]
         member this.testXp0() =
-            this.tagQuery "xp0"
+            printfn "%s" "xp0"
             xp0
-            |> xpath' 0 <@ data @>
+            |> xpath 0 <@ data @>
             |> Utils.Run
 
         [<TestMethod>]
         member this.testXp1() =
-            this.tagQuery "xp1"
+            printfn "%s" "xp1"
             xp1
-            |> xpath' 0 <@ data @>
+            |> xpath 0 <@ data @>
             |> Utils.Run
 
         [<TestMethod>]
         member this.testXp2() =
-            this.tagQuery "xp2"
+            printfn "%s" "xp2"
             xp2
-            |> xpath' 0 <@ data @>
+            |> xpath 0 <@ data @>
             |> Utils.Run
 
         [<TestMethod>]
         member this.testXp3() =
-            this.tagQuery "xp3"
+            printfn "%s" "xp3"
             xp3
-            |> xpath' 0 <@ data @>
+            |> xpath 0 <@ data @>
             |> Utils.Run

@@ -3,6 +3,7 @@
 open System
 open System.Linq
 open FSharpComposableQuery
+open Microsoft.FSharp.Quotations
 
 module ExtraTests = 
 
@@ -10,20 +11,34 @@ module ExtraTests =
     type simpleTy = Simple.schema.ServiceTypes
 
     let data = [1..10]
-
-    let private qValue = <@ fun (age:int) -> query { for s in simpleDb.Student do head } @>
+    
+    let private qVals = 
+        [|
+            <@ fun (age:int) -> query { for s in simpleDb.Student do all(s.Age.HasValue) } @>
+            <@ fun (age:int) -> query { for s in simpleDb.Student do contains(simpleDb.Student.First()) } @>
+            <@ fun (age:int) -> query { for s in simpleDb.Student do exists(s.Age.HasValue) } @>
+        |]
+    let private qVals2 = 
+        [|
+            <@ fun (age:int) -> query { for s in simpleDb.Student do all(s.Age.HasValue) } @>
+            <@ fun (age:int) -> query { for s in simpleDb.Student do contains(simpleDb.Student.First()) } @>
+        |]
+    let private qVals3 = 
+        [|
+            <@ fun (age:int) -> query { for s in simpleDb.Student do all(s.Age.HasValue) } @>
+            <@ fun (age:int) -> query { for s in simpleDb.Student do contains(simpleDb.Student.First()) } @>
+        |]
     let private qEnum = <@ fun id -> query { for i in data do if i < id then select i } @>
     let private qQuery = <@ fun (age:int) -> query { for s in simpleDb.Student do if not (s.Age.Equals(age)) then yield s } @>
 
 
-    let private qValueUseValue = <@ query { for s in simpleDb.Student do if (s = ((%qValue) 15)) then count } @>
+    let private qValueUseValue i = <@ query { for s in simpleDb.Student do if (s.Age.HasValue = ((%qVals.[i]) 15)) then count } @>
     let private qQueryUseQuery = <@ query { for s in ((%qQuery) 16) do yield s } @>
 
     let private qValueUseQuery = <@ query { for s in ((%qQuery) 16) do count } @>
-    let private qQueryUseValue = <@ query { for s in simpleDb.Student do if (s = ((%qValue) 15)) then yield s } @>
+    let private qQueryUseValue i = <@ query { for s in simpleDb.Student do if (s.Age.HasValue = ((%qVals.[i]) 15)) then yield s } @>
 
-    let private qValValSimple = <@ query
-        {
+    let private qValValSimple = <@ query {
             for s in simpleDb.Student do
             for u in simpleDb.Student do
             where(not(u.Age.Equals(15)) = s.Age.HasValue)
@@ -44,13 +59,12 @@ module ExtraTests =
     
 
     let RunExtraTests() = 
-        let av = Utils.Run <@ ((%qValue) 16) @>
         let aq = Utils.Run <@ query { yield! (%qQuery) 25 } @>
-
-        let avv = Utils.Run qValueUseValue
+        
+        let avv = Array.map (fun i -> Utils.Run (qValueUseValue i)) [|1..qVals.Length|]
         let aqq = Utils.Run <@ query { yield! (%qQueryUseQuery) } @>
 
         let avq = Utils.Run qValueUseQuery
-        let aqv = Utils.Run <@ query { yield! (%qQueryUseValue) } @>
+        let aqv = Array.map (fun i -> Utils.Run <@ query { yield! (%qQueryUseValue i) } @>) [|1..qVals.Length|]
 
         ()

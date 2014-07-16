@@ -90,11 +90,11 @@ module People =
         // Example 1
 
         let differences = <@ query {
-                      for c in db.Couples do
-                      for w in db.People do
-                      for m in db.People do
-                      if c.Her = w.Name && c.Him = m.Name && w.Age > m.Age 
-                      then yield {rname=w.Name; diff=w.Age - m.Age}
+                    for c in db.Couples do
+                    for w in db.People do
+                    for m in db.People do
+                        if c.Her = w.Name && c.Him = m.Name && w.Age > m.Age 
+                        then yield {rname=w.Name; diff=w.Age - m.Age}
                     } @>
 
         let ex1 = differences
@@ -105,26 +105,23 @@ module People =
         let rangeSimple = fun (a:int) (b:int) -> 
           query {
             for u in db.People do
-            if a <= u.Age && u.Age < b 
-            then yield {name=u.Name;age=u.Age}
+                if a <= u.Age && u.Age < b 
+                then yield {name=u.Name;age=u.Age}
             }   
 
         let ex2 = <@ query { yield! rangeSimple 30 40 } @> 
 
 
-        // Example 3
+        // Example 3, 4
 
         let satisfies  = 
          <@ fun p -> query { 
             for u in db.People do
-            if p u.Age 
-            then yield {name=u.Name;age=u.Age}
+                if p u.Age 
+                then yield {name=u.Name;age=u.Age}
            } @>
 
         let ex3 = <@ query { yield! (%satisfies) (fun x -> 20 <= x && x < 30 ) } @>
-
-
-        // Example 4
 
         let ex4 = <@ query { yield! (%satisfies) (fun x ->  x % 2 = 0 ) } @>
 
@@ -153,13 +150,10 @@ module People =
               yield! (%range) a b
           } @>
 
-        let ex5' = <@ query { yield! (%compose) "Eve" "Bob" } @> 
+        let ex5 = <@ query { yield! (%compose) "Eve" "Bob" } @> 
 
 
-        // Example 6
-
-        let t0 : Predicate = And (Above 20, Below 30)
-        let t1 : Predicate = Not(Or(Below 20, Above 30))
+        // Example 6, 7
 
         let rec eval(t:Predicate) : Expr<int -> bool> =
           match t with
@@ -168,14 +162,14 @@ module People =
           | And (t1,t2) -> <@ fun x -> (%eval t1) x && (%eval t2) x @>
           | Or (t1,t2) -> <@ fun x -> (%eval t1) x || (%eval t2) x @>
           | Not (t0) -> <@ fun x -> not((%eval t0) x ) @>
+          
 
+        let ex6 = <@ query { yield! (%satisfies) (%eval (And (Above 20, Below 30))) } @>
 
-        let ex6' = <@ query { yield! (%satisfies) (%eval t0) } @>
-
-
-        // Example 7
-
-        let ex7' = <@ query { yield! (%satisfies) (%eval t1) } @>
+        
+        let t7 = eval (Not(Or(Below 20, Above 30)))
+        
+        let ex7 = <@ query { yield! (%satisfies) (%t7) } @>
 
 
 
@@ -188,35 +182,35 @@ module People =
 
         [<TestMethod>]
         member this.testEx1() = 
-            this.tagQuery "ex1"
+            printfn "%s" "ex1"
             Utils.Run ex1
 
         [<TestMethod>]
         member this.testEx2() = 
-            this.tagQuery "ex2"
+            printfn "%s" "ex2"
             Utils.Run ex2
 
         [<TestMethod>]
         member this.testEx3() = 
-            this.tagQuery "ex3"
+            printfn "%s" "ex3"
             Utils.Run ex3
 
         [<TestMethod>]
         member this.testEx4() = 
-            this.tagQuery "ex4"
+            printfn "%s" "ex4"
             Utils.Run ex4
 
         [<TestMethod>]
         member this.testEx5() = 
-            this.tagQuery "ex5"
-            Utils.Run ex5'
+            printfn "%s" "ex5"
+            Utils.Run ex5
             
         [<TestMethod>]
         member this.testEx6() = 
-            this.tagQuery "ex6"
-            Utils.Run ex6'
+            printfn "%s" "ex6"
+            Utils.Run ex6
             
         [<TestMethod>]
         member this.testEx7() = 
-            this.tagQuery "ex7"
-            Utils.Run ex7'
+            printfn "%s" "ex7"
+            Utils.Run ex7
