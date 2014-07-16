@@ -54,8 +54,8 @@ module RunTests =
     [<EntryPoint>]
     let Main(args) =
     
-//        printHeader "Setting up database tables"
-//        List.iter initTests tests
+        printHeader "Setting up database tables"
+        List.iter initTests (newTests())
 
         printHeader "Comparing result values (%s, %s, %s)" "F# 3.0" "TLinq" "Match"
         Utils.RunMode <- UtilsMode.CompPrint

@@ -79,17 +79,18 @@ let range = <@ fun (a:int) (b:int) ->
     if a <= u.Age && u.Age < b 
     then yield {name=u.Name;age=u.Age}
     }  @>
+    
+let ex2a = query { yield! (%range) 30 40 }
 
-let ex2 = query { for x in (%range) 30 40 do yield x}
+let ex2b = query { for x in (%range) 30 40 do yield x}
 
-let ex2alt = query { yield! (%range) 30 40 }
 
-(** The reason is that the first approach only works if the parameters are of base type;
+(** The reason is that the first approach only works if the parameters are of base type (first order);
 the second is more flexible.  *)
 
 (** 
 
-The query.Run method
+Evaluating queries
 ---------------------
 
 It's a little awkward to evaluate composite queries due to the fact that we can't splice them directly into 
@@ -102,17 +103,32 @@ let ex2wrong : System.Linq.IQueryable<PeopleR> = query { (%range) 30 40 }
 (**
 This happens since the result of (%range) is not explicitly returned in the outer query and gets discarded instead. 
 
-To properly use composite queries, we can instead pass the inner query to the query.Run method as a quotation:
-*) 
+To properly use composite queries, we can instead explicitly return the results of a query with the "yield!" keyword as follows:
+*)
 
-let ex2correct = query.Run <@ (%range) 30 40 @>
+let ex2correct = query { yield! (%range) 30 40 }
 
 (** 
-Or explicitly return the results of the composite query, using the "yield!" keyword in the outer query:
+
+If, however, a query returns a single value, we cannot use this method as the "yield!" method works only on queries which return rows. 
+We could try returning the single value using the "yield" keyword instead, but then the result will be a collection with exactly one item. Instead of that item. 
+
+In such a case you should pass the query expression to the query.Run method instead, which can evaluate it as a single value:
+
 *) 
 
-let ex2correct2 = query { yield! (%range) 30 40 }
+// Counts the number of people in the given age range. 
+let countRange = <@ fun (a:int) (b:int) -> 
+    query { 
+        for u in (%range) a b do 
+        count 
+    } @>
 
+let countThirties = <@ (%countRange) 30 40 @>
+
+let ex2correctA = query.Run <@ (%countRange) 30 40 @>    // Counts the number of people in their thirties. 
+
+let ex2correctB = query.Run countThirties                // Counts the number of people in their thirties.
 
 (** 
 

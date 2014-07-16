@@ -599,13 +599,13 @@ open FSharpComposableQuery.Common
 module LowPriority = 
     type QueryImpl.QueryBuilder with
         [<CompiledName("RunQueryAsValue")>]
-        member this.Run(q : Expr<'T>) = this.RunAsValue q
+        member this.Run q = this.RunAsValue q
 
 [<AutoOpen>]
 module HighPriority = 
     type QueryImpl.QueryBuilder with
         [<CompiledName("RunQueryAsEnumerable")>]
-        member this.Run(q : Expr<QuerySource<'T, System.Collections.IEnumerable>>) = this.RunAsEnumerable q
+        member this.Run q = this.RunAsEnumerable q
 
 [<AutoOpen>]
 module TopLevelValues = 

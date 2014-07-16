@@ -13,14 +13,14 @@ let info =
   [ "project-name", "FSharpComposableQuery"
     "project-author", "Your Name"
     "project-summary", "A short summary of your project"
-    "project-github", "http://github.com/fsharp/FSharpComposableQuery"
-    "project-nuget", "http://nuget.com/packages/FSharpComposableQuery" ]
+    "project-github", "https://github.com/fsharp/FSharpComposableQuery"
+    "project-nuget", "https://www.nuget.org/packages/FSharpComposableQuery" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
-#I "../../packages/FSharp.Formatting.2.1.6/lib/net40"
+#I "../../packages/FSharp.Formatting.2.2.3/lib/net40"
 #I "../../packages/RazorEngine.3.3.0/lib/net40/"
 #r "../../packages/Microsoft.AspNet.Razor.2.0.30506.0/lib/net40/System.Web.Razor.dll"
 #r "../../packages/FAKE/tools/FakeLib.dll"

@@ -139,15 +139,15 @@ module People =
 
         let ageFromName = 
           <@ fun s -> query {
-                for u in db.People do 
-                if s = u.Name then 
-                  yield u.Age } @>
+             for u in db.People do 
+                if s = u.Name 
+                then yield u.Age } @>
 
         let compose : Expr<string -> string -> IQueryable<PeopleR>> = 
           <@ fun s t -> query {
               for a in (%ageFromName) s do
               for b in (%ageFromName) t do 
-              yield! (%range) a b
+                yield! (%range) a b
           } @>
 
         let ex5 = <@ query { yield! (%compose) "Eve" "Bob" } @> 
