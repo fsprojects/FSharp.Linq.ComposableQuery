@@ -38,10 +38,16 @@ let authors = [ "James Cheney"; "Sam Lindley" ]
 let tags = "F# fsharp LINQ SQL database data query"
 
 // File system information 
-// (<solutionFile>.sln is built during the building process)
-let solutionFile  = "FSharpComposableQuery"
+// Pattern specifying all library files (projects or solutions)
+let libraryReferences  = !! "src/*/*.fsproj"
+// Pattern specifying all test files (projects or solutions)
+let testReferences = !! "tests/*/*.fsproj"
+// The output directory
+let buildDir = "./bin/"
+
+
 // Pattern specifying assemblies to be tested using MSTest
-let testAssemblies = ["tests/*/bin/Release/FSharpComposableQuery*Tests*.exe"]
+let testAssemblies = !! "bin/FSharpComposableQuery*Tests*.exe"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted 
@@ -78,7 +84,7 @@ Target "RestorePackages" (fun _ ->
 )
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp"]
+    CleanDirs [buildDir; "temp"]
 )
 
 Target "CleanDocs" (fun _ ->
@@ -86,26 +92,26 @@ Target "CleanDocs" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
-// Build library & test project
+// Build library
 
 Target "Build" (fun _ ->
-    { 
-      BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = [ solutionFile +       ".sln"
-                   solutionFile + ".Tests.sln" ]
-      Excludes = [] } 
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
+    MSBuildRelease buildDir "Rebuild" libraryReferences
+    |> Log "Build-Output: "
 )
 
 // --------------------------------------------------------------------------------------
-// Run the unit tests using test runner & kill test runner when complete
+// Build tests and library
+
+Target "BuildTest" (fun _ ->
+    MSBuildRelease buildDir "Rebuild" testReferences
+    |> Log "BuildTest-Output: "
+)
+
+// --------------------------------------------------------------------------------------
+// Run unit tests using test runner & kill test runner when complete
 
 Target "RunTests" (fun _ ->
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = testAssemblies
-      Excludes = [] } 
+    testAssemblies
     |> MSTest.MSTest (fun p ->
         { p with
             TimeOut = TimeSpan.FromMinutes 20.
@@ -162,23 +168,13 @@ Target "ReleaseDocs" (fun _ ->
 
 Target "Release" DoNothing
 
-// --------------------------------------------------------------------------------------
-// Run all targets by default. Invoke 'build <Target>' to override
-
 Target "All" DoNothing
 
-"Clean"
-  ==>"RestorePackages"
-  ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "RunTests"
-  ==> "All"
+// --------------------------------------------------------------------------------------
+// Run 'Build' target by default. Invoke 'build <Target>' to override
 
-"All" 
-  ==> "CleanDocs"
-  ==> "GenerateDocs"
-  ==> "ReleaseDocs"
-  ==> "NuGet"
-  ==> "Release"
+"Clean" ==> "RestorePackages" ==> "AssemblyInfo" ==> "Build"
+"AssemblyInfo" ==> "BuildTest" ==> "RunTests" ==> "All"
+"RunTests" ==> "CleanDocs" ==> "GenerateDocs" ==> "ReleaseDocs" ==> "NuGet" ==> "Release"
 
-RunTargetOrDefault "All"
+RunTargetOrDefault "Build"

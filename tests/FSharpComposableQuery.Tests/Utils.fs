@@ -19,7 +19,7 @@ module ExprUtils =
     let runValueMi = ForwardDeclarations.RunQueryMi.Value
     let runEnumMi =  ForwardDeclarations.RunQueryMi.Enum
 
-    // Recursively traverses the given expression, applying the given function at every item and replacing it with its result
+    // Recursively traverses the given expression, applying the given function at every node and replacing it with its result
     let rec traverseExpr f e = 
         let rec tExp e = 
             let tList = List.map tExp

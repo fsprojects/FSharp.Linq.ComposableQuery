@@ -4,28 +4,31 @@
 A Compositional Query Framework for F# Queries, based on ["A Practical Theory of Language-Integrated Query" (ICFP 2013)](http://dl.acm.org/citation.cfm?id=2500586)
 
 
-##Building
+##Build
 
-~~If you would like to use the library simply proceed to the Installation section.~~
+~~If you want to use the library simply proceed to the Installation section.~~
 
 ### Prerequisites
  - Visual Studio 2012 or later. 
 
 
-To build, simply type
+To build, open a command prompt or a terminal window and type
 
     build
-in a command prompt or terminal. Currently tested only under Windows. 
+to execute the build script for your system (tested only under Windows). 
+The default build target does not execute any unit tests since they require the presence of a properly configured SQL Server database. 
+You can follow the instructions in the README.md file of the [FSharpComposableQuery.Tests](tests/FSharpComposableQuery.Tests) project on setting up the testing environment. 
 
-If you get a _File does not exist_ error make sure you can run MSBuild and MSTest from the console (i.e. you have them in your PATH variable). In the case you cannot, either use Visual Studio Command Prompt, open a cmd from within Visual Studio, or add the respective directories manually to your PATH variable.  
+You may get a _File does not exist_ error if you do not have MSBuild or MSTest in your current path. In such a case you can do one of the following:
+ - Open VS Command Prompt from its shortcut or from inside Visual Studio
+ - Add the respective directories with the executables manually to your PATH variable.  
 
-By default the build script executes all unit tests after compilation. Please note they are expected to fail unless you follow the instructions in the README.md file of the [FSharpComposableQuery.Tests](tests/FSharpComposableQuery.Tests) project on setting up the testing environment. 
 
 ## Installation
 
 ~~You can find the library on [NuGet](https://www.nuget.org/packages/FSharpComposableQuery).~~
 
-As of 02.07.14 the version available on NuGet is outdated. Please build the library manually 
+As of 02.07.2014 the version available on NuGet is outdated. Please build the library manually if you intend to use it. 
 
 ## Usage
 

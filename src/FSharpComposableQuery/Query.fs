@@ -339,7 +339,6 @@ module QueryImpl =
             else if methodInfo = andMi then AndF
             else if methodInfo = orMi then OrF
             else if methodInfo = notMi then NotF
-//            else if methodInfo = existsMi then ExistsF
             else if methodInfo = apprMi then AppRF
             else if methodInfo = applMi then AppLF
             else if methodInfo = selectMi then SelectF
@@ -357,12 +356,6 @@ module QueryImpl =
 
         member internal this.singletonExp (e:Expr) = 
             Expr.Call((Expr.Value this),yieldMi.MakeGenericMethod( [|e.Type;IQueryableTy|] ), [e])
-
-//        member internal this.existsExp(e':Expr) = 
-//            match e'.Type with
-//                QuerySourceTy (tyinner,qty) ->    
-//                    Expr.Call(Expr.Value this,existsMi.MakeGenericMethod([|tyinner;qty|]), [ e';Expr.Lambda (new Var("__dummy",tyinner),Expr.Value true)])
-//              | _ -> failwithf "Unexpected type %A" e'.Type
 
         member internal this.forExp (e2:Expr) (x:Var) (e1:Expr) = 
             match e1.Type,e2.Type with

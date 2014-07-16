@@ -42,9 +42,6 @@ let getOpType op =
     | Neg -> typeof<int>
     | Not -> typeof<bool>
     
-let withDuration _n f = f(), 0.0
-let duration _n _msg f = f()
-
 
 let UnitTy = typeof<unit>
 let IntTy = typeof<int>
@@ -93,11 +90,6 @@ type Field =
       info : MemberInfo
       ty : System.Type
       isProperty : bool }
-
-let equalsOn (f : 'T -> bool) x (yobj : obj) = 
-    match yobj with
-    | :? 'T as y -> (f x = f y)
-    | _ -> false
 
 type UnknownThing = 
     | UnknownCall of MethodInfo
