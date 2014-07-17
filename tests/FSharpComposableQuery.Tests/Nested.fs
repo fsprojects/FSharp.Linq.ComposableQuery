@@ -8,6 +8,11 @@ open Microsoft.VisualStudio.TestTools.UnitTesting;
 open System.Linq
 
 
+/// <summary>
+/// Contains example queries and operations on the Nested database. 
+/// The queries here are further wrapped in quotations to allow for their evaluation in different contexts (see Utils.fs).  
+/// <para>These tests require the schema from sql/organisation.sql in a database referred to in app.config </para>
+/// </summary>
 module Nested = 
 
     type internal dbSchema = SqlDataConnection<ConnectionStringName="OrgConnectionString", ConfigFile=".\\App.config">
@@ -16,8 +21,8 @@ module Nested =
     type internal Employees = dbSchema.ServiceTypes.Employees
     type internal Contacts = dbSchema.ServiceTypes.Contacts
     type internal Tasks = dbSchema.ServiceTypes.Tasks
+
     type internal Department = {dpt:string}
-    
     type internal Employee = {dpt:string;emp:string}
     type internal Task = {emp:string;tsk:string}
     type internal Contact = {dpt:string;contact:string;client:int}
@@ -25,20 +30,14 @@ module Nested =
                     employees: Employee  list;
                     tasks: Task list}
 
-
-    type EmployeeTasks = {emp:string; tasks : seq<string>}
-    type DepartmentEmployees = {dpt : string; employees: seq<EmployeeTasks> }
-    type NestedOrg = seq<DepartmentEmployees>
-
-    type EmployeeTasks' = {emp:string; tasks : System.Linq.IQueryable<string>}
-    type DepartmentEmployees' = {dpt : string; employees: System.Linq.IQueryable<EmployeeTasks'> }
-    type NestedOrg' = System.Linq.IQueryable<DepartmentEmployees'>
+    type EmployeeTasks = {emp:string; tasks : System.Linq.IQueryable<string>}
+    type DepartmentEmployees = {dpt : string; employees: System.Linq.IQueryable<EmployeeTasks> }
+    type NestedOrg = System.Linq.IQueryable<DepartmentEmployees>
     
     let internal db = dbSchema.GetDataContext()
     
     [<TestClass>]
     type TestClass() = 
-        inherit Tests.TestClass()
         
         [<Literal>]
         static let N_DEPARTMENTS = 40
@@ -131,11 +130,12 @@ module Nested =
             p.Tsk <- t.tsk
             addTasks(p)
   
+        // Clears all relevant tables in the database. 
         static let dropTables() = 
-            ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[employees] WHERE 1=1"))
-            ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[tasks] WHERE 1=1"))
-            ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[departments] WHERE 1=1"))
-            ignore(db.DataContext.ExecuteCommand("DELETE FROM [organisation].[dbo].[contacts] WHERE 1=1"))
+            ignore(db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[employees]"))
+            ignore(db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[tasks]"))
+            ignore(db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[departments]"))
+            ignore(db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[contacts]"))
 
 
         static let addRandom ds n = 
@@ -190,9 +190,7 @@ module Nested =
             db.DataContext.SubmitChanges()
 
 
-
         // Example 8
-
         let expertiseNaive = 
           <@ fun u -> query {
             for d in db.Departments do 
@@ -208,13 +206,10 @@ module Nested =
             then yield {Department.dpt=d.Dpt}
           } @>
 
-
         let ex8 = <@ query { yield! (%expertiseNaive) "abstract" } @>
 
 
-
         // Example 9
-
         let nestedOrg  = 
           <@ query { 
             for d in db.Departments do
@@ -236,10 +231,10 @@ module Nested =
         let any = 
           <@ fun xs -> fun p -> query { for x in xs do exists (p x) } @>
           
-        let all' = 
+        let all' =  //clashes with default method name
           <@ fun xs -> fun p -> not(query {for x in xs do exists (not (p(x)))}) @>
 
-        let contains' = 
+        let contains' = //clashes with default method name
           <@ fun xs -> fun u -> (%any) xs (fun x -> x = u) @>
 
         let expertise =
@@ -264,11 +259,11 @@ module Nested =
             printfn "done!"
 
         [<TestMethod>]
-        member this.testEx8() = 
+        member this.test01() = 
              printfn "%s" "ex8"
              Utils.Run ex8
 
         [<TestMethod>]
-        member this.testEx9() = 
+        member this.test02() = 
              printfn "%s" "ex9"
              Utils.Run ex9

@@ -7,9 +7,16 @@ open System.Linq
 open System.Xml.Linq
 open FSharpComposableQuery
 
+/// <summary>
+/// Contains example queries and operations on the Xml database. 
+/// The queries here are further wrapped in quotations to allow for their evaluation in different contexts (see Utils.fs).  
+/// <para>These tests require the schema from sql/xml.sql in a database referred to in app.config </para>
+/// </summary>
 module Xml =
     [<Literal>]
     let xmlPath = "data\movies.xml"
+    
+    let basicXml = XElement.Parse "<a id='1'><b><c>foo</c></b><d><e/><f/></d></a>"
 
     type internal schema = SqlDataConnection< ConnectionStringName="XmlConnectionString", ConfigFile=".\\App.config" >
 
@@ -19,17 +26,32 @@ module Xml =
 
     type internal Attribute = schema.ServiceTypes.Attribute
 
+    type Axis =
+        | Self
+        | Child
+        | Descendant
+        | DescendantOrSelf
+        | Following
+        | FollowingSibling
+        | Rev of Axis
+        
+    type Path =
+        | Seq of Path * Path
+        | Axis of Axis
+        | Name of string
+        | Filter of Path
+
     let internal db = schema.GetDataContext()
     let internal data = db.Data
     let internal text = db.Text
     let internal attributes = db.Attribute
 
     // XML document loading/shredding
-    let idx = ref 0
+    let mutable idx = 0
 
     let new_id() =
-        let i = !idx
-        idx := i + 12
+        let i = idx
+        idx <- i + 1
         i
 
     let rec traverseXml entry parent i (node : XNode) =
@@ -92,25 +114,15 @@ module Xml =
         let xml = XElement.Load(filename)
         insertXml entry xml
 
+    // Clears all relevant tables in the database. 
     let dropTables() =
-        ignore (db.DataContext.ExecuteCommand("DELETE FROM [MyXml].[dbo].[Attribute] WHERE 1=1"))
-        ignore (db.DataContext.ExecuteCommand("DELETE FROM [MyXml].[dbo].[Text] WHERE 1=1"))
-        ignore (db.DataContext.ExecuteCommand("DELETE FROM [MyXml].[dbo].[Data] WHERE 1=1"))
-
-    let defaultXml = XElement.Parse "<a id='1'><b><c>foo</c></b><d><e/><f/></d></a>"
+        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyXml].[dbo].[Attribute]"))
+        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyXml].[dbo].[Text]"))
+        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyXml].[dbo].[Data]"))
 
     let loadBasicXml() =
         dropTables()
-        insertXml 0 defaultXml
-
-    type Axis =
-        | Self
-        | Child
-        | Descendant
-        | DescendantOrSelf
-        | Following
-        | FollowingSibling
-        | Rev of Axis
+        insertXml 0 basicXml
 
     let rec internal axisPred' axis =
         match axis with
@@ -124,12 +136,6 @@ module Xml =
 
     let internal axisPred axis =
         <@ fun (row1 : Data) (row2 : Data) -> row1.Entry = row2.Entry && (%(axisPred' axis)) row1 row2 @>
-
-    type Path =
-        | Seq of Path * Path
-        | Axis of Axis
-        | Name of string
-        | Filter of Path
 
     let (./.) p1 p2 = Seq(p1, p2)
     let child = Axis Child
@@ -146,14 +152,14 @@ module Xml =
     let (.%.) path name = Seq(path, Name name)
     let (.^.) path1 path2 = Seq(path1, Filter(path2))
 
-    let internal pathQuery2 data (path) =
-        let rec pathQ2 path =
+    let internal pathQuery data (path) =
+        let rec pathQ path =
             match path with
             | Seq(p1, p2) ->
                 <@ fun row1 row3 ->
                     query {
                         for row2 in %data do
-                            exists ((%(pathQ2 p1)) row1 row2 && (%(pathQ2 p2)) row2 row3)
+                            exists ((%(pathQ p1)) row1 row2 && (%(pathQ p2)) row2 row3)
                     } @>
             | Axis ax -> <@ fun (row : Data) (row' : Data) -> ((%(axisPred ax)) row row') @>
             | Name name -> <@ fun (row : Data) (row' : Data) -> row.Name = name && row.ID = row'.ID @>
@@ -161,30 +167,37 @@ module Xml =
                 <@ fun (row : Data) (row' : Data) ->
                     row.ID = row'.ID && query {
                                             for row'' in %data do
-                                                exists ((%(pathQ2 p)) row row'')
+                                                exists ((%(pathQ p)) row row'')
                                         } @>
         <@ fun row1 ->
             query {
                 for row2 in %data do
-                    if (%pathQ2 path) row1 row2 then yield row2
+                    if (%pathQ path) row1 row2 then yield row2
             } @>
 
-    let internal xpath i data path =
+    
+    /// <summary>
+    /// Translates a path p to a query that returns each node matching p, starting from the root. 
+    /// </summary>
+    /// <param name="rootId">The id of the root node. </param>
+    /// <param name="data">The XML document to run the query on. </param>
+    /// <param name="p">The path to construct the query from. </param>
+    let internal xpath rootId data p =
         <@ query {
-               for row in %data do
-                   for row' in (%(pathQuery2 data path)) row do
-                       if (row.Parent = -1 && row.Entry = i) then yield row'.ID
+               for root in %data do
+                   for row' in (%(pathQuery data p)) root do
+                       if (root.Parent = -1 && root.Entry = rootId) then yield row'.ID
            } @>
 
-    let xp0 = child ./. child
-    let xp1 = descendant ./. parent
-    let xp2 = descendant ./. (Filter(followingsibling .%. "dirn"))
-    let xp3 = descendant .%. "year" ./. Filter(ancestor ./. preceding .%. "dir")
+    
+    let xp0 = child ./. child //                                                        /*/*
+    let xp1 = descendant ./. parent //                                                  //*/parent::*
+    let xp2 = descendant ./. (Filter(followingsibling .%. "dirn")) //                   //*[following-sibling::d]
+    let xp3 = descendant .%. "year" ./. Filter(ancestor ./. preceding .%. "dir") //     //f[ancestor::*/preceding::b]
 
     [<TestClass>]
-    [<DeploymentItem("data", "data")>]
+    [<DeploymentItem("data", "data")>]  //requires "data/movies.xml"
     type TestClass() =
-        inherit FSharpComposableQuery.Tests.TestClass()
 
         [<ClassInitialize>]
         static member init (c : TestContext) =
@@ -194,28 +207,28 @@ module Xml =
             printfn "done!"
 
         [<TestMethod>]
-        member this.testXp0() =
+        member this.test01() =
             printfn "%s" "xp0"
             xp0
             |> xpath 0 <@ data @>
             |> Utils.Run
 
         [<TestMethod>]
-        member this.testXp1() =
+        member this.test02() =
             printfn "%s" "xp1"
             xp1
             |> xpath 0 <@ data @>
             |> Utils.Run
 
         [<TestMethod>]
-        member this.testXp2() =
+        member this.test03() =
             printfn "%s" "xp2"
             xp2
             |> xpath 0 <@ data @>
             |> Utils.Run
 
         [<TestMethod>]
-        member this.testXp3() =
+        member this.test04() =
             printfn "%s" "xp3"
             xp3
             |> xpath 0 <@ data @>

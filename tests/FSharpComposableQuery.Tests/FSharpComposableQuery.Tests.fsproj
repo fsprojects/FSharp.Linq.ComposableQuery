@@ -85,9 +85,7 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
     <Compile Include="Utils.fs" />
-    <Compile Include="TestClass.fs" />
     <Compile Include="Simple.fs" />
     <Compile Include="People.fs" />
     <Compile Include="Nested.fs" />

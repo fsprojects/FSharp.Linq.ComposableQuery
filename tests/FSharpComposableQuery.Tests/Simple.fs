@@ -11,31 +11,32 @@ open Microsoft.VisualStudio.TestTools.UnitTesting;
 
 open FSharpComposableQuery
 
-
+/// <summary>
+/// Contains the modified queries from Microsoft's F# example expressions page. 
+/// The queries here are further wrapped in quotations to allow for their evaluation in different contexts (see Utils.fs).  
+/// <para>These tests require the schema from sql/simple.sql in a database referred to in app.config </para>
+/// <para>The original queries can be found at http://msdn.microsoft.com/en-us/library/vstudio/hh225374.aspx </para>
+/// </summary>
 module Simple = 
     type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=".\\App.config">
 
 
     [<TestClass>]
     type TestClass() = 
-        inherit FSharpComposableQuery.Tests.TestClass()
 
         let db = schema.GetDataContext()
 
         let data = [1; 5; 7; 11; 18; 21]
 
+        let mutable idx = 0
+        // Generates a unique tag for each consecutive query
+        let tag s = 
+            idx <- idx + 1
+            printfn "Q%02d: %s" idx s
         
-        let printNullable (v:Nullable<'T>) =
-            if (v.HasValue) then v.Value.ToString()
-            else "NULL"
-
-        [<Literal>]
-        static let invalidResult = "Results don't match!"
-        
-
         [<TestMethod>]
         member this.``contains query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "contains query operator"
+            tag "contains query operator"
             let q =
               <@ query {
                     for student in db.Student do
@@ -47,7 +48,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``count query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "count query operator"
+            tag "count query operator"
             let q =
               <@ query {
                     for student in db.Student do
@@ -60,7 +61,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``last query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "last query operator." 
+            tag "last query operator." 
             let q =
               <@ query {
                     for s in data do
@@ -72,7 +73,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``lastOrDefault query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "lastOrDefault query operator." 
+            tag "lastOrDefault query operator." 
             let q =
               <@ query {
                         for number in data do
@@ -85,7 +86,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``exactlyOne query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "exactlyOne query operator."
+            tag "exactlyOne query operator."
             let q =
               <@ query {
                     for student in db.Student do
@@ -99,7 +100,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``exactlyOneOrDefault query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "exactlyOneOrDefault query operator."
+            tag "exactlyOneOrDefault query operator."
             let q =
               <@ query {
                     for student in db.Student do
@@ -113,7 +114,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``headOrDefault query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "headOrDefault query operator."
+            tag "headOrDefault query operator."
             let q =
               <@ query {
                     for student in db.Student do
@@ -126,7 +127,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``select query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "select query operator."
+            tag "select query operator."
             let q =
               <@ query {
                     for (student) in db.Student do
@@ -138,7 +139,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``where query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "where query operator."
+            tag "where query operator."
             let q =
               <@ query {
                     for student in db.Student do
@@ -150,7 +151,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``minBy query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "minBy query operator."
+            tag "minBy query operator."
             let q =
               <@ query {
                     for student in db.Student do
@@ -162,7 +163,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``maxBy query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "maxBy query operator."
+            tag "maxBy query operator."
             let q =
               <@ query {
                     for student in db.Student do
@@ -175,7 +176,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``groupBy query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "groupBy query operator."
+            tag "groupBy query operator."
             let q = <@ query {
                 for student in db.Student do
                 groupBy student.Age into g
@@ -187,7 +188,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``sortBy query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "sortBy query operator."
+            tag "sortBy query operator."
             let q = <@ query {
                 for student in db.Student do
                 sortBy student.Name
@@ -199,7 +200,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``sortByDescending query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "sortByDescending query operator."
+            tag "sortByDescending query operator."
             let q = <@ query {
                 for student in db.Student do
                 sortByDescending student.Name
@@ -211,7 +212,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``thenBy query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "thenBy query operator."
+            tag "thenBy query operator."
             let q = <@ query {
                 for student in db.Student do
                 where student.Age.HasValue
@@ -225,7 +226,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``thenByDescending query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "thenByDescending query operator."
+            tag "thenByDescending query operator."
             let q = <@ query {
                 for student in db.Student do
                 where student.Age.HasValue
@@ -239,7 +240,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``groupValBy query operator.``() = 
-            printfn "Q%02d: %s" (this.tag()) "groupValBy query operator."
+            tag "groupValBy query operator."
             let q = <@ query {
                 for student in db.Student do
                 groupValBy student.Name student.Age into g
@@ -251,7 +252,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``sumByNullable query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "sumByNullable query operator"
+            tag "sumByNullable query operator"
             let q = <@ query {
                 for student in db.Student do
                 sumByNullable student.Age
@@ -262,7 +263,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``minByNullable``() = 
-            printfn "Q%02d: %s" (this.tag()) "minByNullable"
+            tag "minByNullable"
             let q = <@ query {
                 for student in db.Student do
                 minByNullable student.Age
@@ -273,7 +274,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``maxByNullable``() = 
-            printfn "Q%02d: %s" (this.tag()) "maxByNullable"
+            tag "maxByNullable"
             let q = <@ query {
                 for student in db.Student do
                 maxByNullable student.Age
@@ -284,7 +285,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``averageBy``() = 
-            printfn "Q%02d: %s" (this.tag()) "averageBy"
+            tag "averageBy"
             let q = <@ query {
                 for student in db.Student do
                 averageBy (float student.StudentID)
@@ -295,7 +296,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``averageByNullable``() = 
-            printfn "Q%02d: %s" (this.tag()) "averageByNullable"
+            tag "averageByNullable"
             let q = <@ query {
                 for student in db.Student do
                 averageByNullable (Nullable.float student.Age)
@@ -306,7 +307,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``find query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "find query operator"
+            tag "find query operator"
             let q = <@ query {
                 for student in db.Student do
                 find (student.Name = "Abercrombie, Kim")
@@ -317,7 +318,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``all query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "all query operator"
+            tag "all query operator"
             let q = <@ query {
                 for student in db.Student do
                 all (SqlMethods.Like(student.Name, "%,%"))
@@ -328,7 +329,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``head query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "head query operator"
+            tag "head query operator"
             let q = <@ query {
                 for student in db.Student do
                 head
@@ -339,7 +340,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``nth query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "nth query operator"
+            tag "nth query operator"
             let q = <@ query {
                 for numbers in data do
                 nth 3
@@ -350,7 +351,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``skip query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "skip query operator"
+            tag "skip query operator"
             let q = <@ query {
                 for student in db.Student do
                 skip 1
@@ -361,7 +362,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``skipWhile query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "skipWhile query operator"
+            tag "skipWhile query operator"
             let q = <@ query {
                 for number in data do
                 skipWhile (number < 3)
@@ -373,7 +374,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``sumBy query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "sumBy query operator"
+            tag "sumBy query operator"
             let q = <@ query {
                for student in db.Student do
                sumBy student.StudentID
@@ -384,7 +385,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``take query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "take query operator"
+            tag "take query operator"
             let q = <@ query {
                for student in db.Student do
                select student
@@ -396,7 +397,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``takeWhile query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "takeWhile query operator"
+            tag "takeWhile query operator"
             let q = <@ query {
                 for number in data do
                 takeWhile (number < 10)
@@ -407,7 +408,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``sortByNullable query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "sortByNullable query operator"
+            tag "sortByNullable query operator"
             let q = <@ query {
                 for student in db.Student do
                 sortByNullable student.Age
@@ -419,7 +420,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``sortByNullableDescending query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "sortByNullableDescending query operator"
+            tag "sortByNullableDescending query operator"
             let q = <@ query {
                 for student in db.Student do
                 sortByNullableDescending student.Age
@@ -431,7 +432,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``thenByNullable query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "thenByNullable query operator"
+            tag "thenByNullable query operator"
             let q = <@ query {
                 for student in db.Student do
                 sortBy student.Name
@@ -444,7 +445,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``thenByNullableDescending query operator``() = 
-            printfn "Q%02d: %s" (this.tag()) "thenByNullableDescending query operator"
+            tag "thenByNullableDescending query operator"
             let q = <@ query {
                 for student in db.Student do
                 sortBy student.Name
@@ -457,7 +458,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``All students:``() = 
-            printfn "Q%02d: %s" (this.tag()) "All students: "
+            tag "All students: "
             let q = <@ query {
                     for student in db.Student do
                     select student
@@ -468,7 +469,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Count of students:``() = 
-            printfn "Q%02d: %s" (this.tag()) "Count of students: "
+            tag "Count of students: "
             let q = <@ query {
                     for student in db.Student do        
                     count
@@ -478,7 +479,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Exists.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Exists, native QueryBuilder."
+            tag "Exists, native QueryBuilder."
             let q = <@ query {
                     for student in db.Student do
                     where (ExtraTopLevelOperators.query 
@@ -492,7 +493,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Exists (bug).``() = 
-            printfn "Q%02d: %s" (this.tag()) "Exists."
+            tag "Exists."
             let q = <@ query {
                     for student in db.Student do
                     where (query 
@@ -504,7 +505,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Group by age and count``() = 
-            printfn "Q%02d: %s" (this.tag()) "Group by age and count"
+            tag "Group by age and count"
             let q = <@ query {
                     for n in db.Student do
                     groupBy n.Age into g
@@ -516,7 +517,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Group value by age.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Group value by age."
+            tag "Group value by age."
             let q = <@ query {
                     for n in db.Student do
                     groupValBy n.Age n.Age into g
@@ -528,7 +529,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Group students by age where age > 10.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Group students by age where age > 10."
+            tag "Group students by age where age > 10."
             let q = <@ query {
                     for student in db.Student do
                     groupBy student.Age into g
@@ -540,7 +541,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Group students by age and print counts of number of students at each age with more than 1 student.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Group students by age and print counts of number of students at each age with more than 1 student."
+            tag "Group students by age and print counts of number of students at each age with more than 1 student."
             let q = <@ query {
                     for student in db.Student do
                     groupBy student.Age into group
@@ -553,7 +554,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Group students by age and sum ages.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Group students by age and sum ages."
+            tag "Group students by age and sum ages."
             let q = <@ query {
                     for student in db.Student do
                     groupBy student.Age into g        
@@ -566,7 +567,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Group students by age and count number of students at each age, and display all with count > 1 in descending order of count.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Group students by age and count number of students at each age, and display all with count > 1 in descending order of count."
+            tag "Group students by age and count number of students at each age, and display all with count > 1 in descending order of count."
             let q = <@ query {
                     for student in db.Student do
                     groupBy student.Age into g
@@ -580,7 +581,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Select students from a set of IDs``() = 
-            printfn "Q%02d: %s" (this.tag()) "Select students from a set of IDs"
+            tag "Select students from a set of IDs"
             let idList = [1; 2; 5; 10]
             let idQuery = query { for id in idList do
                                    select id }
@@ -595,7 +596,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Look for students with Name match _e%% pattern and take first two.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Look for students with Name match _e%% pattern and take first two."
+            tag "Look for students with Name match _e%% pattern and take first two."
             let q = <@ query {
                 for student in db.Student do
                 where (SqlMethods.Like( student.Name, "_e%") )
@@ -608,7 +609,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Look for students with Name matching [abc]%% pattern.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Look for students with Name matching [abc]%% pattern."
+            tag "Look for students with Name matching [abc]%% pattern."
             let q = <@ query {
                 for student in db.Student do
                 where (SqlMethods.Like( student.Name, "[abc]%") )
@@ -620,7 +621,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Look for students with name matching [^abc]%% pattern.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Look for students with name matching [^abc]%% pattern."
+            tag "Look for students with name matching [^abc]%% pattern."
             let q = <@ query {
                 for student in db.Student do
                 where (SqlMethods.Like( student.Name, "[^abc]%") )
@@ -632,7 +633,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Look for students with name matching [^abc]%% pattern and select ID.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Look for students with name matching [^abc]%% pattern and select ID."
+            tag "Look for students with name matching [^abc]%% pattern and select ID."
             let q = <@ query {
                 for n in db.Student do
                 where (SqlMethods.Like( n.Name, "[^abc]%") )
@@ -644,7 +645,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Using Contains as a query filter.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Using Contains as a query filter."
+            tag "Using Contains as a query filter."
             let q = <@ query {
                     for student in db.Student do
                     where (student.Name.Contains("a"))
@@ -656,7 +657,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Searching for names from a list.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Searching for names from a list."
+            tag "Searching for names from a list."
             let names = [|"a";"b";"c"|]
             let q = <@ query {
                 for student in db.Student do
@@ -664,10 +665,9 @@ module Simple =
             Utils.Run q
 
 
-    //     *
         [<TestMethod>]
         member this.``Join Student and CourseSelection tables.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Join Student and CourseSelection tables."
+            tag "Join Student and CourseSelection tables."
             let q = <@ query {
                     for student in db.Student do 
                     join selection in db.CourseSelection 
@@ -680,7 +680,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Left Join Student and CourseSelection tables.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Left Join Student and CourseSelection tables."
+            tag "Left Join Student and CourseSelection tables."
             let q = <@ query {
                 for student in db.Student do
                 leftOuterJoin selection in db.CourseSelection 
@@ -694,7 +694,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Join with count``() = 
-            printfn "Q%02d: %s" (this.tag()) "Join with count"
+            tag "Join with count"
             let q = <@ query {
                     for n in db.Student do 
                     join e in db.CourseSelection on (n.StudentID = e.StudentID)
@@ -706,7 +706,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Join with distinct.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Join with distinct."
+            tag "Join with distinct."
             let q = <@ query {
                     for student in db.Student do 
                     join selection in db.CourseSelection on (student.StudentID = selection.StudentID)
@@ -718,7 +718,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Join with distinct and count.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Join with distinct and count."
+            tag "Join with distinct and count."
             let q = <@ query {
                     for n in db.Student do 
                     join e in db.CourseSelection on (n.StudentID = e.StudentID)
@@ -731,7 +731,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Selecting students with age between 10 and 15.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Selecting students with age between 10 and 15."
+            tag "Selecting students with age between 10 and 15."
             let q = <@ query {
                     for student in db.Student do
                     where (student.Age.Value >= 10 && student.Age.Value < 15)
@@ -743,7 +743,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Selecting students with age either 11 or 12.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Selecting students with age either 11 or 12."
+            tag "Selecting students with age either 11 or 12."
             let q = <@ query {
                     for student in db.Student do
                     where (student.Age.Value = 11 || student.Age.Value = 12)
@@ -755,7 +755,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Selecting students in a certain age range and sorting.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Selecting students in a certain age range and sorting."
+            tag "Selecting students in a certain age range and sorting."
             let q = <@ query {
                     for n in db.Student do
                     where (n.Age.Value = 12 || n.Age.Value = 13)
@@ -768,7 +768,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Selecting students with certain ages, taking account of possibility of nulls.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Selecting students with certain ages, taking account of possibility of nulls."
+            tag "Selecting students with certain ages, taking account of possibility of nulls."
             let q = <@ query {
                     for student in db.Student do
                     where ((student.Age.HasValue && student.Age.Value = 11) ||
@@ -783,7 +783,7 @@ module Simple =
             
         [<TestMethod>]
         member this.``Union of two queries.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Union of two queries."
+            tag "Union of two queries."
 
             let query1 = <@ query {
                     for n in db.Student do
@@ -800,7 +800,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Union of two queries (enumerable)``() = 
-            printfn "Q%02d: %s" (this.tag()) "Union of two queries (enumerable)"
+            tag "Union of two queries (enumerable)"
 
             let la = [1;2;3;4]
             let query1 = <@ query { for n in la do yield n } @>
@@ -815,7 +815,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Intersect of two queries.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Intersect of two queries."
+            tag "Intersect of two queries."
 
             let query1 = <@ query { for n in db.Student do select (n.Name, n.Age) } @>
             let query2 = <@ query { for n in db.LastStudent do select (n.Name, n.Age) } @>
@@ -827,7 +827,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Using if statement to alter results for special value.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Using if statement to alter results for special value."
+            tag "Using if statement to alter results for special value."
             let q = <@ query {
                     for student in db.Student do
                     select (if student.Age.HasValue && student.Age.Value = -1 then
@@ -840,7 +840,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Using if statement to alter results special values.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Using if statement to alter results special values."
+            tag "Using if statement to alter results special values."
             let q = <@ query {
                     for student in db.Student do
                     select (if student.Age.HasValue && student.Age.Value = -1 then
@@ -856,7 +856,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Multiple table select.``() = 
-            printfn "Q%02d: %s" (this.tag()) "Multiple table select."
+            tag "Multiple table select."
             let q = <@ query {
                     for student in db.Student do
                     for course in db.Course do
@@ -868,7 +868,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Multiple Joins``() = 
-            printfn "Q%02d: %s" (this.tag()) "Multiple Joins"
+            tag "Multiple Joins"
             let q = <@ query {
                 for student in db.Student do
                 join courseSelection in db.CourseSelection on
@@ -883,7 +883,7 @@ module Simple =
 
         [<TestMethod>]
         member this.``Multiple Left Outer Joins``() = 
-            printfn "Q%02d: %s" (this.tag()) "Multiple Left Outer Joins"
+            tag "Multiple Left Outer Joins"
             let q = <@ query {
                for student in db.Student do
                 leftOuterJoin courseSelection in db.CourseSelection 

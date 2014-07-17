@@ -43,7 +43,7 @@ module RunTests =
                 printfn "%s" delimiter) fmt
             
 
-    let newTests() : TestClass list = 
+    let newTests() : obj list = 
         [
             (new FSharpComposableQuery.Tests.Simple.TestClass())
             (new FSharpComposableQuery.Tests.People.TestClass())

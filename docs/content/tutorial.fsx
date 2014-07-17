@@ -111,10 +111,9 @@ let ex2correct = query { yield! (%range) 30 40 }
 (** 
 
 If, however, a query returns a single value, we cannot use this method as the "yield!" method works only on queries which return rows. 
-We could try returning the single value using the "yield" keyword instead, but then the result will be a collection with exactly one item. Instead of that item. 
+We could try returning the single value using the "yield" keyword instead, but then the result will be a collection with exactly one item (instead of just that item).  
 
 In such a case you should pass the query expression to the query.Run method instead, which can evaluate it as a single value:
-
 *) 
 
 // Counts the number of people in the given age range. 
@@ -126,9 +125,9 @@ let countRange = <@ fun (a:int) (b:int) ->
 
 let countThirties = <@ (%countRange) 30 40 @>
 
-let ex2correctA = query.Run <@ (%countRange) 30 40 @>    // Counts the number of people in their thirties. 
+let ex2correctA = query.Run <@ (%countRange) 30 40 @>   // Counts the number of people in their thirties. 
 
-let ex2correctB = query.Run countThirties                // Counts the number of people in their thirties.
+let ex2correctB = query.Run countThirties               // Counts the number of people in their thirties.
 
 (** 
 
@@ -204,7 +203,7 @@ We can then use it to find all people in their thirties, or all people with even
 
 let ex3 = query.Run <@ (%satisfies) (fun x -> 20 <= x && x < 30 ) @>
 
-let ex4 = query.Run <@ (%satisfies) (fun x ->  x % 2 = 0 ) @>
+let ex4 = query.Run <@ (%satisfies) (fun x -> x % 2 = 0 ) @>
 
 (** 
 This is subject to some side-conditions: basically, the function you pass into a higher-order query combinator
@@ -221,14 +220,10 @@ let wrong2 = query.Run <@ (%satisfies) even @>
 (** 
 Note that wrong2 is morally equivalent to ex4 above (provided ages are nonnegative), but is not allowed.  The library
 is not smart enough to determine that the parameter passed into satisfies is equivalent to an operation that
-can be performed on the database (using modular arithmetic); you have to do this yourself.
-
-*)
+can be performed on the database (using modular arithmetic); you would have to do this yourself.
 
 
-(** 
-
-Building queries using recursion 
+Building queries dynamically using recursion 
 --------------------------------
 
 Although recursion is not allowed *within* a query, you can still use recursion to *build* a query.
@@ -293,4 +288,13 @@ let rec wrongEval t x =
 let wrongEx6 = query.Run <@ (%satisfies) (wrongEval t1) @>
 
 (** then we would run into the same problem as before, because we would be trying to run satisfies on quoted
-  code containing recursive calls, which is not allowed.  *)
+  code containing recursive calls, which is not allowed.  
+  
+  
+  
+
+Queries over nested structures
+--------------------------------
+(todo)
+  
+  *)
