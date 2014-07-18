@@ -33,7 +33,7 @@ let description = """
   A Compositional Query Framework for F# Queries, based on 'A Practical Theory of Language-Integrated Query',
   """
 // List of author names (for NuGet package)
-let authors = [ "James Cheney"; "Sam Lindley" ]
+let authors = [ "James Cheney"; "Sam Lindley"; "Yordan Stoyanov" ]
 // Tags for your project (for NuGet package)
 let tags = "F# fsharp LINQ SQL database data query"
 
@@ -115,6 +115,7 @@ Target "RunTests" (fun _ ->
     |> MSTest.MSTest (fun p ->
         { p with
             TimeOut = TimeSpan.FromMinutes 20.
+            WorkingDir = __SOURCE_DIRECTORY__
             })
 )
 
@@ -175,6 +176,6 @@ Target "All" DoNothing
 
 "Clean" ==> "RestorePackages" ==> "AssemblyInfo" ==> "Build"
 "AssemblyInfo" ==> "BuildTest" ==> "RunTests" ==> "All"
-"RunTests" ==> "CleanDocs" ==> "GenerateDocs" ==> "ReleaseDocs" ==> "NuGet" ==> "Release"
+"CleanDocs" ==> "GenerateDocs" ==> "ReleaseDocs" ==> "NuGet" ==> "Release"
 
 RunTargetOrDefault "Build"

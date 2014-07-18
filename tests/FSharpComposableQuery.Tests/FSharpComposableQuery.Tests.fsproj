@@ -30,7 +30,8 @@
     </StartProgram>
     <StartArguments>
     </StartArguments>
-    <StartWorkingDirectory>C:\Git\FSharpComposableQuery\tests\FSharpComposableQuery.Tests\bin\Debug\</StartWorkingDirectory>
+    <StartWorkingDirectory>
+    </StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
