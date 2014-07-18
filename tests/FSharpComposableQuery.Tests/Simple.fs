@@ -18,7 +18,10 @@ open FSharpComposableQuery
 /// <para>The original queries can be found at http://msdn.microsoft.com/en-us/library/vstudio/hh225374.aspx </para>
 /// </summary>
 module Simple = 
-    type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=".\\App.config">
+    [<Literal>]
+    let dbConfigPath = "data\db.config"
+    
+    type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=dbConfigPath>
 
 
     [<TestClass>]

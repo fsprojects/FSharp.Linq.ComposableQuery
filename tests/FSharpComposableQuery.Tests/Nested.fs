@@ -15,7 +15,10 @@ open System.Linq
 /// </summary>
 module Nested = 
 
-    type internal dbSchema = SqlDataConnection<ConnectionStringName="OrgConnectionString", ConfigFile=".\\App.config">
+    [<Literal>]
+    let dbConfigPath = "data\\db.config"
+    
+    type internal dbSchema = SqlDataConnection<ConnectionStringName="OrgConnectionString", ConfigFile=dbConfigPath>
 
     type internal Departments = dbSchema.ServiceTypes.Departments
     type internal Employees = dbSchema.ServiceTypes.Employees

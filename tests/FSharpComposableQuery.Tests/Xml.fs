@@ -14,11 +14,13 @@ open FSharpComposableQuery
 /// </summary>
 module Xml =
     [<Literal>]
-    let xmlPath = "data\movies.xml"
-    
+    let xmlPath = "data\\movies.xml"
+    [<Literal>]
+    let dbConfigPath = "data\\db.config"
+
     let basicXml = XElement.Parse "<a id='1'><b><c>foo</c></b><d><e/><f/></d></a>"
 
-    type internal schema = SqlDataConnection< ConnectionStringName="XmlConnectionString", ConfigFile=".\\App.config" >
+    type internal schema = SqlDataConnection< ConnectionStringName="XmlConnectionString", ConfigFile=dbConfigPath>
 
     type internal Data = schema.ServiceTypes.Data
 

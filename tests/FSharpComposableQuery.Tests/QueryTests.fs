@@ -12,7 +12,10 @@ open Microsoft.VisualStudio.TestTools.UnitTesting;
 open FSharpComposableQuery
 
 module QueryTests = 
-    type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=".\\App.config">
+    [<Literal>]
+    let dbConfigPath = "data\\db.config"
+
+    type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=dbConfigPath>
 
     [<TestClass>]
     type TestClass() = 

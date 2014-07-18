@@ -14,8 +14,10 @@ module People =
 
     [<Literal>]
     let internal N_COUPLES = 5000
-
-    type internal dbSchemaPeople = SqlDataConnection< ConnectionStringName="PeopleConnectionString", ConfigFile=".\\App.config" >
+    [<Literal>]
+    let dbConfigPath = "data\\db.config"
+    
+    type internal dbSchemaPeople = SqlDataConnection< ConnectionStringName="PeopleConnectionString", ConfigFile=dbConfigPath>
 
     type internal Couple = dbSchemaPeople.ServiceTypes.Couples
 

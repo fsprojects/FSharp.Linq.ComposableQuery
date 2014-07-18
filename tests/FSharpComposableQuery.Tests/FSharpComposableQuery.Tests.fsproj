@@ -30,6 +30,7 @@
     </StartProgram>
     <StartArguments>
     </StartArguments>
+    <StartWorkingDirectory>C:\Git\FSharpComposableQuery\tests\FSharpComposableQuery.Tests\bin\Debug\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -82,9 +83,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
-    <None Include="App.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="App.config" />
     <Compile Include="Utils.fs" />
     <Compile Include="Simple.fs" />
     <Compile Include="People.fs" />
@@ -99,6 +98,9 @@
     <None Include="sql\people.sql" />
     <Content Include="data\movies.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\db.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
