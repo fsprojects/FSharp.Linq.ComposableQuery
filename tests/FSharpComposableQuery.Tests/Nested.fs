@@ -16,7 +16,7 @@ open System.Linq
 module Nested = 
 
     [<Literal>]
-    let dbConfigPath = "data\\db.config"
+    let dbConfigPath = "db.config"
     
     type internal dbSchema = SqlDataConnection<ConnectionStringName="OrgConnectionString", ConfigFile=dbConfigPath>
 

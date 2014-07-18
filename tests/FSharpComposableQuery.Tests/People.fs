@@ -15,7 +15,7 @@ module People =
     [<Literal>]
     let internal N_COUPLES = 5000
     [<Literal>]
-    let dbConfigPath = "data\\db.config"
+    let dbConfigPath = "db.config"
     
     type internal dbSchemaPeople = SqlDataConnection< ConnectionStringName="PeopleConnectionString", ConfigFile=dbConfigPath>
 

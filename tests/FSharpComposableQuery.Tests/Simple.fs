@@ -19,7 +19,7 @@ open FSharpComposableQuery
 /// </summary>
 module Simple = 
     [<Literal>]
-    let dbConfigPath = "data\\db.config"
+    let dbConfigPath = "db.config"
     
     type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=dbConfigPath>
 

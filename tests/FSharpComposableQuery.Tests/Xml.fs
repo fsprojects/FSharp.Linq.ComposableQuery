@@ -16,7 +16,7 @@ module Xml =
     [<Literal>]
     let xmlPath = "data\\movies.xml"
     [<Literal>]
-    let dbConfigPath = "data\\db.config"
+    let dbConfigPath = "db.config"
 
     let basicXml = XElement.Parse "<a id='1'><b><c>foo</c></b><d><e/><f/></d></a>"
 
