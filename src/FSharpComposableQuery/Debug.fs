@@ -74,13 +74,13 @@ type internal Debug() =
                         | false -> (List.reduce (fun s l -> s @ [","] @ l) << List.map (prettyPrintRec 1)) args
                     match unk with
                         | UnknownCall mi ->  [otxt + "." + mi.Name + "("] @ argstxt @ [")"]
+                        | UnknownValueCall mi -> ["query.RunValue( <@ " + otxt + "." + mi.Name + "("] @ argstxt @ [") @> )"]
                         | UnknownNew ci -> [otxt + ".Create_" + ci.Name + "("] @ argstxt @ [")"]
                         | UnknownRef (Patterns.Value (o,_)) -> [printObj o]
                         | UnknownRef (o) -> [printObj o]
                 | Union(e1, e2) -> prettyPrintRec 0 e1 @ [ "  U" ] @ prettyPrintRec 0 e2
                 | RunAsEnumerable(e1, ty) -> ["query.Run[Enumerable<" + ty.Name + ">]"] @ prettyPrintRec 1 e1
                 | RunAsQueryable(e1, ty) -> ["query.Run[Queryable<" + ty.Name + ">]"] @ prettyPrintRec 1 e1
-                | RunAsValue(e1, ty) -> ["query.Run[" + ty.Name + "]"] @ prettyPrintRec 1 e1
                 | Quote(e1) -> ["<@ "] @ prettyPrintRec 1 e1 @ [" @>"]
                 | Source(eTy, sTy, e1) -> 
                     ["query.Source<" + eTy.Name + ", " + sTy.Name + ">"] 

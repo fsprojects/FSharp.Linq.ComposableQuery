@@ -93,6 +93,7 @@ type Field =
 
 type UnknownThing = 
     | UnknownCall of MethodInfo
+    | UnknownValueCall of MethodInfo
     | UnknownNew of ConstructorInfo
     | UnknownRef of Expr
 
@@ -113,17 +114,6 @@ let castArgs ps args =
         else 
             Expr.Coerce(arg, ty)
     List.map coerceIfNeeded (List.zip args tys)
-
-let unknownToExpr unk obj0 args = 
-    match unk, obj0, args with
-    | UnknownNew ci, None, _ -> 
-        Expr.NewObject(ci, castArgs (Array.toList (ci.GetParameters())) args)
-    | UnknownRef e, None, _ -> e
-    | UnknownCall(mi), None, _ -> 
-        Expr.Call(mi, args)
-    | UnknownCall(mi), Some obj, _ -> 
-        Expr.Call(obj, mi, castArgs (Array.toList (mi.GetParameters())) args)
-    | _ -> failwith "Impossible case"
 
 type Exp = 
     | EVar of Var
@@ -146,7 +136,6 @@ type Exp =
     | Lam of Var * Exp
     | App of Exp * Exp
     | Table of Expr * System.Type
-    | RunAsValue of Exp * System.Type
     | RunAsQueryable of Exp * System.Type
     | RunAsEnumerable of Exp * System.Type
     | Quote of Exp
@@ -197,7 +186,6 @@ let rec freshen x x' e0 =
             (unkFreshen x x' unk, ty, Option.map (freshen x x') eopt, 
              List.map (freshen x x') es)
     | Union(e1, e2) -> Union(freshen x x' e1, freshen x x' e2)
-    | RunAsValue(e1, ty) -> RunAsValue(freshen x x' e1, ty)
     | RunAsQueryable(e1, ty) -> RunAsQueryable(freshen x x' e1, ty)
     | RunAsEnumerable(e1, ty) -> RunAsEnumerable(freshen x x' e1, ty)
     | Quote(e1) -> Quote(freshen x x' e1)
@@ -244,7 +232,6 @@ let rec subst e x e0 =
         | _ -> ()
         Unknown(unk, ty, Option.map (subst e x) eopt, List.map (subst e x) es)
     | Union(e1, e2) -> Union(subst e x e1, subst e x e2)
-    | RunAsValue(e1, ty) -> RunAsValue(subst e x e1, ty)
     | RunAsQueryable(e1, ty) -> RunAsQueryable(subst e x e1, ty)
     | RunAsEnumerable(e1, ty) -> RunAsEnumerable(subst e x e1, ty)
     | Quote(e1) -> Quote(subst e x e1)
@@ -282,7 +269,6 @@ let rec elimTuples exp =
     | Unknown(unk, ty, eopt, es) -> 
         Unknown(unk, ty, Option.map elimTuples eopt, List.map (elimTuples) es)
     | Union(e1, e2) -> Union(elimTuples e1, elimTuples e2)
-    | RunAsValue(e1, ty) -> RunAsValue(elimTuples e1, ty)
     | RunAsQueryable(e1, ty) -> RunAsQueryable(elimTuples e1, ty)
     | RunAsEnumerable(e1, ty) -> RunAsEnumerable(elimTuples e1, ty)
     | Quote(e1) -> Quote(elimTuples e1)

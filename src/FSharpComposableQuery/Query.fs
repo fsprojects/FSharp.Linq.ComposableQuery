@@ -147,60 +147,48 @@ module QueryImpl =
             | Unknown(_, ty, _, _) -> ty
             | Quote(e) -> typedefof<Expr<_>>.MakeGenericType(getType e)
             | Source(eTy, sTy, _) -> QuerySourceTy(eTy, sTy)
-            | RunAsValue(_, ty) -> ty
             | RunAsQueryable(_, ty) -> typedefof<IQueryable<_>>.MakeGenericType ty
             | RunAsEnumerable(_, ty) -> typedefof<seq<_>>.MakeGenericType ty
     
-        let rec removeRunAs ty exp = 
-            let rec removeInner ty exp = 
+        let rec removeRunAs exp = 
+            let rec removeInner exp = 
                 match exp with
                 | Source(_, _, RunAsQueryable(Quote(e), _)) -> e     // removes occurences of RunQueryAsQueryable
-//                | RunAsValue(Quote(e), _) -> e                    // removes occurences of RunQueryAsValue
-
                 //TODO: also check for RunQueryAsEnumerable?
 
                 // recurse
                 | EVar x -> EVar x
-                | ELet(x, e1, e2) -> ELet(x, removeInner ty e1, removeInner ty e2)
-                | Op(op, es) -> Op(op, List.map (removeInner ty) es)
+                | ELet(x, e1, e2) -> ELet(x, removeInner e1, removeInner e2)
+                | Op(op, es) -> Op(op, List.map (removeInner) es)
                 | IntC i -> IntC i
                 | BoolC b -> BoolC b
                 | StringC s -> StringC s
                 | Unit -> Unit
-                | Tuple(tty, es) -> Tuple(tty, List.map (removeInner ty) es)
-                | Proj(e, i) -> Proj (removeInner ty e, i)
-                | IfThenElse(e, e1, e2) -> IfThenElse (removeInner ty e, removeInner ty e1, removeInner ty e2)
-                | Record(rTy, r) -> Record(rTy, List.map (fun (l, e) -> (l, removeInner ty e)) r)
-                | Field(e, l) -> Field(removeInner ty e, l)
+                | Tuple(tty, es) -> Tuple(tty, List.map (removeInner) es)
+                | Proj(e, i) -> Proj (removeInner e, i)
+                | IfThenElse(e, e1, e2) -> IfThenElse (removeInner e, removeInner e1, removeInner e2)
+                | Record(rTy, r) -> Record(rTy, List.map (fun (l, e) -> (l, removeInner e)) r)
+                | Field(e, l) -> Field(removeInner e, l)
                 | Empty _ty -> Empty _ty
-                | Singleton e -> Singleton(removeInner ty e)
-                | Union(e1, e2) -> Union(removeInner ty e1, removeInner ty e2)
-                | Comp(e2, x, e1) -> Comp(removeInner ty e2, x, removeInner ty e1)
-                | Lam(x, e) -> Lam(x, removeInner ty e)
-                | App(e1, e2) -> App(removeInner ty e1, removeInner ty e2)
-                | Exists e -> Exists(removeInner ty e)
+                | Singleton e -> Singleton(removeInner e)
+                | Union(e1, e2) -> Union(removeInner e1, removeInner e2)
+                | Comp(e2, x, e1) -> Comp(removeInner e2, x, removeInner e1)
+                | Lam(x, e) -> Lam(x, removeInner e)
+                | App(e1, e2) -> App(removeInner e1, removeInner e2)
+                | Exists e -> Exists(removeInner e)
                 | Table(e, _ty) -> Table(e, _ty)
                 | Unknown(unk, _ty, eopt, es) -> 
-                    Unknown(unk, _ty, Option.map (removeInner ty) eopt, List.map (removeInner ty) es)
-                | Quote(e1) -> Quote(removeInner ty e1)
+                    Unknown(unk, _ty, Option.map (removeInner) eopt, List.map (removeInner) es)
+                | Quote(e1) -> Quote(removeInner e1)
                 
                 | RunAsQueryable(e, rTy) -> 
-                    let ty = IQueryableTy
-                    RunAsQueryable(removeInner ty e, rTy)
+                    RunAsQueryable(removeInner e, rTy)
                 | RunAsEnumerable(e, rTy) -> 
-                    let ty = IEnumerableTy
-                    RunAsEnumerable(removeInner ty e, rTy)
-                | RunAsValue(e, rTy) -> 
-                    let ty = typeof<obj>
-                    RunAsValue(removeInner ty e, rTy)
-                
+                    RunAsEnumerable(removeInner e, rTy)
                 | Source(eTy, sTy, e1) -> 
-                    Source(eTy, sTy, removeInner ty e1)
-//                    Source(eTy, ty, removeInner ty e1)  //change type of Source()
+                    Source(eTy, sTy, removeInner e1)
 
-            match exp with
-            | RunAsValue(Quote(e), ty) -> removeRunAs ty e  //LINQ would expect to directly receive the expression body in the case of an outer RunAsValue
-            | exp -> removeInner ty exp
+            removeInner exp
 
 
         let rec reduce exp = 
@@ -273,7 +261,6 @@ module QueryImpl =
                 Unknown(unk, ty, Option.map reduce eopt, List.map reduce es)
             | RunAsQueryable(e, ty) -> RunAsQueryable(reduce e, ty)
             | RunAsEnumerable(e, ty) -> RunAsEnumerable(reduce e, ty)
-            | RunAsValue(e, ty) -> RunAsValue(reduce e, ty)
             | Quote(e1) -> Quote(reduce e1)
             | Source(eTy, sTy, e1) -> Source(eTy, sTy, reduce e1)
 
@@ -289,30 +276,26 @@ module QueryImpl =
                     (IfThenElse(test, m, Empty ty), 
                      IfThenElse(Op(Not, [ test ]), n, Empty ty))
 
-        let rec nf exp ty = 
+        let rec nf exp = 
             let expR = reduce exp
             
 
-            let expNorm = removeRunAs ty expR
+            let expNorm = removeRunAs expR
             
-//            assert (reduce expR = expR) //one normalisation pass should be sufficient
             if exp = expNorm then 
                 expNorm 
             else 
 //                Debug.printfn "Norm exp [%s]:\n%s\n" ty.Name (Debug.prettyPrint expNorm)
-
-                nf expNorm ty
+                nf expNorm
              
         // MethodInfo data
         let yieldMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Yield @>
         let zeroMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Zero @>
         let forMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.For @>
-//        let existsMi = getGenericMethodInfo  <@ fun (q:QueryBuilderr) -> q.Exists @>
         let whereMi = getGenericMethodInfo  <@ fun (q:QueryBuilder) -> q.Where @>
         let selectMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Select @>
         let unionQueryMi = getGenericMethodInfo <@ fun (qa : IQueryable<_>) (qb : IQueryable<_>) -> Queryable.Union(qa, qb) @>
         let unionEnumMi = getGenericMethodInfo <@ fun (qa : seq<_>) (qb : seq<_>) -> System.Linq.Enumerable.Union(qa, qb) @>
-
         let sourceQueryMi = getGenericMethodInfo <@ fun (q:QueryBuilder) (l:IQueryable<_>) -> q.Source(l) @>
         let sourceEnumMi = getGenericMethodInfo <@ fun (q:QueryBuilder) (l:seq<_>) -> q.Source(l) @>
 
@@ -344,20 +327,37 @@ module QueryImpl =
             else if methodInfo = selectMi then SelectF
             else if methodInfo = unionEnumMi then UnionF
             else if methodInfo = unionQueryMi then UnionF
+            else if methodInfo = sourceQueryMi then SourceQueryF
+            else if methodInfo = sourceEnumMi then SourceEnumF
             else if methodInfo = ForwardDeclarations.RunQueryMi.Enum then RunQueryAsEnumerableF
             else if methodInfo = ForwardDeclarations.RunQueryMi.Value then RunQueryAsValueF
             else if methodInfo = ForwardDeclarations.RunQueryMi.Query then RunQueryAsQueryableF
-            else if methodInfo = sourceQueryMi then SourceQueryF
-//            else if methodInfo = sourceEnumMi then SourceEnumF
             else UnknownF
          
-        member internal this.emptyExp ty = 
+        member internal this.unknownExpr unk obj0 args = 
+            match unk, obj0, args with
+            | UnknownNew ci, None, _ -> Expr.NewObject(ci, castArgs (Array.toList (ci.GetParameters())) args)
+            | UnknownRef e, None, _ -> e
+            | UnknownCall(mi), o, _ ->
+                match o with
+                | None -> Expr.Call(mi, args)
+                | Some obj -> Expr.Call(obj, mi, castArgs (Array.toList (mi.GetParameters())) args)
+            | UnknownValueCall(mi), o, _ -> 
+                let e =     
+                    match o with
+                    | None -> Expr.Call(mi, args)
+                    | Some obj -> Expr.Call(obj, mi, castArgs (Array.toList (mi.GetParameters())) args)
+                // wrap with RunValue(Quote(_))
+                Expr.Call(runNativeValueMi.MakeGenericMethod (mi.ReturnType), [Expr.Value this; Expr.Quote(e)])
+            | _ -> failwith "Impossible case"
+
+        member internal this.emptyExpr ty = 
             Expr.Call((Expr.Value this),zeroMi.MakeGenericMethod([|ty;IQueryableTy|]),[]) 
 
-        member internal this.singletonExp (e:Expr) = 
+        member internal this.singletonExpr (e:Expr) = 
             Expr.Call((Expr.Value this),yieldMi.MakeGenericMethod( [|e.Type;IQueryableTy|] ), [e])
 
-        member internal this.forExp (e2:Expr) (x:Var) (e1:Expr) = 
+        member internal this.forExpr (e2:Expr) (x:Var) (e1:Expr) = 
             match e1.Type,e2.Type with
                 QuerySourceTy (tyCollection,qty1), QuerySourceTy(tyResult,qty2) -> 
                     assert (x.Type = tyCollection)
@@ -386,10 +386,9 @@ module QueryImpl =
                 | Record(rty, r) -> Expr.NewRecord(rty, List.map (fun (_, e) -> toExp e) r)
                 | Lam(x, e) -> Expr.Lambda(x, toExp e)
                 | App(e1, e2) -> Expr.Application(toExp e1, toExp e2)
-                | Empty ty -> this.emptyExp ty
-                | Singleton e -> this.singletonExp (toExp e)
-                | Comp(e2, x, e1) -> this.forExp (toExp e2) x (toExp e1)
-//                | Exists(e) -> this.existsExp (toExp e)
+                | Empty ty -> this.emptyExpr ty
+                | Singleton e -> this.singletonExpr (toExp e)
+                | Comp(e2, x, e1) -> this.forExpr (toExp e2) x (toExp e1)
                 | Table(e, _ty) -> e
                 | Union(e1, e2) ->
                     //a union of 2 queries. Args and results are either IEnumerable<'T> or IQueryable<'T>
@@ -406,9 +405,6 @@ module QueryImpl =
                 | RunAsQueryable(e, ty) ->
                     let mi = runNativeQueryMi.MakeGenericMethod ty
                     Expr.Call(nativeBuilderExpr, mi, [toExp e])
-                | RunAsValue(e, ty) ->
-                    let mi = runNativeValueMi.MakeGenericMethod ty
-                    Expr.Call(mi, [nativeBuilderExpr; toExp e])
                 | RunAsEnumerable(e, ty) ->
                     let mi = runNativeEnumMi.MakeGenericMethod ty
                     Expr.Call(mi, [nativeBuilderExpr; toExp e])
@@ -421,7 +417,7 @@ module QueryImpl =
                             sourceQueryMi.MakeGenericMethod(eTy, sTy)
                     Expr.Call(Expr.Value(this), mi, [toExp e1])
                 | Unknown(unk, _, eopt, es) -> 
-                    unknownToExpr unk (Option.map toExp eopt) (List.map toExp es)
+                    this.unknownExpr unk (Option.map toExp eopt) (List.map toExp es)
 
                 | _ -> 
                     raise NYI
@@ -547,7 +543,16 @@ module QueryImpl =
                 | UnionF, [e1;e2] -> 
                     Union(from e1, from e2)
                     
-                | RunQueryAsValueF, [_;e1] -> RunAsValue(from e1, func.ReturnType)
+                | RunQueryAsValueF, [_;e1] -> 
+                    match (from e1) with
+                    | Exp.Quote(e) ->
+                        // All methods that return a value type are currently translated as UnknownCall
+                        // if you add an Exp literal for such a method don't forget to update this. 
+                        match e with
+                        | Exp.Unknown(UnknownCall(mi), ty, e, l) -> Exp.Unknown(UnknownValueCall(mi), ty, e, l)
+                        | _ -> failwith "Unexpected Exp inside RunValue's quote"
+                    | _ -> failwith "Expected a quote inside RunValue"
+
                 | RunQueryAsEnumerableF, [_;e1] -> RunAsEnumerable(from e1, func.ReturnType.GetGenericArguments().[0])
                 | RunQueryAsQueryableF, [e1] -> RunAsQueryable(from e1, func.ReturnType.GetGenericArguments().[0])
 
@@ -569,25 +574,25 @@ module QueryImpl =
             from expr
 
 
-        member internal this.Norm (expr:Expr<'T>) (ty:System.Type) : Expr<'T> = 
+        member internal this.Norm (expr:Expr<'T>) : Expr<'T> = 
             let exp = this.fromExpr expr.Raw
             
 //            Debug.printfn "Initial exp:\n%s\n" (Debug.prettyPrint exp)
-            let expNorm = nf exp ty
+            let expNorm = nf exp
 
             let exprNorm = this.toExpr expNorm
             Expr.Cast<'T>(exprNorm)
         
         member this.Run(q : Expr<Linq.QuerySource<'T, System.Linq.IQueryable>>) : System.Linq.IQueryable<'T> = 
-            let qNorm = this.Norm q IQueryableTy
+            let qNorm = this.Norm q
             base.Run qNorm
         
         member internal this.RunAsEnumerable(q : Expr<Linq.QuerySource<'T, System.Collections.IEnumerable>>) : seq<'T> = 
-            let qNorm = this.Norm q IEnumerableTy
+            let qNorm = this.Norm q
             base.Run qNorm
         
         member internal this.RunAsValue(q : Expr<'T>) : 'T = 
-            let qNorm = this.Norm q typeof<obj>
+            let qNorm = this.Norm q
             base.Run qNorm 
         
      
