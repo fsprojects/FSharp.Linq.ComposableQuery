@@ -3,7 +3,7 @@
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
 open System.Linq
-open Microsoft.VisualStudio.TestTools.UnitTesting
+open NUnit.Framework
 
 /// <summary>
 /// Contains example queries and operations on the People database. 
@@ -35,7 +35,7 @@ module People =
         | Or of Predicate * Predicate
         | Not of Predicate
 
-    [<TestClass>]
+    [<TestFixture>]
     type TestClass() =
         static let couples = db.DataContext.GetTable<Couple>()
         static let people = db.DataContext.GetTable<Person>()
@@ -172,44 +172,44 @@ module People =
         let t7 = eval (Not(Or(Below 20, Above 30)))
         let ex7 = <@ query { yield! (%satisfies) (%t7) } @>
 
-        [<ClassInitialize>]
-        static member init (c : TestContext) =
+        [<TestFixtureSetUp>]
+        member public this.init() =
             printf "People: Adding %d couples... " N_COUPLES
             dropTables()
             addRandom N_COUPLES
             printfn "done! (%d people; %d couples)" (people.Count()) (couples.Count())
 
-        [<TestMethod>]
+        [<Test>]
         member this.test01() =
             printfn "%s" "ex1"
             Utils.Run ex1
 
-        [<TestMethod>]
+        [<Test>]
         member this.test02() =
             printfn "%s" "ex2"
             Utils.Run ex2
 
-        [<TestMethod>]
+        [<Test>]
         member this.test03() =
             printfn "%s" "ex3"
             Utils.Run ex3
 
-        [<TestMethod>]
+        [<Test>]
         member this.test04() =
             printfn "%s" "ex4"
             Utils.Run ex4
 
-        [<TestMethod>]
+        [<Test>]
         member this.test05() =
             printfn "%s" "ex5"
             Utils.Run ex5
 
-        [<TestMethod>]
+        [<Test>]
         member this.test06() =
             printfn "%s" "ex6"
             Utils.Run ex6
 
-        [<TestMethod>]
+        [<Test>]
         member this.test07() =
             printfn "%s" "ex7"
             Utils.Run ex7

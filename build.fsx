@@ -111,12 +111,21 @@ Target "BuildTest" (fun _ ->
 // Run unit tests using test runner & kill test runner when complete
 
 Target "RunTests" (fun _ ->
+    let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
+    let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
+    ActivateFinalTarget "CloseTestRunner"
+
     testAssemblies
-    |> MSTest.MSTest (fun p ->
+    |> NUnit (fun p ->
         { p with
+            ToolPath = nunitPath
+            DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
-            WorkingDir = __SOURCE_DIRECTORY__
-            })
+            OutputFile = "TestResults.xml" })
+)
+
+FinalTarget "CloseTestRunner" (fun _ ->
+    ProcessHelper.killProcess "nunit-agent.exe"
 )
 
 // --------------------------------------------------------------------------------------

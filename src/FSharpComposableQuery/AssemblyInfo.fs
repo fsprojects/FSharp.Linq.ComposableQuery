@@ -8,7 +8,7 @@ open System.Runtime.CompilerServices
 [<assembly: AssemblyDescriptionAttribute("A Compositional, Safe Query Framework for F# Queries.")>]
 [<assembly: AssemblyVersionAttribute("0.1.1")>]
 [<assembly: AssemblyFileVersionAttribute("0.1.1")>]
-()
+do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] Version = "0.1.1"

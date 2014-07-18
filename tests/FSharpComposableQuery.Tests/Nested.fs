@@ -4,7 +4,7 @@
 open FSharpComposableQuery
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Data.TypeProviders
-open Microsoft.VisualStudio.TestTools.UnitTesting;
+open NUnit.Framework;
 open System.Linq
 
 
@@ -39,7 +39,7 @@ module Nested =
     
     let internal db = dbSchema.GetDataContext()
     
-    [<TestClass>]
+    [<TestFixture>]
     type TestClass() = 
         
         [<Literal>]
@@ -253,20 +253,20 @@ module Nested =
 
 
 
-        [<ClassInitialize>]
-        static member init (c:TestContext) = 
+        [<TestFixtureSetUp>]
+        member public this.init() = 
             printf "Nested: Adding %d departments, %d employees and additional %d people in the Abstraction department... " N_DEPARTMENTS N_EMPLOYEES N_ABSTRACTION
             dropTables()
             addRandom N_DEPARTMENTS N_EMPLOYEES
             addAbstractionDept N_ABSTRACTION
             printfn "done!"
 
-        [<TestMethod>]
+        [<Test>]
         member this.test01() = 
              printfn "%s" "ex8"
              Utils.Run ex8
 
-        [<TestMethod>]
+        [<Test>]
         member this.test02() = 
              printfn "%s" "ex9"
              Utils.Run ex9

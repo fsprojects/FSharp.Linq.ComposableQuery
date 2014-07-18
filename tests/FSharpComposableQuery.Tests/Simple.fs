@@ -7,7 +7,7 @@ open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
-open Microsoft.VisualStudio.TestTools.UnitTesting;
+open NUnit.Framework
 
 open FSharpComposableQuery
 
@@ -19,12 +19,12 @@ open FSharpComposableQuery
 /// </summary>
 module Simple = 
     [<Literal>]
-    let dbConfigPath = "data\db.config"
+    let dbConfigPath = "data\\db.config"
     
     type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=dbConfigPath>
 
 
-    [<TestClass>]
+    [<TestFixture>]
     type TestClass() = 
 
         let db = schema.GetDataContext()
@@ -37,7 +37,7 @@ module Simple =
             idx <- idx + 1
             printfn "Q%02d: %s" idx s
         
-        [<TestMethod>]
+        [<Test>]
         member this.``contains query operator``() = 
             tag "contains query operator"
             let q =
@@ -49,7 +49,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``count query operator``() = 
             tag "count query operator"
             let q =
@@ -62,7 +62,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``last query operator.``() = 
             tag "last query operator." 
             let q =
@@ -74,7 +74,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``lastOrDefault query operator.``() = 
             tag "lastOrDefault query operator." 
             let q =
@@ -87,7 +87,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``exactlyOne query operator.``() = 
             tag "exactlyOne query operator."
             let q =
@@ -101,7 +101,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``exactlyOneOrDefault query operator.``() = 
             tag "exactlyOneOrDefault query operator."
             let q =
@@ -115,7 +115,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``headOrDefault query operator.``() = 
             tag "headOrDefault query operator."
             let q =
@@ -128,7 +128,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``select query operator.``() = 
             tag "select query operator."
             let q =
@@ -140,7 +140,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``where query operator.``() = 
             tag "where query operator."
             let q =
@@ -152,7 +152,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``minBy query operator.``() = 
             tag "minBy query operator."
             let q =
@@ -164,7 +164,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``maxBy query operator.``() = 
             tag "maxBy query operator."
             let q =
@@ -177,7 +177,7 @@ module Simple =
 
     
 
-        [<TestMethod>]
+        [<Test>]
         member this.``groupBy query operator.``() = 
             tag "groupBy query operator."
             let q = <@ query {
@@ -189,7 +189,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortBy query operator.``() = 
             tag "sortBy query operator."
             let q = <@ query {
@@ -201,7 +201,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortByDescending query operator.``() = 
             tag "sortByDescending query operator."
             let q = <@ query {
@@ -213,7 +213,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenBy query operator.``() = 
             tag "thenBy query operator."
             let q = <@ query {
@@ -227,7 +227,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenByDescending query operator.``() = 
             tag "thenByDescending query operator."
             let q = <@ query {
@@ -241,7 +241,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``groupValBy query operator.``() = 
             tag "groupValBy query operator."
             let q = <@ query {
@@ -253,7 +253,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sumByNullable query operator``() = 
             tag "sumByNullable query operator"
             let q = <@ query {
@@ -264,7 +264,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``minByNullable``() = 
             tag "minByNullable"
             let q = <@ query {
@@ -275,7 +275,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``maxByNullable``() = 
             tag "maxByNullable"
             let q = <@ query {
@@ -286,7 +286,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``averageBy``() = 
             tag "averageBy"
             let q = <@ query {
@@ -297,7 +297,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``averageByNullable``() = 
             tag "averageByNullable"
             let q = <@ query {
@@ -308,7 +308,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``find query operator``() = 
             tag "find query operator"
             let q = <@ query {
@@ -319,7 +319,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``all query operator``() = 
             tag "all query operator"
             let q = <@ query {
@@ -330,7 +330,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``head query operator``() = 
             tag "head query operator"
             let q = <@ query {
@@ -341,7 +341,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``nth query operator``() = 
             tag "nth query operator"
             let q = <@ query {
@@ -352,7 +352,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``skip query operator``() = 
             tag "skip query operator"
             let q = <@ query {
@@ -363,7 +363,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``skipWhile query operator``() = 
             tag "skipWhile query operator"
             let q = <@ query {
@@ -375,7 +375,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sumBy query operator``() = 
             tag "sumBy query operator"
             let q = <@ query {
@@ -386,7 +386,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``take query operator``() = 
             tag "take query operator"
             let q = <@ query {
@@ -398,7 +398,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``takeWhile query operator``() = 
             tag "takeWhile query operator"
             let q = <@ query {
@@ -409,7 +409,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortByNullable query operator``() = 
             tag "sortByNullable query operator"
             let q = <@ query {
@@ -421,7 +421,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortByNullableDescending query operator``() = 
             tag "sortByNullableDescending query operator"
             let q = <@ query {
@@ -433,7 +433,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenByNullable query operator``() = 
             tag "thenByNullable query operator"
             let q = <@ query {
@@ -446,7 +446,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenByNullableDescending query operator``() = 
             tag "thenByNullableDescending query operator"
             let q = <@ query {
@@ -459,7 +459,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``All students:``() = 
             tag "All students: "
             let q = <@ query {
@@ -470,7 +470,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Count of students:``() = 
             tag "Count of students: "
             let q = <@ query {
@@ -480,7 +480,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Exists.``() = 
             tag "Exists, native QueryBuilder."
             let q = <@ query {
@@ -494,7 +494,7 @@ module Simple =
     
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Exists (bug).``() = 
             tag "Exists."
             let q = <@ query {
@@ -506,7 +506,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group by age and count``() = 
             tag "Group by age and count"
             let q = <@ query {
@@ -518,7 +518,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group value by age.``() = 
             tag "Group value by age."
             let q = <@ query {
@@ -530,7 +530,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age where age > 10.``() = 
             tag "Group students by age where age > 10."
             let q = <@ query {
@@ -542,7 +542,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age and print counts of number of students at each age with more than 1 student.``() = 
             tag "Group students by age and print counts of number of students at each age with more than 1 student."
             let q = <@ query {
@@ -555,7 +555,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age and sum ages.``() = 
             tag "Group students by age and sum ages."
             let q = <@ query {
@@ -568,7 +568,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age and count number of students at each age, and display all with count > 1 in descending order of count.``() = 
             tag "Group students by age and count number of students at each age, and display all with count > 1 in descending order of count."
             let q = <@ query {
@@ -582,7 +582,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Select students from a set of IDs``() = 
             tag "Select students from a set of IDs"
             let idList = [1; 2; 5; 10]
@@ -597,7 +597,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with Name match _e%% pattern and take first two.``() = 
             tag "Look for students with Name match _e%% pattern and take first two."
             let q = <@ query {
@@ -610,7 +610,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with Name matching [abc]%% pattern.``() = 
             tag "Look for students with Name matching [abc]%% pattern."
             let q = <@ query {
@@ -622,7 +622,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with name matching [^abc]%% pattern.``() = 
             tag "Look for students with name matching [^abc]%% pattern."
             let q = <@ query {
@@ -634,7 +634,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with name matching [^abc]%% pattern and select ID.``() = 
             tag "Look for students with name matching [^abc]%% pattern and select ID."
             let q = <@ query {
@@ -646,7 +646,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Using Contains as a query filter.``() = 
             tag "Using Contains as a query filter."
             let q = <@ query {
@@ -658,7 +658,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Searching for names from a list.``() = 
             tag "Searching for names from a list."
             let names = [|"a";"b";"c"|]
@@ -668,7 +668,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Join Student and CourseSelection tables.``() = 
             tag "Join Student and CourseSelection tables."
             let q = <@ query {
@@ -681,7 +681,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Left Join Student and CourseSelection tables.``() = 
             tag "Left Join Student and CourseSelection tables."
             let q = <@ query {
@@ -695,7 +695,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Join with count``() = 
             tag "Join with count"
             let q = <@ query {
@@ -707,7 +707,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Join with distinct.``() = 
             tag "Join with distinct."
             let q = <@ query {
@@ -719,7 +719,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Join with distinct and count.``() = 
             tag "Join with distinct and count."
             let q = <@ query {
@@ -732,7 +732,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students with age between 10 and 15.``() = 
             tag "Selecting students with age between 10 and 15."
             let q = <@ query {
@@ -744,7 +744,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students with age either 11 or 12.``() = 
             tag "Selecting students with age either 11 or 12."
             let q = <@ query {
@@ -756,7 +756,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students in a certain age range and sorting.``() = 
             tag "Selecting students in a certain age range and sorting."
             let q = <@ query {
@@ -769,7 +769,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students with certain ages, taking account of possibility of nulls.``() = 
             tag "Selecting students with certain ages, taking account of possibility of nulls."
             let q = <@ query {
@@ -784,7 +784,7 @@ module Simple =
 
             
             
-        [<TestMethod>]
+        [<Test>]
         member this.``Union of two queries.``() = 
             tag "Union of two queries."
 
@@ -801,7 +801,7 @@ module Simple =
             let q = <@ query { for n in (%query1).Union(%query2) do select n } @>
             Utils.Run q
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Union of two queries (enumerable)``() = 
             tag "Union of two queries (enumerable)"
 
@@ -816,7 +816,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Intersect of two queries.``() = 
             tag "Intersect of two queries."
 
@@ -828,7 +828,7 @@ module Simple =
             Utils.Run q
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Using if statement to alter results for special value.``() = 
             tag "Using if statement to alter results for special value."
             let q = <@ query {
@@ -841,7 +841,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Using if statement to alter results special values.``() = 
             tag "Using if statement to alter results special values."
             let q = <@ query {
@@ -857,7 +857,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Multiple table select.``() = 
             tag "Multiple table select."
             let q = <@ query {
@@ -869,7 +869,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Multiple Joins``() = 
             tag "Multiple Joins"
             let q = <@ query {
@@ -884,7 +884,7 @@ module Simple =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Multiple Left Outer Joins``() = 
             tag "Multiple Left Outer Joins"
             let q = <@ query {

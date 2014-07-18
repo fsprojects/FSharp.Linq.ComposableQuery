@@ -7,7 +7,7 @@ open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
-open Microsoft.VisualStudio.TestTools.UnitTesting;
+open NUnit.Framework;
 
 open FSharpComposableQuery
 
@@ -17,7 +17,7 @@ module QueryTests =
 
     type internal schema = SqlDataConnection<ConnectionStringName="QueryConnectionString", ConfigFile=dbConfigPath>
 
-    [<TestClass>]
+    [<TestFixture>]
     type TestClass() = 
 
         let db = schema.GetDataContext()
@@ -36,7 +36,7 @@ module QueryTests =
             else "NULL"
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``contains query operator``() = 
             tag "contains query operator"
             let result1 =
@@ -48,7 +48,7 @@ module QueryTests =
             result1 |> printfn "Is at least one student age 11? %b" 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``count query operator``() = 
             tag "count query operator"
             let result2 =
@@ -61,7 +61,7 @@ module QueryTests =
             result2 |> printfn "Number of students: %d" 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``last query operator.``() = 
             tag "last query operator." 
             let result3 =
@@ -73,7 +73,7 @@ module QueryTests =
             printfn "Last: %d" result3
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``lastOrDefault query operator.``() = 
             tag "lastOrDefault query operator." 
             let result4 =
@@ -85,7 +85,7 @@ module QueryTests =
             result4 |> printfn "lastOrDefault: %d"
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``exactlyOne query operator.``() = 
             tag "exactlyOne query operator."
             let student2 =
@@ -98,7 +98,7 @@ module QueryTests =
             printfn "Student with StudentID = 1 is %s" student2.Name
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``exactlyOneOrDefault query operator.``() = 
             tag "exactlyOneOrDefault query operator."
             let student3 =
@@ -111,7 +111,7 @@ module QueryTests =
             printfn "Student with StudentID = 1 is %s" student3.Name
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``headOrDefault query operator.``() = 
             tag "headOrDefault query operator."
             let student4 =
@@ -123,7 +123,7 @@ module QueryTests =
             printfn "head student is %s" student4.Name
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``select query operator.``() = 
             tag "select query operator."
             let select5 = 
@@ -134,7 +134,7 @@ module QueryTests =
             select5 |> Seq.iter (fun (student) -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``where query operator.``() = 
             tag "where query operator."
             let select6 = 
@@ -146,7 +146,7 @@ module QueryTests =
             select6 |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
             ignore 0
 
-        [<TestMethod>]
+        [<Test>]
         member this.``minBy query operator.``() = 
             tag "minBy query operator."
             let student5 =
@@ -157,7 +157,7 @@ module QueryTests =
             ignore 0
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``maxBy query operator.``() = 
             tag "maxBy query operator."
             let student6 =
@@ -169,7 +169,7 @@ module QueryTests =
 
     
 
-        [<TestMethod>]
+        [<Test>]
         member this.``groupBy query operator.``() = 
             tag "groupBy query operator."
             query {
@@ -180,7 +180,7 @@ module QueryTests =
             |> Seq.iter (fun (age, count) -> printfn "Age: %s Count at that age: %d" (printNullable age) count)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortBy query operator.``() = 
             tag "sortBy query operator."
             query {
@@ -191,7 +191,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortByDescending query operator.``() = 
             tag "sortByDescending query operator."
             query {
@@ -202,7 +202,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.StudentID student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenBy query operator.``() = 
             tag "thenBy query operator."
             query {
@@ -215,7 +215,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.Age.Value student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenByDescending query operator.``() = 
             tag "thenByDescending query operator."
             query {
@@ -228,7 +228,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "StudentID, Name: %d %s" student.Age.Value student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``groupValBy query operator.``() = 
             tag "groupValBy query operator."
             query {
@@ -241,7 +241,7 @@ module QueryTests =
                 group |> Seq.iter (fun name -> printfn "Name: %s" name))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sumByNullable query operator``() = 
             tag "sumByNullable query operator"
             query {
@@ -251,7 +251,7 @@ module QueryTests =
             |> (fun sum -> printfn "Sum of ages: %s" (printNullable sum))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``minByNullable``() = 
             tag "minByNullable"
             query {
@@ -261,7 +261,7 @@ module QueryTests =
             |> (fun age -> printfn "Minimum age: %s" (printNullable age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``maxByNullable``() = 
             tag "maxByNullable"
             query {
@@ -271,7 +271,7 @@ module QueryTests =
             |> (fun age -> printfn "Maximum age: %s" (printNullable age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``averageBy``() = 
             tag "averageBy"
             query {
@@ -281,7 +281,7 @@ module QueryTests =
             |> printfn "Average student ID: %f"
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``averageByNullable``() = 
             tag "averageByNullable"
             query {
@@ -291,7 +291,7 @@ module QueryTests =
             |> (fun avg -> printfn "Average age: %s" (printNullable avg))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``find query operator``() = 
             tag "find query operator"
             query {
@@ -301,7 +301,7 @@ module QueryTests =
             |> (fun student -> printfn "Found a match with StudentID = %d" student.StudentID)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``all query operator``() = 
             tag "all query operator"
             query {
@@ -311,7 +311,7 @@ module QueryTests =
             |> printfn "Do all students have a comma in the name? %b"
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``head query operator``() = 
             tag "head query operator"
             query {
@@ -321,7 +321,7 @@ module QueryTests =
             |> (fun student -> printfn "Found the head student with StudentID = %d" student.StudentID)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``nth query operator``() = 
             tag "nth query operator"
             query {
@@ -331,7 +331,7 @@ module QueryTests =
             |> printfn "Third number is %d"
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``skip query operator``() = 
             tag "skip query operator"
             query {
@@ -341,7 +341,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "StudentID = %d" student.StudentID)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``skipWhile query operator``() = 
             tag "skipWhile query operator"
             query {
@@ -352,7 +352,7 @@ module QueryTests =
             |> Seq.iter (fun number -> printfn "Number = %d" number)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sumBy query operator``() = 
             tag "sumBy query operator"
             query {
@@ -362,7 +362,7 @@ module QueryTests =
             |> printfn "Sum of student IDs: %d" 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``take query operator``() = 
             tag "take query operator"
             query {
@@ -373,7 +373,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "StudentID = %d" student.StudentID)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``takeWhile query operator``() = 
             tag "takeWhile query operator"
             query {
@@ -383,7 +383,7 @@ module QueryTests =
             |> Seq.iter (fun number -> printfn "Number = %d" number)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortByNullable query operator``() = 
             tag "sortByNullable query operator"
             query {
@@ -395,7 +395,7 @@ module QueryTests =
                 printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``sortByNullableDescending query operator``() = 
             tag "sortByNullableDescending query operator"
             query {
@@ -407,7 +407,7 @@ module QueryTests =
                 printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenByNullable query operator``() = 
             tag "thenByNullable query operator"
             query {
@@ -420,7 +420,7 @@ module QueryTests =
                 printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``thenByNullableDescending query operator``() = 
             tag "thenByNullableDescending query operator"
             query {
@@ -433,7 +433,7 @@ module QueryTests =
                 printfn "StudentID, Name, Age: %d %s %s" student.StudentID student.Name (printNullable student.Age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``All students:``() = 
             tag "All students: "
             query {
@@ -443,7 +443,7 @@ module QueryTests =
                 |> Seq.iter (fun student -> printfn "%s %d %s" student.Name student.StudentID (printNullable student.Age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Count of students:``() = 
             tag "Count of students: "
             query {
@@ -456,7 +456,7 @@ module QueryTests =
 
 
         (* This example is the same as above but works, because we use ExtraTopLevelOperators.query *)
-        [<TestMethod>]
+        [<Test>]
         member this.``Exists.``() = 
             tag "Exists."
             query {
@@ -469,7 +469,7 @@ module QueryTests =
     
 
         (* This example demonstrates the bug *)
-        [<TestMethod>]
+        [<Test>]
         member this.``Exists (bug).``() = 
             tag "Exists (bug)."
             query {
@@ -480,7 +480,7 @@ module QueryTests =
                     select student }
             |> Seq.iter (fun student -> printfn "%A" student.Name)
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group by age and count``() = 
             tag "Group by age and count"
             query {
@@ -491,7 +491,7 @@ module QueryTests =
             |> Seq.iter (fun (age, count) -> printfn "%s %d" (printNullable age) count)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group value by age.``() = 
             tag "Group value by age."
             query {
@@ -506,7 +506,7 @@ module QueryTests =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age where age > 10.``() = 
             tag "Group students by age where age > 10."
             query {
@@ -520,7 +520,7 @@ module QueryTests =
                 students
                 |> Seq.iter (fun student -> printfn "%s" student.Name))
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age and print counts of number of students at each age with more than 1 student.``() = 
             tag "Group students by age and print counts of number of students at each age with more than 1 student."
             query {
@@ -533,7 +533,7 @@ module QueryTests =
                  printfn "Age: %s Count: %d" (printNullable age) ageCount)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age and sum ages.``() = 
             tag "Group students by age and sum ages."
             query {
@@ -548,7 +548,7 @@ module QueryTests =
                 printfn "Total years: %s" (total.ToString()))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Group students by age and count number of students at each age, and display all with count > 1 in descending order of count.``() = 
             tag "Group students by age and count number of students at each age, and display all with count > 1 in descending order of count."
             query {
@@ -563,7 +563,7 @@ module QueryTests =
                 printfn "Count: %d" myCount)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Select students from a set of IDs``() = 
             tag "Select students from a set of IDs"
             let idList = [1; 2; 5; 10]
@@ -578,7 +578,7 @@ module QueryTests =
                 printfn "Name: %s" student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with Name match _e%% pattern and take first two.``() = 
             tag "Look for students with Name match _e%% pattern and take first two."
             query {
@@ -590,7 +590,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s" student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with Name matching [abc]%% pattern.``() = 
             tag "Look for students with Name matching [abc]%% pattern."
             query {
@@ -601,7 +601,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s" student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with name matching [^abc]%% pattern.``() = 
             tag "Look for students with name matching [^abc]%% pattern."
             query {
@@ -612,7 +612,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s" student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Look for students with name matching [^abc]%% pattern and select ID.``() = 
             tag "Look for students with name matching [^abc]%% pattern and select ID."
             query {
@@ -623,7 +623,7 @@ module QueryTests =
             |> Seq.iter (fun id -> printfn "%d" id)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Using Contains as a query filter.``() = 
             tag "Using Contains as a query filter."
             query {
@@ -634,7 +634,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s" student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Searching for names from a list.``() = 
             tag "Searching for names from a list."
             let names = [|"a";"b";"c"|]
@@ -644,7 +644,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s" student.Name)
 
     //     *
-        [<TestMethod>]
+        [<Test>]
         member this.``Join Student and CourseSelection tables.``() = 
             tag "Join Student and CourseSelection tables."
             query {
@@ -656,7 +656,7 @@ module QueryTests =
             |> Seq.iter (fun (student, selection) -> printfn "%d %s %d" student.StudentID student.Name selection.CourseID)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Left Join Student and CourseSelection tables.``() = 
             tag "Left Join Student and CourseSelection tables."
             query {
@@ -674,7 +674,7 @@ module QueryTests =
                 printfn "%d %s %d %s %s %s" student.StudentID student.Name (student.Age.GetValueOrDefault()) selectionID studentID courseID)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Join with count``() = 
             tag "Join with count"
             query {
@@ -685,7 +685,7 @@ module QueryTests =
             |>  printfn "%d"
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Join with distinct.``() = 
             tag "Join with distinct."
             query {
@@ -696,7 +696,7 @@ module QueryTests =
             |> Seq.iter (fun (student, selection) -> printfn "%s %d" student.Name selection.CourseID)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Join with distinct and count.``() = 
             tag "Join with distinct and count."
             query {
@@ -708,7 +708,7 @@ module QueryTests =
             |> printfn "%d"
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students with age between 10 and 15.``() = 
             tag "Selecting students with age between 10 and 15."
             query {
@@ -719,7 +719,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s" student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students with age either 11 or 12.``() = 
             tag "Selecting students with age either 11 or 12."
             query {
@@ -730,7 +730,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s" student.Name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students in a certain age range and sorting.``() = 
             tag "Selecting students in a certain age range and sorting."
             query {
@@ -742,7 +742,7 @@ module QueryTests =
             |> Seq.iter (fun student -> printfn "%s %s" student.Name (printNullable student.Age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Selecting students with certain ages, taking account of possibility of nulls.``() = 
             tag "Selecting students with certain ages, taking account of possibility of nulls."
             query {
@@ -756,7 +756,7 @@ module QueryTests =
             |> Seq.iter (fun name -> printfn "%s" name)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Union of two queries.``() = 
             tag "Union of two queries."
 
@@ -774,7 +774,7 @@ module QueryTests =
             |> Seq.iter (fun (name, age) -> printfn "%s %s" name (printNullable age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Intersect of two queries.``() = 
             tag "Intersect of two queries."
             let query1 = query {
@@ -791,7 +791,7 @@ module QueryTests =
             |> Seq.iter (fun (name, age) -> printfn "%s %s" name (printNullable age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Using if statement to alter results for special value.``() = 
             tag "Using if statement to alter results for special value."
             query {
@@ -803,7 +803,7 @@ module QueryTests =
             |> Seq.iter (fun (id, value, age) -> printfn "%d %s %s" id (printNullable value) (printNullable age))
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Using if statement to alter results special values.``() = 
             tag "Using if statement to alter results special values."
             query {
@@ -818,7 +818,7 @@ module QueryTests =
 
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Multiple table select.``() = 
             tag "Multiple table select."
             query {
@@ -831,7 +831,7 @@ module QueryTests =
                 printfn "%d %s %s %d %s" student.StudentID student.Name (printNullable student.Age) course.CourseID course.CourseName)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Multiple Joins``() = 
             tag "Multiple Joins"
             query {
@@ -845,7 +845,7 @@ module QueryTests =
                 |> Seq.iter (fun (studentName, courseName) -> printfn "%s %s" studentName courseName)
 
 
-        [<TestMethod>]
+        [<Test>]
         member this.``Multiple Left Outer Joins``() = 
             tag "Multiple Left Outer Joins"
             query {

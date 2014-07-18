@@ -2,7 +2,7 @@
 
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
-open Microsoft.VisualStudio.TestTools.UnitTesting
+open NUnit.Framework
 open System.Linq
 open System.Xml.Linq
 open FSharpComposableQuery
@@ -197,39 +197,38 @@ module Xml =
     let xp2 = descendant ./. (Filter(followingsibling .%. "dirn")) //                   //*[following-sibling::d]
     let xp3 = descendant .%. "year" ./. Filter(ancestor ./. preceding .%. "dir") //     //f[ancestor::*/preceding::b]
 
-    [<TestClass>]
-    [<DeploymentItem("data", "data")>]  //requires "data/movies.xml"
+    [<TestFixture>]
     type TestClass() =
 
-        [<ClassInitialize>]
-        static member init (c : TestContext) =
+        [<TestFixtureSetUp>]
+        member public this.init() =
             printf "Xml: Parsing file %A... " xmlPath
             dropTables()
             loadXml 0 xmlPath
             printfn "done!"
 
-        [<TestMethod>]
+        [<Test>]
         member this.test01() =
             printfn "%s" "xp0"
             xp0
             |> xpath 0 <@ data @>
             |> Utils.Run
 
-        [<TestMethod>]
+        [<Test>]
         member this.test02() =
             printfn "%s" "xp1"
             xp1
             |> xpath 0 <@ data @>
             |> Utils.Run
 
-        [<TestMethod>]
+        [<Test>]
         member this.test03() =
             printfn "%s" "xp2"
             xp2
             |> xpath 0 <@ data @>
             |> Utils.Run
 
-        [<TestMethod>]
+        [<Test>]
         member this.test04() =
             printfn "%s" "xp3"
             xp3

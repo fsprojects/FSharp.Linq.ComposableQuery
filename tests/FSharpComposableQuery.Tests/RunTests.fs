@@ -1,6 +1,6 @@
 ﻿namespace FSharpComposableQuery.Tests
 
-open Microsoft.VisualStudio.TestTools.UnitTesting;
+open NUnit.Framework;
 open System
 open System.Reflection
 
@@ -14,10 +14,10 @@ module RunTests =
         |> Array.filter (fun mi -> not << Array.isEmpty <| mi.GetCustomAttributes(att, true))
 
     // Returns all the static methods tagged with the ClassInitialize attribute in the given System.Type
-    let getInitMethods t = getMethods BindingFlags.Static typedefof<ClassInitializeAttribute> t
+    let getInitMethods t = getMethods BindingFlags.Static typedefof<TestFixtureSetUpAttribute> t
 
     // Returns all the instance methods tagged with the TestMethod attribute in the given System.Type
-    let getTestMethods t = getMethods BindingFlags.Instance typedefof<TestMethodAttribute> t
+    let getTestMethods t = getMethods BindingFlags.Instance typedefof<TestAttribute> t
     
     // invoke class initializers
     // TODO: these should take a TestContext parameter.
@@ -42,7 +42,6 @@ module RunTests =
                 printfn "%s" s
                 printfn "%s" delimiter) fmt
             
-
     let newTests() : obj list = 
         [
             (new FSharpComposableQuery.Tests.Simple.TestClass())
