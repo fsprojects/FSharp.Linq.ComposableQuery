@@ -54,10 +54,10 @@ LINQ already supports queries with parameters, as long as those parameters are o
 to obtain the set of people with age in a given interval, you can create a query parameterized by two integers:
 
 *)
-type dbSchema = SqlDataConnection<ConnectionStringName="PeopleConnectionString", ConfigFile=".\\App.config">
-let db = dbSchema.GetDataContext()
+type dbPeople = SqlDataConnection<ConnectionStringName="PeopleConnectionString", ConfigFile="db.config">
+let db = dbPeople.GetDataContext()
 
-type People = dbSchema.ServiceTypes.People
+type People = dbPeople.ServiceTypes.People
 type PeopleR = {name:string;age:int}
 
 let range1 = fun (a:int) (b:int) -> 
@@ -80,25 +80,23 @@ let range = <@ fun (a:int) (b:int) ->
     then yield {name=u.Name;age=u.Age}
     }  @>
     
-let ex2a = query { yield! (%range) 30 40 }
+let qRangeA = query { yield! (%range) 30 40 }
 
-let ex2b = query { for x in (%range) 30 40 do yield x}
+let qRangeB = query { for x in (%range) 30 40 do yield x}  //equivalent to ex1a
 
 
-(** The reason is that the first approach only works if the parameters are of base type (first order);
-the second is more flexible.  *)
+(** The reason is that the first approach only works if the parameters are of base type;
+the second is more flexible. 
 
-(** 
 
-Evaluating queries
+A note on evaluation
 ---------------------
-
-It's a little awkward to evaluate composite queries due to the fact that we can't splice them directly into 
-the query brackets: the following type-checks the arguments, but doesn't do the right thing:
-
+As you may have noticed we used a slightly different method of evaluating the query above.
+This happens as we can't splice the query directly into the query brackets - the following 
+type-checks the arguments but doesn't do the right thing:
 *)
 
-let ex2wrong : System.Linq.IQueryable<PeopleR> = query { (%range) 30 40 }
+let qRangeWrong : System.Linq.IQueryable<PeopleR> = query { (%range) 30 40 }
 
 (**
 This happens since the result of (%range) is not explicitly returned in the outer query and gets discarded instead. 
@@ -110,10 +108,11 @@ let ex2correct = query { yield! (%range) 30 40 }
 
 (** 
 
-If, however, a query returns a single value, we cannot use this method as the "yield!" method works only on queries which return rows. 
-We could try returning the single value using the "yield" keyword instead, but then the result will be a collection with exactly one item (instead of just that item).  
+If, however, a query returns a single value, we cannot use this method - the "yield!" method works only on queries 
+which return rows (collections of base type). We could return the single value using the "yield" keyword, but then the 
+resulting variable will be a collection of exactly one item - instead of just that item.  
 
-In such a case you should pass the query expression to the query.Run method instead, which can evaluate it as a single value:
+In such cases you should pass the query expression to the `query.Run` method instead, which will evaluate it as a value:
 *) 
 
 // Counts the number of people in the given age range. 
@@ -123,11 +122,11 @@ let countRange = <@ fun (a:int) (b:int) ->
         count 
     } @>
 
-let countThirties = <@ (%countRange) 30 40 @>
 
-let ex2correctA = query.Run <@ (%countRange) 30 40 @>   // Counts the number of people in their thirties. 
+let countCorrectA = query.Run <@ (%countRange) 30 40 @>   // Counts the number of people in their thirties. 
 
-let ex2correctB = query.Run countThirties               // Counts the number of people in their thirties.
+let countCorrectB' = <@ (%countRange) 30 40 @>
+let countCorrectB = query.Run countCorrectB'              // Counts the number of people in their thirties.
 
 (** 
 
@@ -172,12 +171,14 @@ let compose =
   } @>
 
 (**
-This way of defining a query exemplifies the logical meaning of the query, and makes it much easier to understand its purpose
-from the code. 
+This way of defining a query exemplifies the logical meaning of the query, and makes it much easier to understand its 
+purpose from the code. 
 
-The role of the FSharpComposableQuery library in the evaluation of this query is to normalize it to such a form which can then
-be evaluated as efficiently as the flat query above. In fact, all composite queries which have an equivalent flat form 
-get reduced to it as part of the normalisation procedure.  
+Although one can construct similar queries using the default F# builder, the problem is that the 
+generated SQL query may be far from perfect. The role of the FSharpComposableQuery library 
+in the evaluation of this query is to normalize it to such a form which can then be evaluated as 
+efficiently as the flat query above. In fact, all composite queries which have an equivalent flat 
+form get reduced to it as part of the normalisation procedure.  
 
 
 Higher-order parameters 
@@ -223,7 +224,7 @@ is not smart enough to determine that the parameter passed into satisfies is equ
 can be performed on the database (using modular arithmetic); you would have to do this yourself.
 
 
-Building queries dynamically using recursion 
+Building queries dynamically (using recursion)
 --------------------------------
 
 Although recursion is not allowed *within* a query, you can still use recursion to *build* a query.
@@ -287,14 +288,144 @@ let rec wrongEval t x =
 
 let wrongEx6 = query.Run <@ (%satisfies) (wrongEval t1) @>
 
-(** then we would run into the same problem as before, because we would be trying to run satisfies on quoted
-  code containing recursive calls, which is not allowed.  
-  
-  
+(** 
+then we would run into the same problem as before, because we would be trying to run satisfies on quoted code containing 
+recursive calls, which is not allowed.  
   
 
 Queries over nested structures
 --------------------------------
-(todo)
+Consider a simple database schema of an organisation `Org` with tables listing departments, the employees and their tasks:
   
   *)
+  
+type internal orgSchema = SqlDataConnection< ConnectionStringName="OrgConnectionString", ConfigFile="db.config" >
+
+
+(**
+The following parameterised query finds departments where every employee can perform a given task `u`:
+
+*)
+let internal orgDb = orgSchema.GetDataContext()
+
+let internal expertiseNaive =
+    <@ fun u ->
+        query {
+            for d in orgDb.Departments do
+                if not (query {
+                            for e in orgDb.Employees do
+                                exists (e.Dpt = d.Dpt && not (query {
+                                                                    for t in orgDb.Tasks do
+                                                                        exists (e.Emp = t.Emp && t.Tsk = u)
+                                                                }))
+                        })
+                then yield d
+        } @>
+
+let internal ex8 = <@ query { yield! (%expertiseNaive) "abstract" } @>
+
+(**
+Note that, again, queries constructed in such a way are harder to read and maintain. We will now use a nested 
+data structure to help us formulate a more readable equivalent. 
+
+To do so, we would first convert the existing relational structure to a nested one where each _department_ contains
+a list of _employees_, and each _employee_ contains a list of _tasks_. The resulting type `NestedOrg` is shown below:
+*)
+type EmployeeTasks =
+    { emp : string; tasks : System.Linq.IQueryable<string> }
+
+type DepartmentEmployees =
+    { dpt : string; employees : System.Linq.IQueryable<EmployeeTasks> }
+
+type NestedOrg = System.Linq.IQueryable<DepartmentEmployees>
+
+(**
+
+We can convert the initial representation into the second as follows:
+*)
+
+let nestedOrg =
+    <@ query {
+            for d in orgDb.Departments do
+                yield { dpt = d.Dpt                         //for each department d
+                        employees =
+                            query {
+                                for e in orgDb.Employees do    //add employees working in it
+                                    if d.Dpt = e.Dpt then
+                                        yield { emp = e.Emp
+                                                tasks =     //with their assigned tasks
+                                                    query {
+                                                        for t in orgDb.Tasks do
+                                                            if t.Emp = e.Emp then 
+                                                                yield t.Tsk
+                                                    } }
+                            } }
+        } @>
+
+(**
+
+Note that we cannot evaluate `query.Run { yield! (%nestedOrg) }` because `query.Run` requires a flat argument,
+and the return type of `nestedOrg` is nested. However, this nested structure becomes convenient when used to 
+formulate other queries. 
+
+
+For convenience we declare several higher-order queries. The first one takes a predicate and a list and returns 
+whether the predicate holds for any item in the list:
+*)
+
+let any =
+    <@ fun xs p ->
+        query {
+            for x in xs do
+                exists (p x)
+        } @>
+
+(**
+The second takes a predicate and a list and returns whether the predicate holds for all items in the list:
+*)
+
+let all' = //clashes with default method name
+
+    <@ fun xs p ->
+        not (query {
+                    for x in xs do
+                        exists (not (p (x)))
+                }) @>
+                
+
+(**
+The third one takes a value and a list and returns whether the value occurs in the list:
+*)
+let contains' = //clashes with default method name
+    <@ fun xs u -> (%any) xs (fun x -> x = u) @>
+
+(**
+We can now define a query, equivalent to `expertiseNaive`, using these three operators and the nested structure
+we created:
+*)
+
+let expertise =
+    <@ fun u ->
+        query {
+            for d in (%nestedOrg) do
+                if (%all') (d.employees) (fun e -> (%contains') e.tasks u) then yield d.dpt
+        } @>
+
+(**
+
+Executing the query
+*)
+
+let ex9 = <@ query { yield! (%expertise) "abstract" } @>
+
+(**
+yields the same query as the previous example (8). 
+
+Note that it is still possible to run these queries using the default QueryBuilder.
+It is simply that such queries operating on nested types may (and will?) cause the default QueryBuilder to output a multitude
+of SQL queries roughly proportional to the amount of rows in the tables (?). 
+
+The role of the FSharpComposableQuery library in this case is to provide a strong guarantee on the number of generated SQL queries. 
+More specifically, it guarantees to output a single SQL query for all input queries which can be transformed to such a query. 
+
+*)
