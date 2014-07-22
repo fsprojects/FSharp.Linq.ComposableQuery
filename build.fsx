@@ -95,7 +95,8 @@ Target "CleanDocs" (fun _ ->
 // Build library
 
 Target "Build" (fun _ ->
-    MSBuildRelease buildDir "Rebuild" libraryReferences
+    let props = [("DocumentationFile", project + ".XML")]   //explicitly generate XML documentation
+    MSBuildReleaseExt buildDir props "Rebuild" libraryReferences
     |> Log "Build-Output: "
 )
 
