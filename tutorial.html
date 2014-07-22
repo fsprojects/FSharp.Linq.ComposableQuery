@@ -25,7 +25,7 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://github.com/fsharp/FSharpComposableQuery">github page</a></li>
+          <li><a href="https://github.com/fsharp/FSharpComposableQuery">github page</a></li>
         </ul>
         <h3 class="muted">FSharpComposableQuery</h3>
       </div>
@@ -37,55 +37,16 @@
 
 <p>(<strong>work in progress</strong>)</p>
 
-<p>Compositional Query Framework for F# Queries, based on 
+<p>A Compositional Query Framework for F# Queries, based on 
 <a href="http://dl.acm.org/citation.cfm?id=2500586">A Practical Theory of Language-Integrated Query (ICFP 2013)</a>.</p>
-<h2>Referencing the library</h2>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">FSharpComposableQuery</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
-<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Data</span><span class="s">.</span><span class="s">TypeProviders</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
-<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">System</span><span class="s">.</span><span class="s">Data</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
-<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">System</span><span class="s">.</span><span class="s">Data</span><span class="s">.</span><span class="s">Linq</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
 
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">Data</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">TypeProviders</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">FSharpComposableQuery</span></pre>
-</td>
-</tr>
-</table><p>All existing F# database and in-memory queries should work as normal. For example:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">data</span> <span class="o">=</span> [<span class="n">1</span>; <span class="n">5</span>; <span class="n">7</span>; <span class="n">11</span>; <span class="n">18</span>; <span class="n">21</span>]
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">lastNumberInSortedList</span> <span class="o">=</span>
-    <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">query</span> {
-        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">s</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs6', 10)" onmouseover="showTip(event, 'fs6', 10)" class="i">data</span> <span class="k">do</span>
-        <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="k">sortBy</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">s</span>
-        <span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="k">last</span>
-    }</pre>
-</td>
-</tr>
-</table><p>In addition, more queries and query compositions work.  We illustrate this through several examples below.</p>
-<h2>Parameterizing a query</h2>
+<h2>Using the library</h2>
 
-<p>LINQ already supports queries with parameters, as long as those parameters are of base type.  For example, 
-to obntain the set fo people with age between two bounds, you can create a query parameterized by two integers:</p>
+<p>After <a href="http://nuget.com/packages/FSharpComposableQuery">obtaining the library from NuGet</a> or <a href="http://github.com/fsharp/FSharpComposableQuery">building it from source</a> you should simply 
+open the <code>FSharpComposableQuery</code> namespace.</p>
+
+<p>All existing F# database and in-memory queries should work as normal. For example:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -105,92 +66,147 @@ to obntain the set fo people with age between two bounds, you can create a query
 <span class="l">16: </span>
 <span class="l">17: </span>
 <span class="l">18: </span>
-<span class="l">19: </span>
-<span class="l">20: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-[&lt;<span onmouseout="hideTip(event, 'fs12', 14)" onmouseover="showTip(event, 'fs12', 14)" class="i">Literal</span>&gt;]
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="i">ConnectionString</span> <span class="o">=</span> 
-  <span class="s">&quot;</span><span class="s">Data</span><span class="s"> </span><span class="s">Source</span><span class="s">=</span><span class="s">(</span><span class="s">localdb</span><span class="s">)</span><span class="s">\</span><span class="s">MyInstance</span><span class="s">;</span><span class="s">\</span>
-<span class="s">   </span><span class="s">Initial</span><span class="s"> </span><span class="s">Catalog</span><span class="s">=</span><span class="s">MyPeople</span><span class="s">;</span>
-<span class="s">   </span><span class="s">Integrated</span><span class="s"> </span><span class="s">Security</span><span class="s">=</span><span class="s">SSPI</span><span class="s">&quot;</span>;;
+<span class="prep">#if</span> <span class="i">INTERACTIVE</span>
+<span class="inactive">#r</span><span class="inactive"> </span><span class="inactive">&quot;FSharpComposableQuery.dll&quot;</span>
+<span class="inactive">#r</span><span class="inactive"> </span><span class="inactive">&quot;FSharp.Data.TypeProviders.dll&quot;</span>
+<span class="inactive">#r</span><span class="inactive"> </span><span class="inactive">&quot;System.Data.Linq.dll&quot;</span>
+<span class="prep">#endif</span>
 
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">dbSchema</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">SqlDataConnection</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs13', 18)" onmouseover="showTip(event, 'fs13', 18)" class="i">ConnectionString</span><span class="o">&gt;</span>;;
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="i">db</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="i">dbSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="i">GetDataContext</span>();;
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">FSharpComposableQuery</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">Data</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">TypeProviders</span>
 
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">People</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 23)" onmouseover="showTip(event, 'fs14', 23)" class="i">dbSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="i">ServiceTypes</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 25)" onmouseover="showTip(event, 'fs20', 25)" class="i">People</span>
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs21', 26)" onmouseover="showTip(event, 'fs21', 26)" class="i">PeopleR</span> <span class="o">=</span> {<span onmouseout="hideTip(event, 'fs22', 27)" onmouseover="showTip(event, 'fs22', 27)" class="i">name</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 28)" onmouseover="showTip(event, 'fs23', 28)" class="i">string</span>;<span onmouseout="hideTip(event, 'fs24', 29)" onmouseover="showTip(event, 'fs24', 29)" class="i">age</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 30)" onmouseover="showTip(event, 'fs25', 30)" class="i">int</span>}
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">data</span> <span class="o">=</span> [<span class="n">1</span>; <span class="n">5</span>; <span class="n">7</span>; <span class="n">11</span>; <span class="n">18</span>; <span class="n">21</span>]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">lastNumberInSortedList</span> <span class="o">=</span>
+    <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">query</span> {
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">s</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs6', 10)" onmouseover="showTip(event, 'fs6', 10)" class="i">data</span> <span class="k">do</span>
+        <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="k">sortBy</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">s</span>
+        <span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="k">last</span>
+    }
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 31)" onmouseover="showTip(event, 'fs26', 31)" class="i">range1</span> <span class="o">=</span> <span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs27', 32)" onmouseover="showTip(event, 'fs27', 32)" class="i">a</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 33)" onmouseover="showTip(event, 'fs25', 33)" class="i">int</span>) (<span onmouseout="hideTip(event, 'fs28', 34)" onmouseover="showTip(event, 'fs28', 34)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 35)" onmouseover="showTip(event, 'fs25', 35)" class="i">int</span>) <span class="k">-&gt;</span> 
-  <span onmouseout="hideTip(event, 'fs8', 36)" onmouseover="showTip(event, 'fs8', 36)" class="i">query</span> {
-    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 37)" onmouseover="showTip(event, 'fs29', 37)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 38)" onmouseover="showTip(event, 'fs16', 38)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 39)" onmouseover="showTip(event, 'fs30', 39)" class="i">People</span> <span class="k">do</span>
-    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs27', 40)" onmouseover="showTip(event, 'fs27', 40)" class="i">a</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs29', 41)" onmouseover="showTip(event, 'fs29', 41)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 42)" onmouseover="showTip(event, 'fs31', 42)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs29', 43)" onmouseover="showTip(event, 'fs29', 43)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 44)" onmouseover="showTip(event, 'fs31', 44)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs28', 45)" onmouseover="showTip(event, 'fs28', 45)" class="i">b</span> 
-    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 47)" onmouseover="showTip(event, 'fs32', 47)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 48)" onmouseover="showTip(event, 'fs29', 48)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 49)" onmouseover="showTip(event, 'fs31', 49)" class="i">Age</span>}
+    </pre>
+</td>
+</tr>
+</table>
+
+<p>In addition, more queries and query compositions work. We illustrate this through several examples below.</p>
+
+<h2>Parameterizing a query</h2>
+
+<p>LINQ already supports queries with parameters, as long as those parameters are of base type. For example, 
+to obtain the set of people with age in a given interval, you can create a query parameterized by two integers:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs12', 14)" onmouseover="showTip(event, 'fs12', 14)" class="i">dbPeople</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="i">SqlDataConnection</span><span class="o">&lt;</span><span class="i">ConnectionStringName</span><span class="o">=</span><span class="s">&quot;</span><span class="s">PeopleConnectionString</span><span class="s">&quot;</span>, <span class="i">ConfigFile</span><span class="o">=</span><span class="s">&quot;</span><span class="s">db</span><span class="s">.</span><span class="s">config</span><span class="s">&quot;</span><span class="o">&gt;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">db</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 17)" onmouseover="showTip(event, 'fs12', 17)" class="i">dbPeople</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">GetDataContext</span>()
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="i">People</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 20)" onmouseover="showTip(event, 'fs12', 20)" class="i">dbPeople</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="i">ServiceTypes</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">People</span>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs19', 23)" onmouseover="showTip(event, 'fs19', 23)" class="i">PeopleR</span> <span class="o">=</span> 
+    { <span onmouseout="hideTip(event, 'fs20', 24)" onmouseover="showTip(event, 'fs20', 24)" class="i">name</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs21', 25)" onmouseover="showTip(event, 'fs21', 25)" class="i">string</span>; 
+        <span onmouseout="hideTip(event, 'fs22', 26)" onmouseover="showTip(event, 'fs22', 26)" class="i">age</span>  <span class="o">:</span> <span onmouseout="hideTip(event, 'fs23', 27)" onmouseover="showTip(event, 'fs23', 27)" class="i">int</span>; }
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 28)" onmouseover="showTip(event, 'fs24', 28)" class="i">range1</span> <span class="o">=</span> <span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs25', 29)" onmouseover="showTip(event, 'fs25', 29)" class="i">a</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 30)" onmouseover="showTip(event, 'fs23', 30)" class="i">int</span>) (<span onmouseout="hideTip(event, 'fs26', 31)" onmouseover="showTip(event, 'fs26', 31)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 32)" onmouseover="showTip(event, 'fs23', 32)" class="i">int</span>) <span class="k">-&gt;</span> 
+  <span onmouseout="hideTip(event, 'fs8', 33)" onmouseover="showTip(event, 'fs8', 33)" class="i">query</span> {
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs27', 34)" onmouseover="showTip(event, 'fs27', 34)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs14', 35)" onmouseover="showTip(event, 'fs14', 35)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 36)" onmouseover="showTip(event, 'fs28', 36)" class="i">People</span> <span class="k">do</span>
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs25', 37)" onmouseover="showTip(event, 'fs25', 37)" class="i">a</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs27', 38)" onmouseover="showTip(event, 'fs27', 38)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 39)" onmouseover="showTip(event, 'fs29', 39)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs27', 40)" onmouseover="showTip(event, 'fs27', 40)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 41)" onmouseover="showTip(event, 'fs29', 41)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs26', 42)" onmouseover="showTip(event, 'fs26', 42)" class="i">b</span> 
+    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 43)" onmouseover="showTip(event, 'fs27', 43)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 44)" onmouseover="showTip(event, 'fs30', 44)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 45)" onmouseover="showTip(event, 'fs27', 45)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="i">Age</span>}
     } 
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 50)" onmouseover="showTip(event, 'fs33', 50)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs26', 51)" onmouseover="showTip(event, 'fs26', 51)" class="i">range1</span> <span class="n">30</span> <span class="n">40</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs31', 47)" onmouseover="showTip(event, 'fs31', 47)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs24', 48)" onmouseover="showTip(event, 'fs24', 48)" class="i">range1</span> <span class="n">30</span> <span class="n">40</span></pre>
 </td>
 </tr>
-</table><p>However, doing it this way is not especially reusable, and we recommend doing it this way instead:</p>
+</table>
+
+<p>However, doing it this way is not especially reusable, and we recommend doing it this way instead:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 52)" onmouseover="showTip(event, 'fs34', 52)" class="i">range</span> <span class="o">=</span> &lt;@ <span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs27', 53)" onmouseover="showTip(event, 'fs27', 53)" class="i">a</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 54)" onmouseover="showTip(event, 'fs25', 54)" class="i">int</span>) (<span onmouseout="hideTip(event, 'fs28', 55)" onmouseover="showTip(event, 'fs28', 55)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs25', 56)" onmouseover="showTip(event, 'fs25', 56)" class="i">int</span>) <span class="k">-&gt;</span> 
-  <span onmouseout="hideTip(event, 'fs8', 57)" onmouseover="showTip(event, 'fs8', 57)" class="i">query</span> {
-    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 58)" onmouseover="showTip(event, 'fs29', 58)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 59)" onmouseover="showTip(event, 'fs16', 59)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 60)" onmouseover="showTip(event, 'fs30', 60)" class="i">People</span> <span class="k">do</span>
-    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs27', 61)" onmouseover="showTip(event, 'fs27', 61)" class="i">a</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs29', 62)" onmouseover="showTip(event, 'fs29', 62)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 63)" onmouseover="showTip(event, 'fs31', 63)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs29', 64)" onmouseover="showTip(event, 'fs29', 64)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 65)" onmouseover="showTip(event, 'fs31', 65)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs28', 66)" onmouseover="showTip(event, 'fs28', 66)" class="i">b</span> 
-    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 67)" onmouseover="showTip(event, 'fs29', 67)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 68)" onmouseover="showTip(event, 'fs32', 68)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 69)" onmouseover="showTip(event, 'fs29', 69)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 70)" onmouseover="showTip(event, 'fs31', 70)" class="i">Age</span>}
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs32', 49)" onmouseover="showTip(event, 'fs32', 49)" class="i">range</span> <span class="o">=</span> &lt;@ <span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs25', 50)" onmouseover="showTip(event, 'fs25', 50)" class="i">a</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 51)" onmouseover="showTip(event, 'fs23', 51)" class="i">int</span>) (<span onmouseout="hideTip(event, 'fs26', 52)" onmouseover="showTip(event, 'fs26', 52)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 53)" onmouseover="showTip(event, 'fs23', 53)" class="i">int</span>) <span class="k">-&gt;</span> 
+  <span onmouseout="hideTip(event, 'fs8', 54)" onmouseover="showTip(event, 'fs8', 54)" class="i">query</span> {
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs27', 55)" onmouseover="showTip(event, 'fs27', 55)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs14', 56)" onmouseover="showTip(event, 'fs14', 56)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 57)" onmouseover="showTip(event, 'fs28', 57)" class="i">People</span> <span class="k">do</span>
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs25', 58)" onmouseover="showTip(event, 'fs25', 58)" class="i">a</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs27', 59)" onmouseover="showTip(event, 'fs27', 59)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 60)" onmouseover="showTip(event, 'fs29', 60)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs27', 61)" onmouseover="showTip(event, 'fs27', 61)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 62)" onmouseover="showTip(event, 'fs29', 62)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs26', 63)" onmouseover="showTip(event, 'fs26', 63)" class="i">b</span> 
+    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 64)" onmouseover="showTip(event, 'fs27', 64)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 65)" onmouseover="showTip(event, 'fs30', 65)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 66)" onmouseover="showTip(event, 'fs27', 66)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 67)" onmouseover="showTip(event, 'fs29', 67)" class="i">Age</span>}
     }  @&gt;
+    
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 68)" onmouseover="showTip(event, 'fs33', 68)" class="i">qRangeA</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 69)" onmouseover="showTip(event, 'fs8', 69)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs32', 70)" onmouseover="showTip(event, 'fs32', 70)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> }
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 71)" onmouseover="showTip(event, 'fs35', 71)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 72)" onmouseover="showTip(event, 'fs8', 72)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs36', 73)" onmouseover="showTip(event, 'fs36', 73)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 74)" onmouseover="showTip(event, 'fs34', 74)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs36', 75)" onmouseover="showTip(event, 'fs36', 75)" class="i">x</span>}</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 71)" onmouseover="showTip(event, 'fs34', 71)" class="i">qRangeB</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 72)" onmouseover="showTip(event, 'fs8', 72)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs35', 73)" onmouseover="showTip(event, 'fs35', 73)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs32', 74)" onmouseover="showTip(event, 'fs32', 74)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs35', 75)" onmouseover="showTip(event, 'fs35', 75)" class="i">x</span>}  <span class="c">//equivalent to ex1a</span></pre>
 </td>
 </tr>
-</table><p>The reason is that the first approach only works if the parameters are constants of base type;
+</table>
+
+<p>The reason is that the first approach only works if the parameters are of base type;
 the second is more flexible.</p>
-<h2>The RunQuery operator</h2>
 
-<p>It's a little awkward to evaluate composite queries due to the fact that we can't splice them directly into 
-the query brackets: this typechecks, but doesn't do the right thing.</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 76)" onmouseover="showTip(event, 'fs37', 76)" class="i">wrongEx2</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs38', 77)" onmouseover="showTip(event, 'fs38', 77)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 78)" onmouseover="showTip(event, 'fs39', 78)" class="i">Linq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 79)" onmouseover="showTip(event, 'fs40', 79)" class="i">IQueryable</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs21', 80)" onmouseover="showTip(event, 'fs21', 80)" class="i">PeopleR</span><span class="o">&gt;</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 81)" onmouseover="showTip(event, 'fs8', 81)" class="i">query</span> { (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 82)" onmouseover="showTip(event, 'fs34', 82)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> }</pre>
-</td>
-</tr>
-</table><p>To simplify the use of composite queries, we define the following convenience operation that 
-evaluates a quoted query result directly:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 83)" onmouseover="showTip(event, 'fs41', 83)" class="i">runQuery</span> <span onmouseout="hideTip(event, 'fs42', 84)" onmouseover="showTip(event, 'fs42', 84)" class="i">q</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 85)" onmouseover="showTip(event, 'fs8', 85)" class="i">query</span> { <span class="k">for</span> <span onmouseout="hideTip(event, 'fs43', 86)" onmouseover="showTip(event, 'fs43', 86)" class="i">x</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs42', 87)" onmouseover="showTip(event, 'fs42', 87)" class="i">q</span>) <span class="k">do</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs43', 88)" onmouseover="showTip(event, 'fs43', 88)" class="i">x</span> }</pre>
-</td>
-</tr>
-</table><p>Then, we can equivalently just do:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 89)" onmouseover="showTip(event, 'fs44', 89)" class="i">ex2again</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 90)" onmouseover="showTip(event, 'fs41', 90)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 91)" onmouseover="showTip(event, 'fs34', 91)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> @&gt;</pre>
-</td>
-</tr>
-</table><h2>Building queries using query combinators</h2>
+<h2>A note on evaluation</h2>
 
-<p>You can build queries up using other query combinators as follows:</p>
+<p>As you may have noticed we used a slightly different method of evaluating the query above.
+This happens as we can't splice the query directly into the query brackets - the following 
+type-checks the arguments but doesn't do the right thing:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 76)" onmouseover="showTip(event, 'fs36', 76)" class="i">qRangeWrong</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs37', 77)" onmouseover="showTip(event, 'fs37', 77)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 78)" onmouseover="showTip(event, 'fs38', 78)" class="i">Linq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 79)" onmouseover="showTip(event, 'fs39', 79)" class="i">IQueryable</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs19', 80)" onmouseover="showTip(event, 'fs19', 80)" class="i">PeopleR</span><span class="o">&gt;</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 81)" onmouseover="showTip(event, 'fs8', 81)" class="i">query</span> { (<span class="o">%</span><span onmouseout="hideTip(event, 'fs32', 82)" onmouseover="showTip(event, 'fs32', 82)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> }</pre>
+</td>
+</tr>
+</table>
+
+<p>This happens since the result of (%range) is not explicitly returned in the outer query and gets discarded instead.</p>
+
+<p>To properly use composite queries, we can instead explicitly return the results of a query with the "yield!" keyword as follows:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 83)" onmouseover="showTip(event, 'fs40', 83)" class="i">ex2correct</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 84)" onmouseover="showTip(event, 'fs8', 84)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs32', 85)" onmouseover="showTip(event, 'fs32', 85)" class="i">range</span>) <span class="n">30</span> <span class="n">40</span> }</pre>
+</td>
+</tr>
+</table>
+
+<p>If, however, a query returns a single value, we cannot use this method - the "yield!" method works only on queries 
+which return rows (collections of base type). We could return the single value using the "yield" keyword, but then the 
+resulting variable will be a collection of exactly one item - instead of just that item.</p>
+
+<p>In such cases you should pass the query expression to the <code>query.Run</code> method instead, which will evaluate it as a value:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -207,21 +223,29 @@ evaluates a quoted query result directly:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 92)" onmouseover="showTip(event, 'fs45', 92)" class="i">ageFromName</span> <span class="o">=</span> 
-  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs46', 93)" onmouseover="showTip(event, 'fs46', 93)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 94)" onmouseover="showTip(event, 'fs8', 94)" class="i">query</span> {
-        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 95)" onmouseover="showTip(event, 'fs29', 95)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 96)" onmouseover="showTip(event, 'fs16', 96)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 97)" onmouseover="showTip(event, 'fs30', 97)" class="i">People</span> <span class="k">do</span> 
-        <span class="k">if</span> <span onmouseout="hideTip(event, 'fs46', 98)" onmouseover="showTip(event, 'fs46', 98)" class="i">s</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 99)" onmouseover="showTip(event, 'fs29', 99)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 100)" onmouseover="showTip(event, 'fs32', 100)" class="i">Name</span> <span class="k">then</span> 
-          <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs29', 101)" onmouseover="showTip(event, 'fs29', 101)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 102)" onmouseover="showTip(event, 'fs31', 102)" class="i">Age</span> } @&gt;
+<span class="c">// Counts the number of people in the given age range. </span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 86)" onmouseover="showTip(event, 'fs41', 86)" class="i">countRange</span> <span class="o">=</span> &lt;@ <span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs25', 87)" onmouseover="showTip(event, 'fs25', 87)" class="i">a</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 88)" onmouseover="showTip(event, 'fs23', 88)" class="i">int</span>) (<span onmouseout="hideTip(event, 'fs26', 89)" onmouseover="showTip(event, 'fs26', 89)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs23', 90)" onmouseover="showTip(event, 'fs23', 90)" class="i">int</span>) <span class="k">-&gt;</span> 
+    <span onmouseout="hideTip(event, 'fs8', 91)" onmouseover="showTip(event, 'fs8', 91)" class="i">query</span> { 
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs42', 92)" onmouseover="showTip(event, 'fs42', 92)" class="i">u</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs32', 93)" onmouseover="showTip(event, 'fs32', 93)" class="i">range</span>) <span onmouseout="hideTip(event, 'fs25', 94)" onmouseover="showTip(event, 'fs25', 94)" class="i">a</span> <span onmouseout="hideTip(event, 'fs26', 95)" onmouseover="showTip(event, 'fs26', 95)" class="i">b</span> <span class="k">do</span> 
+        <span onmouseout="hideTip(event, 'fs43', 96)" onmouseover="showTip(event, 'fs43', 96)" class="k">count</span> 
+    } @&gt;
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs47', 103)" onmouseover="showTip(event, 'fs47', 103)" class="i">compose</span> <span class="o">=</span> 
-  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs46', 104)" onmouseover="showTip(event, 'fs46', 104)" class="i">s</span> <span onmouseout="hideTip(event, 'fs48', 105)" onmouseover="showTip(event, 'fs48', 105)" class="i">t</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 106)" onmouseover="showTip(event, 'fs8', 106)" class="i">query</span> {
-      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs27', 107)" onmouseover="showTip(event, 'fs27', 107)" class="i">a</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs45', 108)" onmouseover="showTip(event, 'fs45', 108)" class="i">ageFromName</span>) <span onmouseout="hideTip(event, 'fs46', 109)" onmouseover="showTip(event, 'fs46', 109)" class="i">s</span> <span class="k">do</span>
-      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs28', 110)" onmouseover="showTip(event, 'fs28', 110)" class="i">b</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs45', 111)" onmouseover="showTip(event, 'fs45', 111)" class="i">ageFromName</span>) <span onmouseout="hideTip(event, 'fs48', 112)" onmouseover="showTip(event, 'fs48', 112)" class="i">t</span> <span class="k">do</span> 
-      <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs34', 113)" onmouseover="showTip(event, 'fs34', 113)" class="i">range</span>) <span onmouseout="hideTip(event, 'fs27', 114)" onmouseover="showTip(event, 'fs27', 114)" class="i">a</span> <span onmouseout="hideTip(event, 'fs28', 115)" onmouseover="showTip(event, 'fs28', 115)" class="i">b</span>
-  } @&gt;</pre>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 97)" onmouseover="showTip(event, 'fs44', 97)" class="i">countCorrectA</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 98)" onmouseover="showTip(event, 'fs8', 98)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 99)" onmouseover="showTip(event, 'fs45', 99)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs41', 100)" onmouseover="showTip(event, 'fs41', 100)" class="i">countRange</span>) <span class="n">30</span> <span class="n">40</span> @&gt;   <span class="c">// Counts the number of people in their thirties. </span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs46', 101)" onmouseover="showTip(event, 'fs46', 101)" class="i">countCorrectB&#39;</span> <span class="o">=</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs41', 102)" onmouseover="showTip(event, 'fs41', 102)" class="i">countRange</span>) <span class="n">30</span> <span class="n">40</span> @&gt;
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs47', 103)" onmouseover="showTip(event, 'fs47', 103)" class="i">countCorrectB</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 104)" onmouseover="showTip(event, 'fs8', 104)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 105)" onmouseover="showTip(event, 'fs45', 105)" class="i">Run</span> <span onmouseout="hideTip(event, 'fs46', 106)" onmouseover="showTip(event, 'fs46', 106)" class="i">countCorrectB&#39;</span>              <span class="c">// Counts the number of people in their thirties.</span></pre>
 </td>
 </tr>
-</table><p>We could have defined this more directly as a single parameterized query as follows:</p>
+</table>
+
+<h2>Building queries using query combinators</h2>
+
+<p>We can also build queries using other query combinators. Suppose we want to find the people who are older than 
+a given person and at the same time younger than another.</p>
+
+<p>The naive way of doing this, using a single parameterized query, would be:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -234,33 +258,25 @@ evaluates a quoted query result directly:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 116)" onmouseover="showTip(event, 'fs49', 116)" class="i">composeMonolithic</span> <span class="o">=</span> 
-  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs46', 117)" onmouseover="showTip(event, 'fs46', 117)" class="i">s</span> <span onmouseout="hideTip(event, 'fs48', 118)" onmouseover="showTip(event, 'fs48', 118)" class="i">t</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 119)" onmouseover="showTip(event, 'fs8', 119)" class="i">query</span> {
-      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs50', 120)" onmouseover="showTip(event, 'fs50', 120)" class="i">u1</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 121)" onmouseover="showTip(event, 'fs16', 121)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 122)" onmouseover="showTip(event, 'fs30', 122)" class="i">People</span> <span class="k">do</span>
-      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs51', 123)" onmouseover="showTip(event, 'fs51', 123)" class="i">u2</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 124)" onmouseover="showTip(event, 'fs16', 124)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 125)" onmouseover="showTip(event, 'fs30', 125)" class="i">People</span> <span class="k">do</span> 
-      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 126)" onmouseover="showTip(event, 'fs29', 126)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 127)" onmouseover="showTip(event, 'fs16', 127)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 128)" onmouseover="showTip(event, 'fs30', 128)" class="i">People</span> <span class="k">do</span>
-      <span class="k">if</span> <span onmouseout="hideTip(event, 'fs46', 129)" onmouseover="showTip(event, 'fs46', 129)" class="i">s</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs50', 130)" onmouseover="showTip(event, 'fs50', 130)" class="i">u1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 131)" onmouseover="showTip(event, 'fs32', 131)" class="i">Name</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs48', 132)" onmouseover="showTip(event, 'fs48', 132)" class="i">t</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs51', 133)" onmouseover="showTip(event, 'fs51', 133)" class="i">u2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 134)" onmouseover="showTip(event, 'fs32', 134)" class="i">Name</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs50', 135)" onmouseover="showTip(event, 'fs50', 135)" class="i">u1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 136)" onmouseover="showTip(event, 'fs31', 136)" class="i">Age</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs29', 137)" onmouseover="showTip(event, 'fs29', 137)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 138)" onmouseover="showTip(event, 'fs31', 138)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs29', 139)" onmouseover="showTip(event, 'fs29', 139)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 140)" onmouseover="showTip(event, 'fs31', 140)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs51', 141)" onmouseover="showTip(event, 'fs51', 141)" class="i">u2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 142)" onmouseover="showTip(event, 'fs31', 142)" class="i">Age</span> <span class="k">then</span>
-        <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 143)" onmouseover="showTip(event, 'fs29', 143)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 144)" onmouseover="showTip(event, 'fs32', 144)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 145)" onmouseover="showTip(event, 'fs29', 145)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 146)" onmouseover="showTip(event, 'fs31', 146)" class="i">Age</span>}
-  } @&gt;</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs48', 107)" onmouseover="showTip(event, 'fs48', 107)" class="i">composeMonolithic</span> <span class="o">=</span> 
+    &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs49', 108)" onmouseover="showTip(event, 'fs49', 108)" class="i">s</span> <span onmouseout="hideTip(event, 'fs50', 109)" onmouseover="showTip(event, 'fs50', 109)" class="i">t</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 110)" onmouseover="showTip(event, 'fs8', 110)" class="i">query</span> {
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs51', 111)" onmouseover="showTip(event, 'fs51', 111)" class="i">u1</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs14', 112)" onmouseover="showTip(event, 'fs14', 112)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 113)" onmouseover="showTip(event, 'fs28', 113)" class="i">People</span> <span class="k">do</span>
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs52', 114)" onmouseover="showTip(event, 'fs52', 114)" class="i">u2</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs14', 115)" onmouseover="showTip(event, 'fs14', 115)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 116)" onmouseover="showTip(event, 'fs28', 116)" class="i">People</span> <span class="k">do</span> 
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs27', 117)" onmouseover="showTip(event, 'fs27', 117)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs14', 118)" onmouseover="showTip(event, 'fs14', 118)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 119)" onmouseover="showTip(event, 'fs28', 119)" class="i">People</span> <span class="k">do</span>
+            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs49', 120)" onmouseover="showTip(event, 'fs49', 120)" class="i">s</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs51', 121)" onmouseover="showTip(event, 'fs51', 121)" class="i">u1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 122)" onmouseover="showTip(event, 'fs30', 122)" class="i">Name</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs50', 123)" onmouseover="showTip(event, 'fs50', 123)" class="i">t</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs52', 124)" onmouseover="showTip(event, 'fs52', 124)" class="i">u2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 125)" onmouseover="showTip(event, 'fs30', 125)" class="i">Name</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs51', 126)" onmouseover="showTip(event, 'fs51', 126)" class="i">u1</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 127)" onmouseover="showTip(event, 'fs29', 127)" class="i">Age</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs27', 128)" onmouseover="showTip(event, 'fs27', 128)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 129)" onmouseover="showTip(event, 'fs29', 129)" class="i">Age</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs27', 130)" onmouseover="showTip(event, 'fs27', 130)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 131)" onmouseover="showTip(event, 'fs29', 131)" class="i">Age</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs52', 132)" onmouseover="showTip(event, 'fs52', 132)" class="i">u2</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 133)" onmouseover="showTip(event, 'fs29', 133)" class="i">Age</span> <span class="k">then</span>
+                <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 134)" onmouseover="showTip(event, 'fs27', 134)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 135)" onmouseover="showTip(event, 'fs30', 135)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 136)" onmouseover="showTip(event, 'fs27', 136)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 137)" onmouseover="showTip(event, 'fs29', 137)" class="i">Age</span>}
+    } @&gt;</pre>
 </td>
 </tr>
-</table><p>But this involves some code duplication and renaming, and if the subquery we use to find a person's age from their name were to
-change, then we would have to change both places --- easy to get wrong.  This way of building the query up from 
-components leads to more maintainable code.</p>
+</table>
 
-<p>Moreover, this small query is easy enough to compose in your head, but as the size of the query and number of tables 
-involved grows, keeping the different parameters and constraints straight becomes more tedious and error-prone.  This
-way of defining a query such as compose means that the logical meaning of the query is easy to see by reading the code, 
-and the FSharpComposableQuery library does the work of normalizing the query to a form that an SQL database can evaluate
-efficiently.</p>
-<h2>Higher-order parameters</h2>
+<p>We can see this solution is far from perfect: there is code duplication, renaming of variables, and it may be hard
+to spot the overall structure of the code.  Moreover, while this query is easy enough to compose in one's head, keeping 
+track of the different parameters and constraints becomes more tedious and error-prone as the size and number of tables 
+involved in a query grows.</p>
 
-<p>FSharpComposableQuery lifts the restriction that the parameters to a query have to be of base type: instead,
-they can be higher-order functions.<br />
-(Actually, F# does handle some higher-order functions, but FSharpComposableQuery provides a stronger guarantee
-of good behavior.)</p>
+<p>Compare the previous example to the following one:</p>
 
-<p>For example, we can define a query combinator that takes a function</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -272,24 +288,44 @@ of good behavior.)</p>
 <span class="l"> 8: </span>
 <span class="l"> 9: </span>
 <span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs52', 147)" onmouseover="showTip(event, 'fs52', 147)" class="i">satisfies</span>  <span class="o">=</span> 
- &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs53', 148)" onmouseover="showTip(event, 'fs53', 148)" class="i">p</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 149)" onmouseover="showTip(event, 'fs8', 149)" class="i">query</span> { 
-    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs29', 150)" onmouseover="showTip(event, 'fs29', 150)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 151)" onmouseover="showTip(event, 'fs16', 151)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 152)" onmouseover="showTip(event, 'fs30', 152)" class="i">People</span> <span class="k">do</span>
-    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs53', 153)" onmouseover="showTip(event, 'fs53', 153)" class="i">p</span> <span onmouseout="hideTip(event, 'fs29', 154)" onmouseover="showTip(event, 'fs29', 154)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 155)" onmouseover="showTip(event, 'fs31', 155)" class="i">Age</span> 
-    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 156)" onmouseover="showTip(event, 'fs29', 156)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 157)" onmouseover="showTip(event, 'fs32', 157)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs29', 158)" onmouseover="showTip(event, 'fs29', 158)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 159)" onmouseover="showTip(event, 'fs31', 159)" class="i">Age</span>}
-   } @&gt;
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs53', 138)" onmouseover="showTip(event, 'fs53', 138)" class="i">ageFromName</span> <span class="o">=</span> 
+  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs49', 139)" onmouseover="showTip(event, 'fs49', 139)" class="i">s</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 140)" onmouseover="showTip(event, 'fs8', 140)" class="i">query</span> {
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs27', 141)" onmouseover="showTip(event, 'fs27', 141)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs14', 142)" onmouseover="showTip(event, 'fs14', 142)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 143)" onmouseover="showTip(event, 'fs28', 143)" class="i">People</span> <span class="k">do</span> 
+        <span class="k">if</span> <span onmouseout="hideTip(event, 'fs49', 144)" onmouseover="showTip(event, 'fs49', 144)" class="i">s</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 145)" onmouseover="showTip(event, 'fs27', 145)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 146)" onmouseover="showTip(event, 'fs30', 146)" class="i">Name</span> <span class="k">then</span> 
+          <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs27', 147)" onmouseover="showTip(event, 'fs27', 147)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 148)" onmouseover="showTip(event, 'fs29', 148)" class="i">Age</span> } @&gt;
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs54', 160)" onmouseover="showTip(event, 'fs54', 160)" class="i">ex3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 161)" onmouseover="showTip(event, 'fs41', 161)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 162)" onmouseover="showTip(event, 'fs52', 162)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 163)" onmouseover="showTip(event, 'fs55', 163)" class="i">x</span> <span class="k">-&gt;</span> <span class="n">20</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs55', 164)" onmouseover="showTip(event, 'fs55', 164)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs55', 165)" onmouseover="showTip(event, 'fs55', 165)" class="i">x</span> <span class="o">&lt;</span> <span class="n">30</span> ) @&gt;
-
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs56', 166)" onmouseover="showTip(event, 'fs56', 166)" class="i">ex4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 167)" onmouseover="showTip(event, 'fs41', 167)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 168)" onmouseover="showTip(event, 'fs52', 168)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 169)" onmouseover="showTip(event, 'fs55', 169)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs55', 170)" onmouseover="showTip(event, 'fs55', 170)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) @&gt;</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs54', 149)" onmouseover="showTip(event, 'fs54', 149)" class="i">compose</span> <span class="o">=</span> 
+  &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs49', 150)" onmouseover="showTip(event, 'fs49', 150)" class="i">s</span> <span onmouseout="hideTip(event, 'fs50', 151)" onmouseover="showTip(event, 'fs50', 151)" class="i">t</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 152)" onmouseover="showTip(event, 'fs8', 152)" class="i">query</span> {
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs25', 153)" onmouseover="showTip(event, 'fs25', 153)" class="i">a</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs53', 154)" onmouseover="showTip(event, 'fs53', 154)" class="i">ageFromName</span>) <span onmouseout="hideTip(event, 'fs49', 155)" onmouseover="showTip(event, 'fs49', 155)" class="i">s</span> <span class="k">do</span>
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs26', 156)" onmouseover="showTip(event, 'fs26', 156)" class="i">b</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs53', 157)" onmouseover="showTip(event, 'fs53', 157)" class="i">ageFromName</span>) <span onmouseout="hideTip(event, 'fs50', 158)" onmouseover="showTip(event, 'fs50', 158)" class="i">t</span> <span class="k">do</span> 
+      <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs32', 159)" onmouseover="showTip(event, 'fs32', 159)" class="i">range</span>) <span onmouseout="hideTip(event, 'fs25', 160)" onmouseover="showTip(event, 'fs25', 160)" class="i">a</span> <span onmouseout="hideTip(event, 'fs26', 161)" onmouseover="showTip(event, 'fs26', 161)" class="i">b</span>
+  } @&gt;</pre>
 </td>
 </tr>
-</table><p>This is subject to some side-conditions: basically, the function you pass into a higher-order query combinator
-may only perform operations that are sensible on the database; recursion and side-effects such as printing are not allowed,
-and will result in a run-time error.</p>
+</table>
+
+<p>This way of defining a query exemplifies the logical meaning of the query, and makes it much easier to understand its 
+purpose from the code.</p>
+
+<p>Although one can construct similar queries using the default F# builder, the problem is that the 
+generated SQL query may be far from perfect. The role of the FSharpComposableQuery library 
+in the evaluation of this query is to normalize it to such a form which can then be evaluated as 
+efficiently as the flat query above. In fact, all composite queries which have an equivalent flat 
+form get reduced to it as part of the normalisation procedure.</p>
+
+<h2>Higher-order parameters</h2>
+
+<p>FSharpComposableQuery lifts the restriction that the parameters to a query have to be of base type: instead,
+they can be higher-order functions.<br />
+(Actually, F# does handle some higher-order functions, but FSharpComposableQuery provides a stronger guarantee of good behavior.)</p>
+
+<p>For example, we can define the following query combinator that gets all people whose age matches the argument predicate:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -300,22 +336,66 @@ and will result in a run-time error.</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs57', 171)" onmouseover="showTip(event, 'fs57', 171)" class="i">wrong1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 172)" onmouseover="showTip(event, 'fs41', 172)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 173)" onmouseover="showTip(event, 'fs52', 173)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 174)" onmouseover="showTip(event, 'fs58', 174)" class="i">age</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs59', 175)" onmouseover="showTip(event, 'fs59', 175)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs58', 176)" onmouseover="showTip(event, 'fs58', 176)" class="i">age</span>; <span class="k">true</span>) @&gt;
-
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs60', 177)" onmouseover="showTip(event, 'fs60', 177)" class="i">even</span> <span onmouseout="hideTip(event, 'fs61', 178)" onmouseover="showTip(event, 'fs61', 178)" class="i">n</span> <span class="o">=</span> <span class="k">if</span> <span onmouseout="hideTip(event, 'fs61', 179)" onmouseover="showTip(event, 'fs61', 179)" class="i">n</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="k">true</span>
-                 <span class="k">else</span> <span class="k">if</span> <span onmouseout="hideTip(event, 'fs61', 180)" onmouseover="showTip(event, 'fs61', 180)" class="i">n</span> <span class="o">=</span> <span class="n">1</span> <span class="k">then</span> <span class="k">false</span>
-                 <span class="k">else</span> <span onmouseout="hideTip(event, 'fs60', 181)" onmouseover="showTip(event, 'fs60', 181)" class="i">even</span>(<span onmouseout="hideTip(event, 'fs61', 182)" onmouseover="showTip(event, 'fs61', 182)" class="i">n</span><span class="o">-</span><span class="n">2</span>)
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs62', 183)" onmouseover="showTip(event, 'fs62', 183)" class="i">wrong2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 184)" onmouseover="showTip(event, 'fs41', 184)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 185)" onmouseover="showTip(event, 'fs52', 185)" class="i">satisfies</span>) <span onmouseout="hideTip(event, 'fs60', 186)" onmouseover="showTip(event, 'fs60', 186)" class="i">even</span> @&gt;</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs55', 162)" onmouseover="showTip(event, 'fs55', 162)" class="i">satisfies</span>  <span class="o">=</span> 
+ &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs56', 163)" onmouseover="showTip(event, 'fs56', 163)" class="i">p</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs8', 164)" onmouseover="showTip(event, 'fs8', 164)" class="i">query</span> { 
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs27', 165)" onmouseover="showTip(event, 'fs27', 165)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs14', 166)" onmouseover="showTip(event, 'fs14', 166)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 167)" onmouseover="showTip(event, 'fs28', 167)" class="i">People</span> <span class="k">do</span>
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs56', 168)" onmouseover="showTip(event, 'fs56', 168)" class="i">p</span> <span onmouseout="hideTip(event, 'fs27', 169)" onmouseover="showTip(event, 'fs27', 169)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 170)" onmouseover="showTip(event, 'fs29', 170)" class="i">Age</span> 
+    <span class="k">then</span> <span class="k">yield</span> {<span class="i">name</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 171)" onmouseover="showTip(event, 'fs27', 171)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 172)" onmouseover="showTip(event, 'fs30', 172)" class="i">Name</span>;<span class="i">age</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs27', 173)" onmouseover="showTip(event, 'fs27', 173)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 174)" onmouseover="showTip(event, 'fs29', 174)" class="i">Age</span>}
+   } @&gt;</pre>
 </td>
 </tr>
-</table><p>Note that wrong2 is morally equivalent to ex4 above (provided ages are nonnegative), but is not allowed.  The library
+</table>
+
+<p>We can then use it to find all people in their thirties, or all people with even age:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs57', 175)" onmouseover="showTip(event, 'fs57', 175)" class="i">ex3</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 176)" onmouseover="showTip(event, 'fs8', 176)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 177)" onmouseover="showTip(event, 'fs45', 177)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs55', 178)" onmouseover="showTip(event, 'fs55', 178)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 179)" onmouseover="showTip(event, 'fs58', 179)" class="i">x</span> <span class="k">-&gt;</span> <span class="n">20</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs58', 180)" onmouseover="showTip(event, 'fs58', 180)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs58', 181)" onmouseover="showTip(event, 'fs58', 181)" class="i">x</span> <span class="o">&lt;</span> <span class="n">30</span> ) @&gt;
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs59', 182)" onmouseover="showTip(event, 'fs59', 182)" class="i">ex4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 183)" onmouseover="showTip(event, 'fs8', 183)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 184)" onmouseover="showTip(event, 'fs45', 184)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs55', 185)" onmouseover="showTip(event, 'fs55', 185)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 186)" onmouseover="showTip(event, 'fs58', 186)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs58', 187)" onmouseover="showTip(event, 'fs58', 187)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) @&gt;</pre>
+</td>
+</tr>
+</table>
+
+<p>This is subject to some side-conditions: basically, the function you pass into a higher-order query combinator
+may only perform operations that are sensible on the database; recursion and side-effects such as printing are not allowed,
+and will result in a run-time error.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs60', 188)" onmouseover="showTip(event, 'fs60', 188)" class="i">wrong1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 189)" onmouseover="showTip(event, 'fs8', 189)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 190)" onmouseover="showTip(event, 'fs45', 190)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs55', 191)" onmouseover="showTip(event, 'fs55', 191)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs61', 192)" onmouseover="showTip(event, 'fs61', 192)" class="i">age</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs62', 193)" onmouseover="showTip(event, 'fs62', 193)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs61', 194)" onmouseover="showTip(event, 'fs61', 194)" class="i">age</span>; <span class="k">true</span>) @&gt;
+
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs63', 195)" onmouseover="showTip(event, 'fs63', 195)" class="i">even</span> <span onmouseout="hideTip(event, 'fs64', 196)" onmouseover="showTip(event, 'fs64', 196)" class="i">n</span> <span class="o">=</span> <span class="k">if</span> <span onmouseout="hideTip(event, 'fs64', 197)" onmouseover="showTip(event, 'fs64', 197)" class="i">n</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="k">true</span>
+                 <span class="k">else</span> <span class="k">if</span> <span onmouseout="hideTip(event, 'fs64', 198)" onmouseover="showTip(event, 'fs64', 198)" class="i">n</span> <span class="o">=</span> <span class="n">1</span> <span class="k">then</span> <span class="k">false</span>
+                 <span class="k">else</span> <span onmouseout="hideTip(event, 'fs63', 199)" onmouseover="showTip(event, 'fs63', 199)" class="i">even</span>(<span onmouseout="hideTip(event, 'fs64', 200)" onmouseover="showTip(event, 'fs64', 200)" class="i">n</span><span class="o">-</span><span class="n">2</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs65', 201)" onmouseover="showTip(event, 'fs65', 201)" class="i">wrong2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 202)" onmouseover="showTip(event, 'fs8', 202)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 203)" onmouseover="showTip(event, 'fs45', 203)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs55', 204)" onmouseover="showTip(event, 'fs55', 204)" class="i">satisfies</span>) <span onmouseout="hideTip(event, 'fs63', 205)" onmouseover="showTip(event, 'fs63', 205)" class="i">even</span> @&gt;</pre>
+</td>
+</tr>
+</table>
+
+<p>Note that wrong2 is morally equivalent to ex4 above (provided ages are nonnegative), but is not allowed.  The library
 is not smart enough to determine that the parameter passed into satisfies is equivalent to an operation that
-can be performed on the database (using modular arithmetic); you have to do this yourself.</p>
-<h2>Building queries using recursion</h2>
+can be performed on the database (using modular arithmetic); you would have to do this yourself.</p>
+
+<h2>Building queries dynamically (using recursion)</h2>
 
 <p>Although recursion is not allowed <em>within</em> a query, you can still use recursion to <em>build</em> a query.</p>
 
-<p>Consider the following datatype defining some Boolean predicates on ages:</p>
+<p>Consider the following data type defining some Boolean predicates on ages:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -326,26 +406,32 @@ can be performed on the database (using modular arithmetic); you have to do this
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs63', 187)" onmouseover="showTip(event, 'fs63', 187)" class="i">Predicate</span> <span class="o">=</span> 
-  | <span onmouseout="hideTip(event, 'fs64', 188)" onmouseover="showTip(event, 'fs64', 188)" class="i">Above</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs25', 189)" onmouseover="showTip(event, 'fs25', 189)" class="i">int</span>
-  | <span onmouseout="hideTip(event, 'fs65', 190)" onmouseover="showTip(event, 'fs65', 190)" class="i">Below</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs25', 191)" onmouseover="showTip(event, 'fs25', 191)" class="i">int</span>
-  | <span onmouseout="hideTip(event, 'fs66', 192)" onmouseover="showTip(event, 'fs66', 192)" class="i">And</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs63', 193)" onmouseover="showTip(event, 'fs63', 193)" class="i">Predicate</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs63', 194)" onmouseover="showTip(event, 'fs63', 194)" class="i">Predicate</span>
-  | <span onmouseout="hideTip(event, 'fs67', 195)" onmouseover="showTip(event, 'fs67', 195)" class="i">Or</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs63', 196)" onmouseover="showTip(event, 'fs63', 196)" class="i">Predicate</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs63', 197)" onmouseover="showTip(event, 'fs63', 197)" class="i">Predicate</span>
-  | <span onmouseout="hideTip(event, 'fs68', 198)" onmouseover="showTip(event, 'fs68', 198)" class="i">Not</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs63', 199)" onmouseover="showTip(event, 'fs63', 199)" class="i">Predicate</span></pre>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs66', 206)" onmouseover="showTip(event, 'fs66', 206)" class="i">Predicate</span> <span class="o">=</span> 
+  | <span onmouseout="hideTip(event, 'fs67', 207)" onmouseover="showTip(event, 'fs67', 207)" class="i">Above</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs23', 208)" onmouseover="showTip(event, 'fs23', 208)" class="i">int</span>
+  | <span onmouseout="hideTip(event, 'fs68', 209)" onmouseover="showTip(event, 'fs68', 209)" class="i">Below</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs23', 210)" onmouseover="showTip(event, 'fs23', 210)" class="i">int</span>
+  | <span onmouseout="hideTip(event, 'fs69', 211)" onmouseover="showTip(event, 'fs69', 211)" class="i">And</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs66', 212)" onmouseover="showTip(event, 'fs66', 212)" class="i">Predicate</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs66', 213)" onmouseover="showTip(event, 'fs66', 213)" class="i">Predicate</span>
+  | <span onmouseout="hideTip(event, 'fs70', 214)" onmouseover="showTip(event, 'fs70', 214)" class="i">Or</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs66', 215)" onmouseover="showTip(event, 'fs66', 215)" class="i">Predicate</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs66', 216)" onmouseover="showTip(event, 'fs66', 216)" class="i">Predicate</span>
+  | <span onmouseout="hideTip(event, 'fs71', 217)" onmouseover="showTip(event, 'fs71', 217)" class="i">Not</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs66', 218)" onmouseover="showTip(event, 'fs66', 218)" class="i">Predicate</span></pre>
 </td>
 </tr>
-</table><p>For example, we can define the "in their 30s" predicate two different ways as follows:</p>
+</table>
+
+<p>For example, we can define the "in their 30s" predicate two different ways as follows:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs69', 200)" onmouseover="showTip(event, 'fs69', 200)" class="i">t0</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs63', 201)" onmouseover="showTip(event, 'fs63', 201)" class="i">Predicate</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs66', 202)" onmouseover="showTip(event, 'fs66', 202)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs64', 203)" onmouseover="showTip(event, 'fs64', 203)" class="i">Above</span> <span class="n">30</span>, <span onmouseout="hideTip(event, 'fs65', 204)" onmouseover="showTip(event, 'fs65', 204)" class="i">Below</span> <span class="n">40</span>)
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs70', 205)" onmouseover="showTip(event, 'fs70', 205)" class="i">t1</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs63', 206)" onmouseover="showTip(event, 'fs63', 206)" class="i">Predicate</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs68', 207)" onmouseover="showTip(event, 'fs68', 207)" class="i">Not</span>(<span onmouseout="hideTip(event, 'fs67', 208)" onmouseover="showTip(event, 'fs67', 208)" class="i">Or</span>(<span onmouseout="hideTip(event, 'fs65', 209)" onmouseover="showTip(event, 'fs65', 209)" class="i">Below</span> <span class="n">30</span>, <span onmouseout="hideTip(event, 'fs64', 210)" onmouseover="showTip(event, 'fs64', 210)" class="i">Above</span> <span class="n">40</span>))</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs72', 219)" onmouseover="showTip(event, 'fs72', 219)" class="i">t0</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs66', 220)" onmouseover="showTip(event, 'fs66', 220)" class="i">Predicate</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs69', 221)" onmouseover="showTip(event, 'fs69', 221)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs67', 222)" onmouseover="showTip(event, 'fs67', 222)" class="i">Above</span> <span class="n">30</span>, <span onmouseout="hideTip(event, 'fs68', 223)" onmouseover="showTip(event, 'fs68', 223)" class="i">Below</span> <span class="n">40</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs73', 224)" onmouseover="showTip(event, 'fs73', 224)" class="i">t1</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs66', 225)" onmouseover="showTip(event, 'fs66', 225)" class="i">Predicate</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs71', 226)" onmouseover="showTip(event, 'fs71', 226)" class="i">Not</span>(<span onmouseout="hideTip(event, 'fs70', 227)" onmouseover="showTip(event, 'fs70', 227)" class="i">Or</span>(<span onmouseout="hideTip(event, 'fs68', 228)" onmouseover="showTip(event, 'fs68', 228)" class="i">Below</span> <span class="n">30</span>, <span onmouseout="hideTip(event, 'fs67', 229)" onmouseover="showTip(event, 'fs67', 229)" class="i">Above</span> <span class="n">40</span>))</pre>
 </td>
 </tr>
-</table><p>We can define an evaluator that takes a predicate and produces a <em>parameterized query</em> as follows:</p>
+</table>
+
+<p>We can define an evaluator that takes a predicate and produces a <em>parameterized query</em> as follows:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -357,19 +443,23 @@ can be performed on the database (using modular arithmetic); you have to do this
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs71', 211)" onmouseover="showTip(event, 'fs71', 211)" class="i">eval</span>(<span onmouseout="hideTip(event, 'fs72', 212)" onmouseover="showTip(event, 'fs72', 212)" class="i">t</span>) <span class="o">=</span>
-  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs72', 213)" onmouseover="showTip(event, 'fs72', 213)" class="i">t</span> <span class="k">with</span>
-  | <span onmouseout="hideTip(event, 'fs64', 214)" onmouseover="showTip(event, 'fs64', 214)" class="i">Above</span> <span onmouseout="hideTip(event, 'fs61', 215)" onmouseover="showTip(event, 'fs61', 215)" class="i">n</span> <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 216)" onmouseover="showTip(event, 'fs55', 216)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 217)" onmouseover="showTip(event, 'fs55', 217)" class="i">x</span> <span class="o">&gt;</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs61', 218)" onmouseover="showTip(event, 'fs61', 218)" class="i">n</span> @&gt;
-  | <span onmouseout="hideTip(event, 'fs65', 219)" onmouseover="showTip(event, 'fs65', 219)" class="i">Below</span> <span onmouseout="hideTip(event, 'fs61', 220)" onmouseover="showTip(event, 'fs61', 220)" class="i">n</span> <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 221)" onmouseover="showTip(event, 'fs55', 221)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 222)" onmouseover="showTip(event, 'fs55', 222)" class="i">x</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs61', 223)" onmouseover="showTip(event, 'fs61', 223)" class="i">n</span> @&gt;
-  | <span onmouseout="hideTip(event, 'fs66', 224)" onmouseover="showTip(event, 'fs66', 224)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs73', 225)" onmouseover="showTip(event, 'fs73', 225)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 226)" onmouseover="showTip(event, 'fs74', 226)" class="i">t2</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 227)" onmouseover="showTip(event, 'fs55', 227)" class="i">x</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 228)" onmouseover="showTip(event, 'fs71', 228)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs73', 229)" onmouseover="showTip(event, 'fs73', 229)" class="i">t1</span>) <span onmouseout="hideTip(event, 'fs55', 230)" onmouseover="showTip(event, 'fs55', 230)" class="i">x</span> <span class="o">&amp;&amp;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 231)" onmouseover="showTip(event, 'fs71', 231)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs74', 232)" onmouseover="showTip(event, 'fs74', 232)" class="i">t2</span>) <span onmouseout="hideTip(event, 'fs55', 233)" onmouseover="showTip(event, 'fs55', 233)" class="i">x</span> @&gt;
-  | <span onmouseout="hideTip(event, 'fs67', 234)" onmouseover="showTip(event, 'fs67', 234)" class="i">Or</span> (<span onmouseout="hideTip(event, 'fs73', 235)" onmouseover="showTip(event, 'fs73', 235)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 236)" onmouseover="showTip(event, 'fs74', 236)" class="i">t2</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 237)" onmouseover="showTip(event, 'fs55', 237)" class="i">x</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 238)" onmouseover="showTip(event, 'fs71', 238)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs73', 239)" onmouseover="showTip(event, 'fs73', 239)" class="i">t1</span>) <span onmouseout="hideTip(event, 'fs55', 240)" onmouseover="showTip(event, 'fs55', 240)" class="i">x</span> <span class="o">||</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 241)" onmouseover="showTip(event, 'fs71', 241)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs74', 242)" onmouseover="showTip(event, 'fs74', 242)" class="i">t2</span>) <span onmouseout="hideTip(event, 'fs55', 243)" onmouseover="showTip(event, 'fs55', 243)" class="i">x</span> @&gt;
-  | <span onmouseout="hideTip(event, 'fs68', 244)" onmouseover="showTip(event, 'fs68', 244)" class="i">Not</span> (<span onmouseout="hideTip(event, 'fs75', 245)" onmouseover="showTip(event, 'fs75', 245)" class="i">t0</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs55', 246)" onmouseover="showTip(event, 'fs55', 246)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs76', 247)" onmouseover="showTip(event, 'fs76', 247)" class="i">not</span>((<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 248)" onmouseover="showTip(event, 'fs71', 248)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs75', 249)" onmouseover="showTip(event, 'fs75', 249)" class="i">t0</span>) <span onmouseout="hideTip(event, 'fs55', 250)" onmouseover="showTip(event, 'fs55', 250)" class="i">x</span>) @&gt;</pre>
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs74', 230)" onmouseover="showTip(event, 'fs74', 230)" class="i">eval</span>(<span onmouseout="hideTip(event, 'fs75', 231)" onmouseover="showTip(event, 'fs75', 231)" class="i">t</span>) <span class="o">=</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs75', 232)" onmouseover="showTip(event, 'fs75', 232)" class="i">t</span> <span class="k">with</span>
+  | <span onmouseout="hideTip(event, 'fs67', 233)" onmouseover="showTip(event, 'fs67', 233)" class="i">Above</span> <span onmouseout="hideTip(event, 'fs64', 234)" onmouseover="showTip(event, 'fs64', 234)" class="i">n</span> <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 235)" onmouseover="showTip(event, 'fs58', 235)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs58', 236)" onmouseover="showTip(event, 'fs58', 236)" class="i">x</span> <span class="o">&gt;</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs64', 237)" onmouseover="showTip(event, 'fs64', 237)" class="i">n</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs68', 238)" onmouseover="showTip(event, 'fs68', 238)" class="i">Below</span> <span onmouseout="hideTip(event, 'fs64', 239)" onmouseover="showTip(event, 'fs64', 239)" class="i">n</span> <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 240)" onmouseover="showTip(event, 'fs58', 240)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs58', 241)" onmouseover="showTip(event, 'fs58', 241)" class="i">x</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs64', 242)" onmouseover="showTip(event, 'fs64', 242)" class="i">n</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs69', 243)" onmouseover="showTip(event, 'fs69', 243)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs76', 244)" onmouseover="showTip(event, 'fs76', 244)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs77', 245)" onmouseover="showTip(event, 'fs77', 245)" class="i">t2</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 246)" onmouseover="showTip(event, 'fs58', 246)" class="i">x</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs74', 247)" onmouseover="showTip(event, 'fs74', 247)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs76', 248)" onmouseover="showTip(event, 'fs76', 248)" class="i">t1</span>) <span onmouseout="hideTip(event, 'fs58', 249)" onmouseover="showTip(event, 'fs58', 249)" class="i">x</span> <span class="o">&amp;&amp;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs74', 250)" onmouseover="showTip(event, 'fs74', 250)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs77', 251)" onmouseover="showTip(event, 'fs77', 251)" class="i">t2</span>) <span onmouseout="hideTip(event, 'fs58', 252)" onmouseover="showTip(event, 'fs58', 252)" class="i">x</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs70', 253)" onmouseover="showTip(event, 'fs70', 253)" class="i">Or</span> (<span onmouseout="hideTip(event, 'fs76', 254)" onmouseover="showTip(event, 'fs76', 254)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs77', 255)" onmouseover="showTip(event, 'fs77', 255)" class="i">t2</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 256)" onmouseover="showTip(event, 'fs58', 256)" class="i">x</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs74', 257)" onmouseover="showTip(event, 'fs74', 257)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs76', 258)" onmouseover="showTip(event, 'fs76', 258)" class="i">t1</span>) <span onmouseout="hideTip(event, 'fs58', 259)" onmouseover="showTip(event, 'fs58', 259)" class="i">x</span> <span class="o">||</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs74', 260)" onmouseover="showTip(event, 'fs74', 260)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs77', 261)" onmouseover="showTip(event, 'fs77', 261)" class="i">t2</span>) <span onmouseout="hideTip(event, 'fs58', 262)" onmouseover="showTip(event, 'fs58', 262)" class="i">x</span> @&gt;
+  | <span onmouseout="hideTip(event, 'fs71', 263)" onmouseover="showTip(event, 'fs71', 263)" class="i">Not</span> (<span onmouseout="hideTip(event, 'fs78', 264)" onmouseover="showTip(event, 'fs78', 264)" class="i">t0</span>) <span class="k">-&gt;</span> &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs58', 265)" onmouseover="showTip(event, 'fs58', 265)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 266)" onmouseover="showTip(event, 'fs79', 266)" class="i">not</span>((<span class="o">%</span><span onmouseout="hideTip(event, 'fs74', 267)" onmouseover="showTip(event, 'fs74', 267)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs78', 268)" onmouseover="showTip(event, 'fs78', 268)" class="i">t0</span>) <span onmouseout="hideTip(event, 'fs58', 269)" onmouseover="showTip(event, 'fs58', 269)" class="i">x</span>) @&gt;</pre>
 </td>
 </tr>
-</table><p>Notice that given a predicate t, the return value of this function is a quoted function that takes an integer
+</table>
+
+<p>Notice that given a predicate t, the return value of this function is a quoted function that takes an integer
 and returns a boolean.  Moreover, all of the operations we used are Boolean or arithmetic comparisons that any
 database can handle in queries.</p>
+
 <p>So, we can plug the predicate obtained from evaluation into the satisfies query combinator, as follows:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -377,16 +467,19 @@ database can handle in queries.</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs77', 251)" onmouseover="showTip(event, 'fs77', 251)" class="i">ex6</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 252)" onmouseover="showTip(event, 'fs41', 252)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 253)" onmouseover="showTip(event, 'fs52', 253)" class="i">satisfies</span>) (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 254)" onmouseover="showTip(event, 'fs71', 254)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs69', 255)" onmouseover="showTip(event, 'fs69', 255)" class="i">t0</span>) @&gt;
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs80', 270)" onmouseover="showTip(event, 'fs80', 270)" class="i">ex6</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 271)" onmouseover="showTip(event, 'fs8', 271)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 272)" onmouseover="showTip(event, 'fs45', 272)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs55', 273)" onmouseover="showTip(event, 'fs55', 273)" class="i">satisfies</span>) (<span class="o">%</span><span onmouseout="hideTip(event, 'fs74', 274)" onmouseover="showTip(event, 'fs74', 274)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs72', 275)" onmouseover="showTip(event, 'fs72', 275)" class="i">t0</span>) @&gt;
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs78', 256)" onmouseover="showTip(event, 'fs78', 256)" class="i">ex7</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 257)" onmouseover="showTip(event, 'fs41', 257)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 258)" onmouseover="showTip(event, 'fs52', 258)" class="i">satisfies</span>) (<span class="o">%</span><span onmouseout="hideTip(event, 'fs71', 259)" onmouseover="showTip(event, 'fs71', 259)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs70', 260)" onmouseover="showTip(event, 'fs70', 260)" class="i">t1</span>) @&gt;</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs81', 276)" onmouseover="showTip(event, 'fs81', 276)" class="i">ex7</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 277)" onmouseover="showTip(event, 'fs8', 277)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 278)" onmouseover="showTip(event, 'fs45', 278)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs55', 279)" onmouseover="showTip(event, 'fs55', 279)" class="i">satisfies</span>) (<span class="o">%</span><span onmouseout="hideTip(event, 'fs74', 280)" onmouseover="showTip(event, 'fs74', 280)" class="i">eval</span> <span onmouseout="hideTip(event, 'fs73', 281)" onmouseover="showTip(event, 'fs73', 281)" class="i">t1</span>) @&gt;</pre>
 </td>
 </tr>
-</table><p>Why is this allowed, even though eval is recursive?<br />
-Again, notice that although the (%eval t0) computes a quotation .  This all happens before satisfies starts 
-working on the</p>
+</table>
+
+<p>Why is this allowed, even though the eval function is recursive?<br />
+Again, notice that although (%eval t) evaluates recursively to a quotation, all of this happens before it is passed 
+as an argument to the satisfies query.</p>
 
 <p>Had we instead tried it in this, simpler way:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -400,100 +493,389 @@ working on the</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs79', 261)" onmouseover="showTip(event, 'fs79', 261)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs72', 262)" onmouseover="showTip(event, 'fs72', 262)" class="i">t</span> <span onmouseout="hideTip(event, 'fs55', 263)" onmouseover="showTip(event, 'fs55', 263)" class="i">x</span> <span class="o">=</span>
-  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs72', 264)" onmouseover="showTip(event, 'fs72', 264)" class="i">t</span> <span class="k">with</span>
-  | <span onmouseout="hideTip(event, 'fs64', 265)" onmouseover="showTip(event, 'fs64', 265)" class="i">Above</span> <span onmouseout="hideTip(event, 'fs61', 266)" onmouseover="showTip(event, 'fs61', 266)" class="i">n</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 267)" onmouseover="showTip(event, 'fs55', 267)" class="i">x</span> <span class="o">&gt;</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs61', 268)" onmouseover="showTip(event, 'fs61', 268)" class="i">n</span>
-  | <span onmouseout="hideTip(event, 'fs65', 269)" onmouseover="showTip(event, 'fs65', 269)" class="i">Below</span> <span onmouseout="hideTip(event, 'fs61', 270)" onmouseover="showTip(event, 'fs61', 270)" class="i">n</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs55', 271)" onmouseover="showTip(event, 'fs55', 271)" class="i">x</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs61', 272)" onmouseover="showTip(event, 'fs61', 272)" class="i">n</span>
-  | <span onmouseout="hideTip(event, 'fs66', 273)" onmouseover="showTip(event, 'fs66', 273)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs73', 274)" onmouseover="showTip(event, 'fs73', 274)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 275)" onmouseover="showTip(event, 'fs74', 275)" class="i">t2</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 276)" onmouseover="showTip(event, 'fs79', 276)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs73', 277)" onmouseover="showTip(event, 'fs73', 277)" class="i">t1</span> <span onmouseout="hideTip(event, 'fs55', 278)" onmouseover="showTip(event, 'fs55', 278)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs79', 279)" onmouseover="showTip(event, 'fs79', 279)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs74', 280)" onmouseover="showTip(event, 'fs74', 280)" class="i">t2</span> <span onmouseout="hideTip(event, 'fs55', 281)" onmouseover="showTip(event, 'fs55', 281)" class="i">x</span>
-  | <span onmouseout="hideTip(event, 'fs67', 282)" onmouseover="showTip(event, 'fs67', 282)" class="i">Or</span> (<span onmouseout="hideTip(event, 'fs73', 283)" onmouseover="showTip(event, 'fs73', 283)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs74', 284)" onmouseover="showTip(event, 'fs74', 284)" class="i">t2</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 285)" onmouseover="showTip(event, 'fs79', 285)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs73', 286)" onmouseover="showTip(event, 'fs73', 286)" class="i">t1</span> <span onmouseout="hideTip(event, 'fs55', 287)" onmouseover="showTip(event, 'fs55', 287)" class="i">x</span> <span class="o">||</span> <span onmouseout="hideTip(event, 'fs79', 288)" onmouseover="showTip(event, 'fs79', 288)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs74', 289)" onmouseover="showTip(event, 'fs74', 289)" class="i">t2</span> <span onmouseout="hideTip(event, 'fs55', 290)" onmouseover="showTip(event, 'fs55', 290)" class="i">x</span> 
-  | <span onmouseout="hideTip(event, 'fs68', 291)" onmouseover="showTip(event, 'fs68', 291)" class="i">Not</span> (<span onmouseout="hideTip(event, 'fs75', 292)" onmouseover="showTip(event, 'fs75', 292)" class="i">t0</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs76', 293)" onmouseover="showTip(event, 'fs76', 293)" class="i">not</span>(<span onmouseout="hideTip(event, 'fs79', 294)" onmouseover="showTip(event, 'fs79', 294)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs75', 295)" onmouseover="showTip(event, 'fs75', 295)" class="i">t0</span> <span onmouseout="hideTip(event, 'fs55', 296)" onmouseover="showTip(event, 'fs55', 296)" class="i">x</span>)
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs82', 282)" onmouseover="showTip(event, 'fs82', 282)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs75', 283)" onmouseover="showTip(event, 'fs75', 283)" class="i">t</span> <span onmouseout="hideTip(event, 'fs58', 284)" onmouseover="showTip(event, 'fs58', 284)" class="i">x</span> <span class="o">=</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs75', 285)" onmouseover="showTip(event, 'fs75', 285)" class="i">t</span> <span class="k">with</span>
+  | <span onmouseout="hideTip(event, 'fs67', 286)" onmouseover="showTip(event, 'fs67', 286)" class="i">Above</span> <span onmouseout="hideTip(event, 'fs64', 287)" onmouseover="showTip(event, 'fs64', 287)" class="i">n</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs58', 288)" onmouseover="showTip(event, 'fs58', 288)" class="i">x</span> <span class="o">&gt;</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs64', 289)" onmouseover="showTip(event, 'fs64', 289)" class="i">n</span>
+  | <span onmouseout="hideTip(event, 'fs68', 290)" onmouseover="showTip(event, 'fs68', 290)" class="i">Below</span> <span onmouseout="hideTip(event, 'fs64', 291)" onmouseover="showTip(event, 'fs64', 291)" class="i">n</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs58', 292)" onmouseover="showTip(event, 'fs58', 292)" class="i">x</span> <span class="o">&lt;</span> <span onmouseout="hideTip(event, 'fs64', 293)" onmouseover="showTip(event, 'fs64', 293)" class="i">n</span>
+  | <span onmouseout="hideTip(event, 'fs69', 294)" onmouseover="showTip(event, 'fs69', 294)" class="i">And</span> (<span onmouseout="hideTip(event, 'fs76', 295)" onmouseover="showTip(event, 'fs76', 295)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs77', 296)" onmouseover="showTip(event, 'fs77', 296)" class="i">t2</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs82', 297)" onmouseover="showTip(event, 'fs82', 297)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs76', 298)" onmouseover="showTip(event, 'fs76', 298)" class="i">t1</span> <span onmouseout="hideTip(event, 'fs58', 299)" onmouseover="showTip(event, 'fs58', 299)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs82', 300)" onmouseover="showTip(event, 'fs82', 300)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs77', 301)" onmouseover="showTip(event, 'fs77', 301)" class="i">t2</span> <span onmouseout="hideTip(event, 'fs58', 302)" onmouseover="showTip(event, 'fs58', 302)" class="i">x</span>
+  | <span onmouseout="hideTip(event, 'fs70', 303)" onmouseover="showTip(event, 'fs70', 303)" class="i">Or</span> (<span onmouseout="hideTip(event, 'fs76', 304)" onmouseover="showTip(event, 'fs76', 304)" class="i">t1</span>,<span onmouseout="hideTip(event, 'fs77', 305)" onmouseover="showTip(event, 'fs77', 305)" class="i">t2</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs82', 306)" onmouseover="showTip(event, 'fs82', 306)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs76', 307)" onmouseover="showTip(event, 'fs76', 307)" class="i">t1</span> <span onmouseout="hideTip(event, 'fs58', 308)" onmouseover="showTip(event, 'fs58', 308)" class="i">x</span> <span class="o">||</span> <span onmouseout="hideTip(event, 'fs82', 309)" onmouseover="showTip(event, 'fs82', 309)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs77', 310)" onmouseover="showTip(event, 'fs77', 310)" class="i">t2</span> <span onmouseout="hideTip(event, 'fs58', 311)" onmouseover="showTip(event, 'fs58', 311)" class="i">x</span> 
+  | <span onmouseout="hideTip(event, 'fs71', 312)" onmouseover="showTip(event, 'fs71', 312)" class="i">Not</span> (<span onmouseout="hideTip(event, 'fs78', 313)" onmouseover="showTip(event, 'fs78', 313)" class="i">t0</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs79', 314)" onmouseover="showTip(event, 'fs79', 314)" class="i">not</span>(<span onmouseout="hideTip(event, 'fs82', 315)" onmouseover="showTip(event, 'fs82', 315)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs78', 316)" onmouseover="showTip(event, 'fs78', 316)" class="i">t0</span> <span onmouseout="hideTip(event, 'fs58', 317)" onmouseover="showTip(event, 'fs58', 317)" class="i">x</span>)
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs80', 297)" onmouseover="showTip(event, 'fs80', 297)" class="i">wrongEx6</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs41', 298)" onmouseover="showTip(event, 'fs41', 298)" class="i">runQuery</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs52', 299)" onmouseover="showTip(event, 'fs52', 299)" class="i">satisfies</span>) (<span onmouseout="hideTip(event, 'fs79', 300)" onmouseover="showTip(event, 'fs79', 300)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs70', 301)" onmouseover="showTip(event, 'fs70', 301)" class="i">t1</span>) @&gt;</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs83', 318)" onmouseover="showTip(event, 'fs83', 318)" class="i">wrongEx6</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 319)" onmouseover="showTip(event, 'fs8', 319)" class="i">query</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 320)" onmouseover="showTip(event, 'fs45', 320)" class="i">Run</span> &lt;@ (<span class="o">%</span><span onmouseout="hideTip(event, 'fs55', 321)" onmouseover="showTip(event, 'fs55', 321)" class="i">satisfies</span>) (<span onmouseout="hideTip(event, 'fs82', 322)" onmouseover="showTip(event, 'fs82', 322)" class="i">wrongEval</span> <span onmouseout="hideTip(event, 'fs73', 323)" onmouseover="showTip(event, 'fs73', 323)" class="i">t1</span>) @&gt;</pre>
 </td>
 </tr>
-</table><p>then we would run into the same problem as before, because we would be trying to run satisfies on quoted
-  code containing recursive calls, which is not allowed.</p>
+</table>
 
-<div class="tip" id="fs1">namespace Microsoft</div>
-<div class="tip" id="fs2">namespace Microsoft.FSharp</div>
-<div class="tip" id="fs3">namespace Microsoft.FSharp.Data</div>
-<div class="tip" id="fs4">namespace Microsoft.FSharp.Data.TypeProviders</div>
-<div class="tip" id="fs5">namespace FSharpComposableQuery</div>
+<p>then we would run into the same problem as before, because we would be trying to run satisfies on quoted code containing 
+recursive calls, which is not allowed.</p>
+
+<h2>Queries over nested structures</h2>
+
+<p>Consider a simple database schema of an organisation <code>Org</code> with tables listing departments, the employees and their tasks:</p>
+
+<pre><code>type Org = 
+    {   departments : { dpt : string }                list;
+        employees   : { dpt : string; emp : string }  list;
+        tasks       : { emp : string; tsk : string }  list; }
+</code></pre>
+
+<p>Instead of declaring the type manually we will use the SQL TypeProvider to get these directly from the database tables.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">type</span> <span class="k">internal</span> <span onmouseout="hideTip(event, 'fs84', 324)" onmouseover="showTip(event, 'fs84', 324)" class="i">orgSchema</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 325)" onmouseover="showTip(event, 'fs13', 325)" class="i">SqlDataConnection</span><span class="o">&lt;</span> <span class="i">ConnectionStringName</span><span class="o">=</span><span class="s">&quot;</span><span class="s">OrgConnectionString</span><span class="s">&quot;</span>, <span class="i">ConfigFile</span><span class="o">=</span><span class="s">&quot;</span><span class="s">db</span><span class="s">.</span><span class="s">config</span><span class="s">&quot;</span> <span class="o">&gt;</span>
+
+<span class="k">let</span> <span class="k">internal</span> <span onmouseout="hideTip(event, 'fs85', 326)" onmouseover="showTip(event, 'fs85', 326)" class="i">orgDb</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs84', 327)" onmouseover="showTip(event, 'fs84', 327)" class="i">orgSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs86', 328)" onmouseover="showTip(event, 'fs86', 328)" class="i">GetDataContext</span>()</pre>
+</td>
+</tr>
+</table>
+
+<p>As an example we are going to demonstrate a query which finds the departments where every employee can perform 
+a given task.</p>
+
+<p>The following parameterised query accomplishes this in a way similar(ish) to how one would write it in SQL:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span class="k">internal</span> <span onmouseout="hideTip(event, 'fs87', 329)" onmouseover="showTip(event, 'fs87', 329)" class="i">expertiseNaive</span> <span class="o">=</span>
+    &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs88', 330)" onmouseover="showTip(event, 'fs88', 330)" class="i">u</span> <span class="k">-&gt;</span>
+        <span onmouseout="hideTip(event, 'fs8', 331)" onmouseover="showTip(event, 'fs8', 331)" class="i">query</span> {
+            <span class="k">for</span> <span onmouseout="hideTip(event, 'fs89', 332)" onmouseover="showTip(event, 'fs89', 332)" class="i">d</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs85', 333)" onmouseover="showTip(event, 'fs85', 333)" class="i">orgDb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs90', 334)" onmouseover="showTip(event, 'fs90', 334)" class="i">Departments</span> <span class="k">do</span>
+                <span class="k">if</span> <span onmouseout="hideTip(event, 'fs79', 335)" onmouseover="showTip(event, 'fs79', 335)" class="i">not</span> (<span onmouseout="hideTip(event, 'fs8', 336)" onmouseover="showTip(event, 'fs8', 336)" class="i">query</span> {
+                            <span class="k">for</span> <span onmouseout="hideTip(event, 'fs91', 337)" onmouseover="showTip(event, 'fs91', 337)" class="i">e</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs85', 338)" onmouseover="showTip(event, 'fs85', 338)" class="i">orgDb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs92', 339)" onmouseover="showTip(event, 'fs92', 339)" class="i">Employees</span> <span class="k">do</span>
+                                <span onmouseout="hideTip(event, 'fs93', 340)" onmouseover="showTip(event, 'fs93', 340)" class="k">exists</span> (<span onmouseout="hideTip(event, 'fs91', 341)" onmouseover="showTip(event, 'fs91', 341)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs94', 342)" onmouseover="showTip(event, 'fs94', 342)" class="i">Dpt</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs89', 343)" onmouseover="showTip(event, 'fs89', 343)" class="i">d</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs95', 344)" onmouseover="showTip(event, 'fs95', 344)" class="i">Dpt</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs79', 345)" onmouseover="showTip(event, 'fs79', 345)" class="i">not</span> (<span onmouseout="hideTip(event, 'fs8', 346)" onmouseover="showTip(event, 'fs8', 346)" class="i">query</span> {
+                                                                    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs96', 347)" onmouseover="showTip(event, 'fs96', 347)" class="i">t</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs85', 348)" onmouseover="showTip(event, 'fs85', 348)" class="i">orgDb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs97', 349)" onmouseover="showTip(event, 'fs97', 349)" class="i">Tasks</span> <span class="k">do</span>
+                                                                        <span onmouseout="hideTip(event, 'fs93', 350)" onmouseover="showTip(event, 'fs93', 350)" class="k">exists</span> (<span onmouseout="hideTip(event, 'fs91', 351)" onmouseover="showTip(event, 'fs91', 351)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs98', 352)" onmouseover="showTip(event, 'fs98', 352)" class="i">Emp</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs96', 353)" onmouseover="showTip(event, 'fs96', 353)" class="i">t</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs99', 354)" onmouseover="showTip(event, 'fs99', 354)" class="i">Emp</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs96', 355)" onmouseover="showTip(event, 'fs96', 355)" class="i">t</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs100', 356)" onmouseover="showTip(event, 'fs100', 356)" class="i">Tsk</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs88', 357)" onmouseover="showTip(event, 'fs88', 357)" class="i">u</span>)
+                                                                }))
+                        })
+                <span class="k">then</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs89', 358)" onmouseover="showTip(event, 'fs89', 358)" class="i">d</span>
+        } @&gt;
+
+<span class="k">let</span> <span class="k">internal</span> <span onmouseout="hideTip(event, 'fs101', 359)" onmouseover="showTip(event, 'fs101', 359)" class="i">ex8</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 360)" onmouseover="showTip(event, 'fs8', 360)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs87', 361)" onmouseover="showTip(event, 'fs87', 361)" class="i">expertiseNaive</span>) <span class="s">&quot;</span><span class="s">abstract</span><span class="s">&quot;</span> }</pre>
+</td>
+</tr>
+</table>
+
+<p>Note that even though the query is fairly readable and may look natural 
+Note that queries constructed in such a way are harder to read and maintain. We will now use a nested 
+data structure to help us formulate a more readable equivalent.</p>
+
+<p>To do so, we would first convert the existing relational structure to a nested one where each <em>department</em> contains
+a list of <em>employees</em>, and each <em>employee</em> contains a list of <em>tasks</em>. 
+The resulting type <code>NestedOrg</code> is shown below:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs102', 362)" onmouseover="showTip(event, 'fs102', 362)" class="i">EmployeeTasks</span> <span class="o">=</span>
+    { <span onmouseout="hideTip(event, 'fs103', 363)" onmouseover="showTip(event, 'fs103', 363)" class="i">emp</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs21', 364)" onmouseover="showTip(event, 'fs21', 364)" class="i">string</span>; <span onmouseout="hideTip(event, 'fs104', 365)" onmouseover="showTip(event, 'fs104', 365)" class="i">tasks</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs37', 366)" onmouseover="showTip(event, 'fs37', 366)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 367)" onmouseover="showTip(event, 'fs38', 367)" class="i">Linq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 368)" onmouseover="showTip(event, 'fs39', 368)" class="i">IQueryable</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs21', 369)" onmouseover="showTip(event, 'fs21', 369)" class="i">string</span><span class="o">&gt;</span> }
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs105', 370)" onmouseover="showTip(event, 'fs105', 370)" class="i">DepartmentEmployees</span> <span class="o">=</span>
+    { <span onmouseout="hideTip(event, 'fs106', 371)" onmouseover="showTip(event, 'fs106', 371)" class="i">dpt</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs21', 372)" onmouseover="showTip(event, 'fs21', 372)" class="i">string</span>; <span onmouseout="hideTip(event, 'fs107', 373)" onmouseover="showTip(event, 'fs107', 373)" class="i">employees</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs37', 374)" onmouseover="showTip(event, 'fs37', 374)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 375)" onmouseover="showTip(event, 'fs38', 375)" class="i">Linq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 376)" onmouseover="showTip(event, 'fs39', 376)" class="i">IQueryable</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs102', 377)" onmouseover="showTip(event, 'fs102', 377)" class="i">EmployeeTasks</span><span class="o">&gt;</span> }
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs108', 378)" onmouseover="showTip(event, 'fs108', 378)" class="i">NestedOrg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs37', 379)" onmouseover="showTip(event, 'fs37', 379)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 380)" onmouseover="showTip(event, 'fs38', 380)" class="i">Linq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 381)" onmouseover="showTip(event, 'fs39', 381)" class="i">IQueryable</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs105', 382)" onmouseover="showTip(event, 'fs105', 382)" class="i">DepartmentEmployees</span><span class="o">&gt;</span></pre>
+</td>
+</tr>
+</table>
+
+<p>We can convert the initial representation into the second as follows:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs109', 383)" onmouseover="showTip(event, 'fs109', 383)" class="i">nestedOrg</span> <span class="o">=</span>
+    &lt;@ <span onmouseout="hideTip(event, 'fs8', 384)" onmouseover="showTip(event, 'fs8', 384)" class="i">query</span> {
+            <span class="k">for</span> <span onmouseout="hideTip(event, 'fs89', 385)" onmouseover="showTip(event, 'fs89', 385)" class="i">d</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs85', 386)" onmouseover="showTip(event, 'fs85', 386)" class="i">orgDb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs90', 387)" onmouseover="showTip(event, 'fs90', 387)" class="i">Departments</span> <span class="k">do</span>                   <span class="c">//for each department d</span>
+                <span class="k">yield</span> { <span class="i">dpt</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs89', 388)" onmouseover="showTip(event, 'fs89', 388)" class="i">d</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs95', 389)" onmouseover="showTip(event, 'fs95', 389)" class="i">Dpt</span>
+                        <span class="i">employees</span> <span class="o">=</span>
+                            <span onmouseout="hideTip(event, 'fs8', 390)" onmouseover="showTip(event, 'fs8', 390)" class="i">query</span> {
+                                <span class="k">for</span> <span onmouseout="hideTip(event, 'fs91', 391)" onmouseover="showTip(event, 'fs91', 391)" class="i">e</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs85', 392)" onmouseover="showTip(event, 'fs85', 392)" class="i">orgDb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs92', 393)" onmouseover="showTip(event, 'fs92', 393)" class="i">Employees</span> <span class="k">do</span> <span class="c">//add employees working in it</span>
+                                    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs89', 394)" onmouseover="showTip(event, 'fs89', 394)" class="i">d</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs95', 395)" onmouseover="showTip(event, 'fs95', 395)" class="i">Dpt</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs91', 396)" onmouseover="showTip(event, 'fs91', 396)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs94', 397)" onmouseover="showTip(event, 'fs94', 397)" class="i">Dpt</span> <span class="k">then</span>
+                                        <span class="k">yield</span> { <span class="i">emp</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs91', 398)" onmouseover="showTip(event, 'fs91', 398)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs98', 399)" onmouseover="showTip(event, 'fs98', 399)" class="i">Emp</span>
+                                                <span class="i">tasks</span> <span class="o">=</span>     <span class="c">//with their assigned tasks</span>
+                                                    <span onmouseout="hideTip(event, 'fs8', 400)" onmouseover="showTip(event, 'fs8', 400)" class="i">query</span> {
+                                                        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs96', 401)" onmouseover="showTip(event, 'fs96', 401)" class="i">t</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs85', 402)" onmouseover="showTip(event, 'fs85', 402)" class="i">orgDb</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs97', 403)" onmouseover="showTip(event, 'fs97', 403)" class="i">Tasks</span> <span class="k">do</span>
+                                                            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs96', 404)" onmouseover="showTip(event, 'fs96', 404)" class="i">t</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs99', 405)" onmouseover="showTip(event, 'fs99', 405)" class="i">Emp</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs91', 406)" onmouseover="showTip(event, 'fs91', 406)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs98', 407)" onmouseover="showTip(event, 'fs98', 407)" class="i">Emp</span> <span class="k">then</span> 
+                                                                <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs96', 408)" onmouseover="showTip(event, 'fs96', 408)" class="i">t</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs100', 409)" onmouseover="showTip(event, 'fs100', 409)" class="i">Tsk</span>
+                                                    } }
+                            } }
+        } @&gt;</pre>
+</td>
+</tr>
+</table>
+
+<p>Note that we cannot evaluate <code>query.Run { yield! (%nestedOrg) }</code> because <code>query.Run</code> requires a flat argument,
+and the return type of <code>nestedOrg</code> is nested. However, this nested structure becomes useful when used to 
+formulate other queries.</p>
+
+<p>For convenience we will now declare several higher-order queries.</p>
+
+<p>The first one takes a predicate and a list and returns whether the predicate holds for any item in the list:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs110', 410)" onmouseover="showTip(event, 'fs110', 410)" class="i">any</span> <span class="o">=</span>
+    &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs111', 411)" onmouseover="showTip(event, 'fs111', 411)" class="i">xs</span> <span onmouseout="hideTip(event, 'fs112', 412)" onmouseover="showTip(event, 'fs112', 412)" class="i">p</span> <span class="k">-&gt;</span>
+        <span onmouseout="hideTip(event, 'fs8', 413)" onmouseover="showTip(event, 'fs8', 413)" class="i">query</span> {
+            <span class="k">for</span> <span onmouseout="hideTip(event, 'fs113', 414)" onmouseover="showTip(event, 'fs113', 414)" class="i">x</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs111', 415)" onmouseover="showTip(event, 'fs111', 415)" class="i">xs</span> <span class="k">do</span>
+                <span onmouseout="hideTip(event, 'fs93', 416)" onmouseover="showTip(event, 'fs93', 416)" class="k">exists</span> (<span onmouseout="hideTip(event, 'fs112', 417)" onmouseover="showTip(event, 'fs112', 417)" class="i">p</span> <span onmouseout="hideTip(event, 'fs113', 418)" onmouseover="showTip(event, 'fs113', 418)" class="i">x</span>)
+        } @&gt;</pre>
+</td>
+</tr>
+</table>
+
+<p>The second takes a predicate and a list and returns whether the predicate holds for all items in the list:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs114', 419)" onmouseover="showTip(event, 'fs114', 419)" class="i">all&#39;</span> <span class="o">=</span> <span class="c">//clashes with default method name</span>
+    &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs115', 420)" onmouseover="showTip(event, 'fs115', 420)" class="i">xs</span> <span onmouseout="hideTip(event, 'fs116', 421)" onmouseover="showTip(event, 'fs116', 421)" class="i">p</span> <span class="k">-&gt;</span>
+        <span onmouseout="hideTip(event, 'fs79', 422)" onmouseover="showTip(event, 'fs79', 422)" class="i">not</span> (<span onmouseout="hideTip(event, 'fs8', 423)" onmouseover="showTip(event, 'fs8', 423)" class="i">query</span> {
+                    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs117', 424)" onmouseover="showTip(event, 'fs117', 424)" class="i">x</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs115', 425)" onmouseover="showTip(event, 'fs115', 425)" class="i">xs</span> <span class="k">do</span>
+                        <span onmouseout="hideTip(event, 'fs93', 426)" onmouseover="showTip(event, 'fs93', 426)" class="k">exists</span> (<span onmouseout="hideTip(event, 'fs79', 427)" onmouseover="showTip(event, 'fs79', 427)" class="i">not</span> (<span onmouseout="hideTip(event, 'fs116', 428)" onmouseover="showTip(event, 'fs116', 428)" class="i">p</span> (<span onmouseout="hideTip(event, 'fs117', 429)" onmouseover="showTip(event, 'fs117', 429)" class="i">x</span>)))
+                }) @&gt;
+                </pre>
+</td>
+</tr>
+</table>
+
+<p>The third one takes a value and a list and returns whether the value occurs in the list:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs118', 430)" onmouseover="showTip(event, 'fs118', 430)" class="i">contains&#39;</span> <span class="o">=</span> <span class="c">//clashes with default method name</span>
+    &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs111', 431)" onmouseover="showTip(event, 'fs111', 431)" class="i">xs</span> <span onmouseout="hideTip(event, 'fs88', 432)" onmouseover="showTip(event, 'fs88', 432)" class="i">u</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs110', 433)" onmouseover="showTip(event, 'fs110', 433)" class="i">any</span>) <span onmouseout="hideTip(event, 'fs111', 434)" onmouseover="showTip(event, 'fs111', 434)" class="i">xs</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs113', 435)" onmouseover="showTip(event, 'fs113', 435)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs113', 436)" onmouseover="showTip(event, 'fs113', 436)" class="i">x</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs88', 437)" onmouseover="showTip(event, 'fs88', 437)" class="i">u</span>) @&gt;</pre>
+</td>
+</tr>
+</table>
+
+<p>We can now define and execute a query, equivalent to <code>expertiseNaive</code>, using those three operators and the nested structure
+we created earlier:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs119', 438)" onmouseover="showTip(event, 'fs119', 438)" class="i">expertise</span> <span class="o">=</span>
+    &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs88', 439)" onmouseover="showTip(event, 'fs88', 439)" class="i">u</span> <span class="k">-&gt;</span>
+        <span onmouseout="hideTip(event, 'fs8', 440)" onmouseover="showTip(event, 'fs8', 440)" class="i">query</span> {
+            <span class="k">for</span> <span onmouseout="hideTip(event, 'fs120', 441)" onmouseover="showTip(event, 'fs120', 441)" class="i">d</span> <span class="k">in</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs109', 442)" onmouseover="showTip(event, 'fs109', 442)" class="i">nestedOrg</span>) <span class="k">do</span>
+                <span class="k">if</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs114', 443)" onmouseover="showTip(event, 'fs114', 443)" class="i">all&#39;</span>) (<span onmouseout="hideTip(event, 'fs120', 444)" onmouseover="showTip(event, 'fs120', 444)" class="i">d</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs107', 445)" onmouseover="showTip(event, 'fs107', 445)" class="i">employees</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs121', 446)" onmouseover="showTip(event, 'fs121', 446)" class="i">e</span> <span class="k">-&gt;</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs118', 447)" onmouseover="showTip(event, 'fs118', 447)" class="i">contains&#39;</span>) <span onmouseout="hideTip(event, 'fs121', 448)" onmouseover="showTip(event, 'fs121', 448)" class="i">e</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs104', 449)" onmouseover="showTip(event, 'fs104', 449)" class="i">tasks</span> <span onmouseout="hideTip(event, 'fs88', 450)" onmouseover="showTip(event, 'fs88', 450)" class="i">u</span>) <span class="k">then</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs120', 451)" onmouseover="showTip(event, 'fs120', 451)" class="i">d</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs106', 452)" onmouseover="showTip(event, 'fs106', 452)" class="i">dpt</span>
+        } @&gt;
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs122', 453)" onmouseover="showTip(event, 'fs122', 453)" class="i">ex9</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 454)" onmouseover="showTip(event, 'fs8', 454)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs119', 455)" onmouseover="showTip(event, 'fs119', 455)" class="i">expertise</span>) <span class="s">&quot;</span><span class="s">abstract</span><span class="s">&quot;</span> }</pre>
+</td>
+</tr>
+</table>
+
+<p>yields the same query as in the previous example (8).</p>
+
+<p>Note that it is still possible to run these queries using the default QueryBuilder.
+It is simply that such queries operating on nested types may and will cause the default QueryBuilder to output a multitude
+of SQL queries roughly proportional to the amount of rows in the tables involved.</p>
+
+<p>The role of the FSharpComposableQuery library in such cases is to provide a strong guarantee on the number of generated SQL queries. 
+More specifically, it always outputs a single SQL query for all input queries which can be transformed to such a form.</p>
+
+<div class="tip" id="fs1">namespace FSharpComposableQuery</div>
+<div class="tip" id="fs2">namespace Microsoft</div>
+<div class="tip" id="fs3">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs4">namespace Microsoft.FSharp.Data</div>
+<div class="tip" id="fs5">namespace Microsoft.FSharp.Data.TypeProviders</div>
 <div class="tip" id="fs6">val data : int list<br /><br />Full name: Tutorial.data</div>
 <div class="tip" id="fs7">val lastNumberInSortedList : int<br /><br />Full name: Tutorial.lastNumberInSortedList</div>
 <div class="tip" id="fs8">val query : QueryImpl.QueryBuilder<br /><br />Full name: FSharpComposableQuery.TopLevelValues.query</div>
 <div class="tip" id="fs9">val s : int</div>
 <div class="tip" id="fs10">custom operation: sortBy (&#39;Key)<br /><br />Calls Linq.QueryBuilder.SortBy </div>
 <div class="tip" id="fs11">custom operation: last<br /><br />Calls Linq.QueryBuilder.Last </div>
-<div class="tip" id="fs12">Multiple items<br />type LiteralAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; LiteralAttribute<br /><br />Full name: Microsoft.FSharp.Core.LiteralAttribute<br /><br />--------------------<br />new : unit -&gt; LiteralAttribute</div>
-<div class="tip" id="fs13">val ConnectionString : string<br /><br />Full name: Tutorial.ConnectionString</div>
-<div class="tip" id="fs14">type dbSchema =<br />&#160;&#160;static member GetDataContext : unit -&gt; MyPeople + 1 overload<br />&#160;&#160;nested type ServiceTypes<br /><br />Full name: Tutorial.dbSchema<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
-<div class="tip" id="fs15">type SqlDataConnection<br /><br />Full name: Microsoft.FSharp.Data.TypeProviders.SqlDataConnection<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
-<div class="tip" id="fs16">val db : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><br />Full name: Tutorial.db</div>
-<div class="tip" id="fs17">dbSchema.GetDataContext() : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em><br />dbSchema.GetDataContext(connectionString: string) : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em></div>
-<div class="tip" id="fs18">type People = dbSchema.ServiceTypes.People<br /><br />Full name: Tutorial.People</div>
-<div class="tip" id="fs19">type ServiceTypes =<br />&#160;&#160;nested type Couples<br />&#160;&#160;nested type MyPeople<br />&#160;&#160;nested type People<br />&#160;&#160;nested type SimpleDataContextTypes<br /><br />Full name: Tutorial.dbSchema.ServiceTypes<br /><em><br /><br />&lt;summary&gt;&lt;para&gt;The full API to the SQL connection.&lt;/para&gt;&lt;para&gt;To use the service via the full API, create an instance of one of the types &#39;MyPeople&#39;.&lt;/para&gt;&lt;/summary&gt;</em></div>
-<div class="tip" id="fs20">type People =<br />&#160;&#160;interface INotifyPropertyChanging<br />&#160;&#160;interface INotifyPropertyChanged<br />&#160;&#160;new : unit -&gt; People<br />&#160;&#160;member Age : int with get, set<br />&#160;&#160;member Name : string with get, set<br />&#160;&#160;event PropertyChanged : PropertyChangedEventHandler<br />&#160;&#160;event PropertyChanging : PropertyChangingEventHandler<br /><br />Full name: Tutorial.dbSchema.ServiceTypes.People</div>
-<div class="tip" id="fs21">type PeopleR =<br />&#160;&#160;{name: string;<br />&#160;&#160;&#160;age: int;}<br /><br />Full name: Tutorial.PeopleR</div>
-<div class="tip" id="fs22">PeopleR.name: string</div>
-<div class="tip" id="fs23">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
-<div class="tip" id="fs24">PeopleR.age: int</div>
-<div class="tip" id="fs25">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int</div>
-<div class="tip" id="fs26">val range1 : a:int -&gt; b:int -&gt; System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.range1</div>
-<div class="tip" id="fs27">val a : int</div>
-<div class="tip" id="fs28">val b : int</div>
-<div class="tip" id="fs29">val u : dbSchema.ServiceTypes.People</div>
-<div class="tip" id="fs30">property dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople.People: System.Data.Linq.Table&lt;dbSchema.ServiceTypes.People&gt;<br /><em><br /><br />Gets the &#39;People&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
-<div class="tip" id="fs31">property dbSchema.ServiceTypes.People.Age: int</div>
-<div class="tip" id="fs32">property dbSchema.ServiceTypes.People.Name: string</div>
-<div class="tip" id="fs33">val ex1 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex1</div>
-<div class="tip" id="fs34">val range : Quotations.Expr&lt;(int -&gt; int -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.range</div>
-<div class="tip" id="fs35">val ex2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex2</div>
-<div class="tip" id="fs36">val x : PeopleR</div>
-<div class="tip" id="fs37">val wrongEx2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrongEx2</div>
-<div class="tip" id="fs38">namespace System</div>
-<div class="tip" id="fs39">namespace System.Linq</div>
-<div class="tip" id="fs40">Multiple items<br />type IQueryable =<br />&#160;&#160;member ElementType : Type<br />&#160;&#160;member Expression : Expression<br />&#160;&#160;member Provider : IQueryProvider<br /><br />Full name: System.Linq.IQueryable<br /><br />--------------------<br />type IQueryable&lt;&#39;T&gt; =<br /><br />Full name: System.Linq.IQueryable&lt;_&gt;</div>
-<div class="tip" id="fs41">val runQuery : q:Quotations.Expr&lt;#System.Linq.IQueryable&lt;&#39;b&gt;&gt; -&gt; System.Linq.IQueryable&lt;&#39;b&gt;<br /><br />Full name: Tutorial.runQuery</div>
-<div class="tip" id="fs42">val q : Quotations.Expr&lt;#System.Linq.IQueryable&lt;&#39;b&gt;&gt;</div>
-<div class="tip" id="fs43">val x : &#39;b</div>
-<div class="tip" id="fs44">val ex2again : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex2again</div>
-<div class="tip" id="fs45">val ageFromName : Quotations.Expr&lt;(string -&gt; System.Linq.IQueryable&lt;int&gt;)&gt;<br /><br />Full name: Tutorial.ageFromName</div>
-<div class="tip" id="fs46">val s : string</div>
-<div class="tip" id="fs47">val compose : Quotations.Expr&lt;(string -&gt; string -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.compose</div>
-<div class="tip" id="fs48">val t : string</div>
-<div class="tip" id="fs49">val composeMonolithic : Quotations.Expr&lt;(string -&gt; string -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.composeMonolithic</div>
-<div class="tip" id="fs50">val u1 : dbSchema.ServiceTypes.People</div>
-<div class="tip" id="fs51">val u2 : dbSchema.ServiceTypes.People</div>
-<div class="tip" id="fs52">val satisfies : Quotations.Expr&lt;((int -&gt; bool) -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.satisfies</div>
-<div class="tip" id="fs53">val p : (int -&gt; bool)</div>
-<div class="tip" id="fs54">val ex3 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex3</div>
-<div class="tip" id="fs55">val x : int</div>
-<div class="tip" id="fs56">val ex4 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex4</div>
-<div class="tip" id="fs57">val wrong1 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrong1</div>
-<div class="tip" id="fs58">val age : int</div>
-<div class="tip" id="fs59">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs60">val even : n:int -&gt; bool<br /><br />Full name: Tutorial.even</div>
-<div class="tip" id="fs61">val n : int</div>
-<div class="tip" id="fs62">val wrong2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrong2</div>
-<div class="tip" id="fs63">type Predicate =<br />&#160;&#160;| Above of int<br />&#160;&#160;| Below of int<br />&#160;&#160;| And of Predicate * Predicate<br />&#160;&#160;| Or of Predicate * Predicate<br />&#160;&#160;| Not of Predicate<br /><br />Full name: Tutorial.Predicate</div>
-<div class="tip" id="fs64">union case Predicate.Above: int -&gt; Predicate</div>
-<div class="tip" id="fs65">union case Predicate.Below: int -&gt; Predicate</div>
-<div class="tip" id="fs66">union case Predicate.And: Predicate * Predicate -&gt; Predicate</div>
-<div class="tip" id="fs67">union case Predicate.Or: Predicate * Predicate -&gt; Predicate</div>
-<div class="tip" id="fs68">union case Predicate.Not: Predicate -&gt; Predicate</div>
-<div class="tip" id="fs69">val t0 : Predicate<br /><br />Full name: Tutorial.t0</div>
-<div class="tip" id="fs70">val t1 : Predicate<br /><br />Full name: Tutorial.t1</div>
-<div class="tip" id="fs71">val eval : t:Predicate -&gt; Quotations.Expr&lt;(int -&gt; bool)&gt;<br /><br />Full name: Tutorial.eval</div>
-<div class="tip" id="fs72">val t : Predicate</div>
-<div class="tip" id="fs73">val t1 : Predicate</div>
-<div class="tip" id="fs74">val t2 : Predicate</div>
-<div class="tip" id="fs75">val t0 : Predicate</div>
-<div class="tip" id="fs76">val not : value:bool -&gt; bool<br /><br />Full name: Microsoft.FSharp.Core.Operators.not</div>
-<div class="tip" id="fs77">val ex6 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex6</div>
-<div class="tip" id="fs78">val ex7 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex7</div>
-<div class="tip" id="fs79">val wrongEval : t:Predicate -&gt; x:int -&gt; bool<br /><br />Full name: Tutorial.wrongEval</div>
-<div class="tip" id="fs80">val wrongEx6 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrongEx6</div>
+<div class="tip" id="fs12">type dbPeople =<br />&#160;&#160;static member GetDataContext : unit -&gt; MyPeople + 1 overload<br />&#160;&#160;nested type ServiceTypes<br /><br />Full name: Tutorial.dbPeople<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
+<div class="tip" id="fs13">type SqlDataConnection<br /><br />Full name: Microsoft.FSharp.Data.TypeProviders.SqlDataConnection<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
+<div class="tip" id="fs14">val db : dbPeople.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><br />Full name: Tutorial.db</div>
+<div class="tip" id="fs15">dbPeople.GetDataContext() : dbPeople.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em><br />dbPeople.GetDataContext(connectionString: string) : dbPeople.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em></div>
+<div class="tip" id="fs16">type People = dbPeople.ServiceTypes.People<br /><br />Full name: Tutorial.People</div>
+<div class="tip" id="fs17">type ServiceTypes =<br />&#160;&#160;nested type Couples<br />&#160;&#160;nested type MyPeople<br />&#160;&#160;nested type People<br />&#160;&#160;nested type SimpleDataContextTypes<br /><br />Full name: Tutorial.dbPeople.ServiceTypes<br /><em><br /><br />&lt;summary&gt;&lt;para&gt;The full API to the SQL connection.&lt;/para&gt;&lt;para&gt;To use the service via the full API, create an instance of one of the types &#39;MyPeople&#39;.&lt;/para&gt;&lt;/summary&gt;</em></div>
+<div class="tip" id="fs18">type People =<br />&#160;&#160;interface INotifyPropertyChanging<br />&#160;&#160;interface INotifyPropertyChanged<br />&#160;&#160;new : unit -&gt; People<br />&#160;&#160;member Age : int with get, set<br />&#160;&#160;member Name : string with get, set<br />&#160;&#160;event PropertyChanged : PropertyChangedEventHandler<br />&#160;&#160;event PropertyChanging : PropertyChangingEventHandler<br /><br />Full name: Tutorial.dbPeople.ServiceTypes.People</div>
+<div class="tip" id="fs19">type PeopleR =<br />&#160;&#160;{name: string;<br />&#160;&#160;&#160;age: int;}<br /><br />Full name: Tutorial.PeopleR</div>
+<div class="tip" id="fs20">PeopleR.name: string</div>
+<div class="tip" id="fs21">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs22">PeopleR.age: int</div>
+<div class="tip" id="fs23">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />Full name: Microsoft.FSharp.Core.Operators.int<br /><br />--------------------<br />type int = int32<br /><br />Full name: Microsoft.FSharp.Core.int<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int<br /><br />Full name: Microsoft.FSharp.Core.int&lt;_&gt;</div>
+<div class="tip" id="fs24">val range1 : a:int -&gt; b:int -&gt; System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.range1</div>
+<div class="tip" id="fs25">val a : int</div>
+<div class="tip" id="fs26">val b : int</div>
+<div class="tip" id="fs27">val u : dbPeople.ServiceTypes.People</div>
+<div class="tip" id="fs28">property dbPeople.ServiceTypes.SimpleDataContextTypes.MyPeople.People: System.Data.Linq.Table&lt;dbPeople.ServiceTypes.People&gt;<br /><em><br /><br />Gets the &#39;People&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
+<div class="tip" id="fs29">property dbPeople.ServiceTypes.People.Age: int</div>
+<div class="tip" id="fs30">property dbPeople.ServiceTypes.People.Name: string</div>
+<div class="tip" id="fs31">val ex1 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex1</div>
+<div class="tip" id="fs32">val range : Quotations.Expr&lt;(int -&gt; int -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.range</div>
+<div class="tip" id="fs33">val qRangeA : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.qRangeA</div>
+<div class="tip" id="fs34">val qRangeB : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.qRangeB</div>
+<div class="tip" id="fs35">val x : PeopleR</div>
+<div class="tip" id="fs36">val qRangeWrong : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.qRangeWrong</div>
+<div class="tip" id="fs37">namespace System</div>
+<div class="tip" id="fs38">namespace System.Linq</div>
+<div class="tip" id="fs39">Multiple items<br />type IQueryable =<br />&#160;&#160;member ElementType : Type<br />&#160;&#160;member Expression : Expression<br />&#160;&#160;member Provider : IQueryProvider<br /><br />Full name: System.Linq.IQueryable<br /><br />--------------------<br />type IQueryable&lt;&#39;T&gt; =<br /><br />Full name: System.Linq.IQueryable&lt;_&gt;</div>
+<div class="tip" id="fs40">val ex2correct : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex2correct</div>
+<div class="tip" id="fs41">val countRange : Quotations.Expr&lt;(int -&gt; int -&gt; int)&gt;<br /><br />Full name: Tutorial.countRange</div>
+<div class="tip" id="fs42">val u : PeopleR</div>
+<div class="tip" id="fs43">custom operation: count<br /><br />Calls Linq.QueryBuilder.Count </div>
+<div class="tip" id="fs44">val countCorrectA : int<br /><br />Full name: Tutorial.countCorrectA</div>
+<div class="tip" id="fs45">member Linq.QueryBuilder.Run : Quotations.Expr&lt;&#39;T&gt; -&gt; &#39;T<br />member Linq.QueryBuilder.Run : Quotations.Expr&lt;Linq.QuerySource&lt;&#39;T,System.Collections.IEnumerable&gt;&gt; -&gt; seq&lt;&#39;T&gt;<br />member QueryImpl.QueryBuilder.Run : q:Quotations.Expr&lt;&#39;T&gt; -&gt; &#39;T<br />member QueryImpl.QueryBuilder.Run : q:Quotations.Expr&lt;Linq.QuerySource&lt;&#39;T,System.Collections.IEnumerable&gt;&gt; -&gt; seq&lt;&#39;T&gt;<br />member QueryImpl.QueryBuilder.Run : q:Quotations.Expr&lt;Linq.QuerySource&lt;&#39;T,System.Linq.IQueryable&gt;&gt; -&gt; System.Linq.IQueryable&lt;&#39;T&gt;</div>
+<div class="tip" id="fs46">val countCorrectB&#39; : Quotations.Expr&lt;int&gt;<br /><br />Full name: Tutorial.countCorrectB&#39;</div>
+<div class="tip" id="fs47">val countCorrectB : int<br /><br />Full name: Tutorial.countCorrectB</div>
+<div class="tip" id="fs48">val composeMonolithic : Quotations.Expr&lt;(string -&gt; string -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.composeMonolithic</div>
+<div class="tip" id="fs49">val s : string</div>
+<div class="tip" id="fs50">val t : string</div>
+<div class="tip" id="fs51">val u1 : dbPeople.ServiceTypes.People</div>
+<div class="tip" id="fs52">val u2 : dbPeople.ServiceTypes.People</div>
+<div class="tip" id="fs53">val ageFromName : Quotations.Expr&lt;(string -&gt; System.Linq.IQueryable&lt;int&gt;)&gt;<br /><br />Full name: Tutorial.ageFromName</div>
+<div class="tip" id="fs54">val compose : Quotations.Expr&lt;(string -&gt; string -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.compose</div>
+<div class="tip" id="fs55">val satisfies : Quotations.Expr&lt;((int -&gt; bool) -&gt; System.Linq.IQueryable&lt;PeopleR&gt;)&gt;<br /><br />Full name: Tutorial.satisfies</div>
+<div class="tip" id="fs56">val p : (int -&gt; bool)</div>
+<div class="tip" id="fs57">val ex3 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex3</div>
+<div class="tip" id="fs58">val x : int</div>
+<div class="tip" id="fs59">val ex4 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex4</div>
+<div class="tip" id="fs60">val wrong1 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrong1</div>
+<div class="tip" id="fs61">val age : int</div>
+<div class="tip" id="fs62">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs63">val even : n:int -&gt; bool<br /><br />Full name: Tutorial.even</div>
+<div class="tip" id="fs64">val n : int</div>
+<div class="tip" id="fs65">val wrong2 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrong2</div>
+<div class="tip" id="fs66">type Predicate =<br />&#160;&#160;| Above of int<br />&#160;&#160;| Below of int<br />&#160;&#160;| And of Predicate * Predicate<br />&#160;&#160;| Or of Predicate * Predicate<br />&#160;&#160;| Not of Predicate<br /><br />Full name: Tutorial.Predicate</div>
+<div class="tip" id="fs67">union case Predicate.Above: int -&gt; Predicate</div>
+<div class="tip" id="fs68">union case Predicate.Below: int -&gt; Predicate</div>
+<div class="tip" id="fs69">union case Predicate.And: Predicate * Predicate -&gt; Predicate</div>
+<div class="tip" id="fs70">union case Predicate.Or: Predicate * Predicate -&gt; Predicate</div>
+<div class="tip" id="fs71">union case Predicate.Not: Predicate -&gt; Predicate</div>
+<div class="tip" id="fs72">val t0 : Predicate<br /><br />Full name: Tutorial.t0</div>
+<div class="tip" id="fs73">val t1 : Predicate<br /><br />Full name: Tutorial.t1</div>
+<div class="tip" id="fs74">val eval : t:Predicate -&gt; Quotations.Expr&lt;(int -&gt; bool)&gt;<br /><br />Full name: Tutorial.eval</div>
+<div class="tip" id="fs75">val t : Predicate</div>
+<div class="tip" id="fs76">val t1 : Predicate</div>
+<div class="tip" id="fs77">val t2 : Predicate</div>
+<div class="tip" id="fs78">val t0 : Predicate</div>
+<div class="tip" id="fs79">val not : value:bool -&gt; bool<br /><br />Full name: Microsoft.FSharp.Core.Operators.not</div>
+<div class="tip" id="fs80">val ex6 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex6</div>
+<div class="tip" id="fs81">val ex7 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.ex7</div>
+<div class="tip" id="fs82">val wrongEval : t:Predicate -&gt; x:int -&gt; bool<br /><br />Full name: Tutorial.wrongEval</div>
+<div class="tip" id="fs83">val wrongEx6 : System.Linq.IQueryable&lt;PeopleR&gt;<br /><br />Full name: Tutorial.wrongEx6</div>
+<div class="tip" id="fs84">type internal orgSchema =<br />&#160;&#160;static member GetDataContext : unit -&gt; Organisation + 1 overload<br />&#160;&#160;nested type ServiceTypes<br /><br />Full name: Tutorial.orgSchema<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
+<div class="tip" id="fs85">val internal orgDb : orgSchema.ServiceTypes.SimpleDataContextTypes.Organisation<br /><br />Full name: Tutorial.orgDb</div>
+<div class="tip" id="fs86">orgSchema.GetDataContext() : orgSchema.ServiceTypes.SimpleDataContextTypes.Organisation<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em><br />orgSchema.GetDataContext(connectionString: string) : orgSchema.ServiceTypes.SimpleDataContextTypes.Organisation<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em></div>
+<div class="tip" id="fs87">val internal expertiseNaive : Quotations.Expr&lt;(string -&gt; System.Linq.IQueryable&lt;orgSchema.ServiceTypes.Departments&gt;)&gt;<br /><br />Full name: Tutorial.expertiseNaive</div>
+<div class="tip" id="fs88">val u : string</div>
+<div class="tip" id="fs89">val d : orgSchema.ServiceTypes.Departments</div>
+<div class="tip" id="fs90">property orgSchema.ServiceTypes.SimpleDataContextTypes.Organisation.Departments: System.Data.Linq.Table&lt;orgSchema.ServiceTypes.Departments&gt;<br /><em><br /><br />Gets the &#39;Departments&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
+<div class="tip" id="fs91">val e : orgSchema.ServiceTypes.Employees</div>
+<div class="tip" id="fs92">property orgSchema.ServiceTypes.SimpleDataContextTypes.Organisation.Employees: System.Data.Linq.Table&lt;orgSchema.ServiceTypes.Employees&gt;<br /><em><br /><br />Gets the &#39;Employees&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
+<div class="tip" id="fs93">custom operation: exists (bool)<br /><br />Calls Linq.QueryBuilder.Exists </div>
+<div class="tip" id="fs94">property orgSchema.ServiceTypes.Employees.Dpt: string</div>
+<div class="tip" id="fs95">property orgSchema.ServiceTypes.Departments.Dpt: string</div>
+<div class="tip" id="fs96">val t : orgSchema.ServiceTypes.Tasks</div>
+<div class="tip" id="fs97">property orgSchema.ServiceTypes.SimpleDataContextTypes.Organisation.Tasks: System.Data.Linq.Table&lt;orgSchema.ServiceTypes.Tasks&gt;<br /><em><br /><br />Gets the &#39;Tasks&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
+<div class="tip" id="fs98">property orgSchema.ServiceTypes.Employees.Emp: string</div>
+<div class="tip" id="fs99">property orgSchema.ServiceTypes.Tasks.Emp: string</div>
+<div class="tip" id="fs100">property orgSchema.ServiceTypes.Tasks.Tsk: string</div>
+<div class="tip" id="fs101">val internal ex8 : System.Linq.IQueryable&lt;orgSchema.ServiceTypes.Departments&gt;<br /><br />Full name: Tutorial.ex8</div>
+<div class="tip" id="fs102">type EmployeeTasks =<br />&#160;&#160;{emp: string;<br />&#160;&#160;&#160;tasks: IQueryable&lt;string&gt;;}<br /><br />Full name: Tutorial.EmployeeTasks</div>
+<div class="tip" id="fs103">EmployeeTasks.emp: string</div>
+<div class="tip" id="fs104">EmployeeTasks.tasks: System.Linq.IQueryable&lt;string&gt;</div>
+<div class="tip" id="fs105">type DepartmentEmployees =<br />&#160;&#160;{dpt: string;<br />&#160;&#160;&#160;employees: IQueryable&lt;EmployeeTasks&gt;;}<br /><br />Full name: Tutorial.DepartmentEmployees</div>
+<div class="tip" id="fs106">DepartmentEmployees.dpt: string</div>
+<div class="tip" id="fs107">DepartmentEmployees.employees: System.Linq.IQueryable&lt;EmployeeTasks&gt;</div>
+<div class="tip" id="fs108">type NestedOrg = System.Linq.IQueryable&lt;DepartmentEmployees&gt;<br /><br />Full name: Tutorial.NestedOrg</div>
+<div class="tip" id="fs109">val nestedOrg : Quotations.Expr&lt;System.Linq.IQueryable&lt;DepartmentEmployees&gt;&gt;<br /><br />Full name: Tutorial.nestedOrg</div>
+<div class="tip" id="fs110">val any : Quotations.Expr&lt;(System.Linq.IQueryable&lt;string&gt; -&gt; (string -&gt; bool) -&gt; bool)&gt;<br /><br />Full name: Tutorial.any</div>
+<div class="tip" id="fs111">val xs : System.Linq.IQueryable&lt;string&gt;</div>
+<div class="tip" id="fs112">val p : (string -&gt; bool)</div>
+<div class="tip" id="fs113">val x : string</div>
+<div class="tip" id="fs114">val all&#39; : Quotations.Expr&lt;(System.Linq.IQueryable&lt;EmployeeTasks&gt; -&gt; (EmployeeTasks -&gt; bool) -&gt; bool)&gt;<br /><br />Full name: Tutorial.all&#39;</div>
+<div class="tip" id="fs115">val xs : System.Linq.IQueryable&lt;EmployeeTasks&gt;</div>
+<div class="tip" id="fs116">val p : (EmployeeTasks -&gt; bool)</div>
+<div class="tip" id="fs117">val x : EmployeeTasks</div>
+<div class="tip" id="fs118">val contains&#39; : Quotations.Expr&lt;(System.Linq.IQueryable&lt;string&gt; -&gt; string -&gt; bool)&gt;<br /><br />Full name: Tutorial.contains&#39;</div>
+<div class="tip" id="fs119">val expertise : Quotations.Expr&lt;(string -&gt; System.Linq.IQueryable&lt;string&gt;)&gt;<br /><br />Full name: Tutorial.expertise</div>
+<div class="tip" id="fs120">val d : DepartmentEmployees</div>
+<div class="tip" id="fs121">val e : EmployeeTasks</div>
+<div class="tip" id="fs122">val ex9 : System.Linq.IQueryable&lt;string&gt;<br /><br />Full name: Tutorial.ex9</div>
 
         </div>
         <div class="span3">
@@ -501,14 +883,14 @@ working on the</p>
             <li class="nav-header">FSharpComposableQuery</li>
             <li><a href="http://fsprojects.github.io/FSharp.Linq.Experimental.ComposableQuery/index.html">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="http://nuget.com/packages/FSharpComposableQuery">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/fsharp/FSharpComposableQuery">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/fsharp/FSharpComposableQuery/blob/master/LICENSE.txt">License</a></li>
-            <li><a href="http://github.com/fsharp/FSharpComposableQuery/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="https://www.nuget.org/packages/FSharpComposableQuery">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsharp/FSharpComposableQuery">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsharp/FSharpComposableQuery/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsharp/FSharpComposableQuery/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
             <li><a href="http://fsprojects.github.io/FSharp.Linq.Experimental.ComposableQuery/index.html">Home page</a></li>
-            <li><a href="http://fsprojects.github.io/FSharp.Linq.Experimental.ComposableQuery/tutorial.html">Sample tutorial</a></li>
+            <li><a href="http://fsprojects.github.io/FSharp.Linq.Experimental.ComposableQuery/tutorial.html">Tutorial</a></li>
             <li><a href="http://fsprojects.github.io/FSharp.Linq.Experimental.ComposableQuery/QueryExamples.html">Query Examples</a></li>
 
             <li class="nav-header">Documentation</li>
@@ -517,6 +899,6 @@ working on the</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/fsharp/FSharpComposableQuery"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/fsharp/FSharpComposableQuery"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>
