@@ -17,7 +17,7 @@ module internal Helpers =
     let (|IQueryableTy|_|) ty = if (ty = typeof<System.Linq.IQueryable>) then Some () else None
     let (|IEnumerableTy|_|) ty = if (ty = typeof<System.Collections.IEnumerable>) then Some () else None
     
-    let (|IQueryableTTy|_|) ty = if (ty = typeof<System.Linq.IQueryable<_>>) then Some () else None
+    let (|IQueryableTTy|_|) ty = if (ty = typedefof<System.Linq.IQueryable<_>>) then Some () else None
     let (|SeqTy|_|) (ty:System.Type) = 
         if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<seq<_>>
         then Some (ty.GetGenericArguments().[0])
@@ -393,17 +393,21 @@ module QueryImpl =
                 | Singleton e -> this.singletonExpr (toExp e)
                 | Comp(e2, x, e1) -> this.forExpr (toExp e2) x (toExp e1)
                 | Table(e, _ty) -> e
+                
+                // A union of 2 queries. Args and results are either IEnumerable<'T> or IQueryable<'T>
+                // TODO: check whether that's true
                 | Union(e1, e2) ->
-                    //a union of 2 queries. Args and results are either IEnumerable<'T> or IQueryable<'T>
                     let e = [toExp e1; toExp e2]
-
                     let tArgs = e.Head.Type.GetGenericArguments()       //get arg type to cast the generic methodInfo
                     let tDef = e.Head.Type.GetGenericTypeDefinition()
 
                     match tDef with     //construct the call based on the return type
-                    | IQueryableTTy _ -> Expr.Call(unionQueryMi.MakeGenericMethod tArgs, e)
-                    | SeqTy _ -> Expr.Call(unionEnumMi.MakeGenericMethod tArgs, e)
-                    | _ -> failwith ("Unexpected union type: " + tDef.Name)
+                    | IQueryableTTy _ -> 
+                        Expr.Call(unionQueryMi.MakeGenericMethod tArgs, e)
+                    | SeqTy _ -> 
+                        Expr.Call(unionEnumMi.MakeGenericMethod tArgs, e)
+                    | _ -> 
+                        failwith ("Unexpected union type: " + tDef.Name)
                 | RunAsQueryable(e, ty) ->
                     let mi = runNativeQueryMi.MakeGenericMethod ty
                     Expr.Call(nativeBuilderExpr, mi, [toExp e])
