@@ -426,8 +426,16 @@ module QueryImpl =
 
                 | _ -> 
                     raise NYI
-            
-            toExp exp
+
+            // strips outer RunQueryAsValue calls from the expression. 
+            // This allows us to use query.Run to execute value queries. 
+            let remOuter e = 
+                match e with
+                | Patterns.Call(_, mi, [_; Patterns.Quote(e')]) when (mi.IsGenericMethod && mi.GetGenericMethodDefinition() = runNativeValueMi) -> e'
+                | _ -> e
+
+            (toExp >> remOuter) exp
+
             
         member internal this.fromExpr expr =
             let rec from expr = 
@@ -606,6 +614,7 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Linq
 open FSharpComposableQuery.Common
 
+(* Note that the methods below are considered static extensions and accept a first argument of type QueryBuilder. *)
 [<AutoOpen>]
 module LowPriority = 
     type QueryImpl.QueryBuilder with
