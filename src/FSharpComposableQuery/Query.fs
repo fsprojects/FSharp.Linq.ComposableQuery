@@ -6,24 +6,28 @@ module internal Helpers =
 
     let IQueryableTy = typeof<System.Linq.IQueryable>
     let IEnumerableTy = typeof<System.Collections.IEnumerable>
+    
+    let IQueryableTTy (ty:System.Type) = typeof<System.Linq.IQueryable<_>>.MakeGenericType(ty)
+    let SeqTy (ty:System.Type) = typedefof<seq<_>>.MakeGenericType(ty)
 
-    let QuerySourceTy (ty:System.Type,qty:System.Type) = 
-            typeof<Linq.QuerySource<_,_>>.GetGenericTypeDefinition().MakeGenericType([|ty;qty|])
-
-    let EnumerableTy (ty:System.Type) = 
-        typeof<System.Collections.Generic.IEnumerable<_>>.GetGenericTypeDefinition().MakeGenericType([|ty|])
-
-    let GroupTy (ty1:System.Type,ty2) = 
-        typeof<System.Linq.IGrouping<_,_>>.GetGenericTypeDefinition().MakeGenericType([|ty1;ty2|])
+    let QuerySourceTy (ty:System.Type,qty:System.Type) = typedefof<Linq.QuerySource<_,_>>.MakeGenericType(ty, qty)
+    let IGroupingTy (ty1:System.Type,ty2) = typedefof<System.Linq.IGrouping<_,_>>.MakeGenericType(ty1, ty2)
       
     
     let (|IQueryableTy|_|) ty = if (ty = typeof<System.Linq.IQueryable>) then Some () else None
     let (|IEnumerableTy|_|) ty = if (ty = typeof<System.Collections.IEnumerable>) then Some () else None
+    
+    let (|IQueryableTTy|_|) ty = if (ty = typeof<System.Linq.IQueryable<_>>) then Some () else None
+    let (|SeqTy|_|) (ty:System.Type) = 
+        if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<seq<_>>
+        then Some (ty.GetGenericArguments().[0])
+        else None
 
     let (|QuerySourceTy|_|) (ty:System.Type) = 
         if ty.IsGenericType && ty.GetGenericTypeDefinition() = typeof<Linq.QuerySource<_,_>>.GetGenericTypeDefinition()
         then Some (ty.GetGenericArguments().[0],ty.GetGenericArguments().[1])
         else None
+
 
     //represents a Field or a Property
     let (|Variable|_|) e =
@@ -147,8 +151,8 @@ module QueryImpl =
             | Unknown(_, ty, _, _) -> ty
             | Quote(e) -> typedefof<Expr<_>>.MakeGenericType(getType e)
             | Source(eTy, sTy, _) -> QuerySourceTy(eTy, sTy)
-            | RunAsQueryable(_, ty) -> typedefof<IQueryable<_>>.MakeGenericType ty
-            | RunAsEnumerable(_, ty) -> typedefof<seq<_>>.MakeGenericType ty
+            | RunAsQueryable(_, ty) -> IQueryableTTy ty
+            | RunAsEnumerable(_, ty) -> SeqTy ty
     
         let rec removeRunAs exp = 
             let rec removeInner exp = 
@@ -277,15 +281,14 @@ module QueryImpl =
                      IfThenElse(Op(Not, [ test ]), n, Empty ty))
 
         let rec nf exp = 
-            let expR = reduce exp
-            
-
-            let expNorm = removeRunAs expR
+            let expNorm = 
+                exp
+                |> reduce
+                |> removeRunAs
             
             if exp = expNorm then 
                 expNorm 
-            else 
-//                Debug.printfn "Norm exp [%s]:\n%s\n" ty.Name (Debug.prettyPrint expNorm)
+            else
                 nf expNorm
              
         // MethodInfo data
@@ -397,11 +400,10 @@ module QueryImpl =
                     let tArgs = e.Head.Type.GetGenericArguments()       //get arg type to cast the generic methodInfo
                     let tDef = e.Head.Type.GetGenericTypeDefinition()
 
-                    if tDef = typedefof<System.Linq.IQueryable<_>> then     //construct the call based on the return type
-                        Expr.Call(unionQueryMi.MakeGenericMethod tArgs, e)
-                    else
-                        assert (tDef = typedefof<seq<_>>)
-                        Expr.Call(unionEnumMi.MakeGenericMethod tArgs, e)
+                    match tDef with     //construct the call based on the return type
+                    | IQueryableTTy _ -> Expr.Call(unionQueryMi.MakeGenericMethod tArgs, e)
+                    | SeqTy _ -> Expr.Call(unionEnumMi.MakeGenericMethod tArgs, e)
+                    | _ -> failwith ("Unexpected union type: " + tDef.Name)
                 | RunAsQueryable(e, ty) ->
                     let mi = runNativeQueryMi.MakeGenericMethod ty
                     Expr.Call(nativeBuilderExpr, mi, [toExp e])
@@ -411,10 +413,9 @@ module QueryImpl =
                 | Quote(e) -> Expr.Quote(toExp e)
                 | Source(eTy, sTy, e1) ->
                     let mi = 
-                        if (sTy = IEnumerableTy) then
-                            sourceEnumMi.MakeGenericMethod(eTy)
-                        else
-                            sourceQueryMi.MakeGenericMethod(eTy, sTy)
+                        match sTy with
+                        | IEnumerableTy _ -> sourceEnumMi.MakeGenericMethod(eTy)
+                        | _ -> sourceQueryMi.MakeGenericMethod(eTy, sTy)
                     Expr.Call(Expr.Value(this), mi, [toExp e1])
                 | Unknown(unk, _, eopt, es) -> 
                     this.unknownExpr unk (Option.map toExp eopt) (List.map toExp es)
@@ -542,7 +543,12 @@ module QueryImpl =
                                      Comp(Singleton(App(from f,EVar x)),  x, from e))
                 | UnionF, [e1;e2] -> 
                     Union(from e1, from e2)
+                | RunQueryAsEnumerableF, [_;e1] -> 
+                    RunAsEnumerable(from e1, func.ReturnType.GetGenericArguments().[0])
+                | RunQueryAsQueryableF, [e1] -> 
+                    RunAsQueryable(from e1, func.ReturnType.GetGenericArguments().[0])
                     
+                // translate these away
                 | RunQueryAsValueF, [_;e1] -> 
                     match (from e1) with
                     | Exp.Quote(e) ->
@@ -550,13 +556,11 @@ module QueryImpl =
                         // if you add an Exp literal for such a method don't forget to update this. 
                         match e with
                         | Exp.Unknown(UnknownCall(mi), ty, e, l) -> Exp.Unknown(UnknownValueCall(mi), ty, e, l)
-                        | _ -> failwith "Unexpected Exp inside RunValue's quote"
+                        | _ -> failwith "Unexpected UnknownCall inside RunValue's quote"
                     | _ -> failwith "Expected a quote inside RunValue"
 
-                | RunQueryAsEnumerableF, [_;e1] -> RunAsEnumerable(from e1, func.ReturnType.GetGenericArguments().[0])
-                | RunQueryAsQueryableF, [e1] -> RunAsQueryable(from e1, func.ReturnType.GetGenericArguments().[0])
-
                 | SourceEnumF, [e1] ->
+                    // grab the generic args before constructing the term
                     let elemTy, sourceTy = 
                         match func.ReturnType.GetGenericArguments() with
                         | [| eTy; sTy |] -> eTy, sTy
@@ -569,19 +573,17 @@ module QueryImpl =
                         | _ -> failwith "Unexpected number of generic arguments in a call to SourceQuery"
                     Source(elemTy, sourceTy, from e1)
 
-                | _, args ->                         //pass the call along
+                | _, args ->            //pass the call along
                     Unknown(UnknownCall (func), expr_ty, Option.map from obj, List.map from args)
             from expr
 
 
         member internal this.Norm (expr:Expr<'T>) : Expr<'T> = 
-            let exp = this.fromExpr expr.Raw
-            
-//            Debug.printfn "Initial exp:\n%s\n" (Debug.prettyPrint exp)
-            let expNorm = nf exp
-
-            let exprNorm = this.toExpr expNorm
-            Expr.Cast<'T>(exprNorm)
+            expr.Raw
+            |> this.fromExpr
+            |> nf
+            |> this.toExpr
+            |> Expr.Cast
         
         member this.Run(q : Expr<Linq.QuerySource<'T, System.Linq.IQueryable>>) : System.Linq.IQueryable<'T> = 
             let qNorm = this.Norm q
@@ -624,4 +626,4 @@ module TopLevelValues =
                 member this.Query = getGenericMethodInfo <@ fun (q:QueryImpl.QueryBuilder) (e : Expr<QuerySource<_, System.Linq.IQueryable>>) -> q.Run e @>
         }
 
-    let public runQuery (q:Expr<System.Linq.IQueryable<_>>) = (query { yield! (%q) })   |> System.Linq.Enumerable.ToArray   //force evaluation
+//    let public runQuery (q:Expr<System.Linq.IQueryable<_>>) = (query { yield! (%q) })
