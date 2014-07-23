@@ -52,18 +52,20 @@
 
 <h2>Overview</h2>
 
-<p>The <strong>FSharpComposableQuery</strong> library exposes a new query builder in place of the old F# query builder.</p>
+<p>The <strong>FSharpComposableQuery</strong> library exposes a new query builder in place of the old F# one.</p>
 
 <p>All existing F# database and in-memory queries should work as normal.
-In addition, queries can be <em>composed</em> using lambda-abstraction and are explicitly tranformed to a <em>normal form</em> 
-before execution. 
-See the paper <a href="http://dl.acm.org/citation.cfm?id=2500586">"A Practical Theory of Language-Integrated Query" (ICFP 2013)</a>.</p>
+In addition, queries can be <em>composed</em> using lambda-abstraction and are explicitly transformed to a <em>normal form</em> 
+before execution.</p>
 
-<p>Simple forms of <em>query composition</em> (such as parameterizing a value of base type) already work in LINQ, 
-but 'FSharpComposableQuery' in addition supports functions as parameters, to allow higher-order query 
+<p>See the paper <a href="http://dl.acm.org/citation.cfm?id=2500586">"A Practical Theory of Language-Integrated Query" (ICFP 2013)</a>
+for further information.</p>
+
+<p>Simple forms of <em>query composition</em>, such as parameterizing a value of base type, already work in LINQ, 
+but 'FSharpComposableQuery' additionally supports passing functions as parameters to allow for higher-order query 
 operations.</p>
 
-<p>The library performs normalisation on the input query which allows us to provide strong guarantees 
+<p>The library also performs <em>normalisation</em> on the input query, which allows us to provide strong guarantees 
 about the runtime of composed queries. It thus allows the user to use higher-order abstraction and dynamically 
 construct queries without having to worry about the efficiency of the generated SQL code.</p>
 
@@ -73,7 +75,7 @@ construct queries without having to worry about the efficiency of the generated 
 Alternatively you can find the source code on <a href="http://github.com/fsharp/FSharpComposableQuery">GitHub</a> and build it 
 yourself.</p>
 
-<p>To then start using the library simply open the <code>FSharpComposableQuery</code> namespace:</p>
+<p>To then include the library in your project or script simply open the <code>FSharpComposableQuery</code> namespace:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
@@ -95,14 +97,14 @@ yourself.</p>
 
 <h2>Example</h2>
 
-<p>The following is an example of query composition.</p>
+<p>The following example demonstrates query composition using a parameterized predicate.</p>
 
 <p>We assume the following simple database schema:</p>
 
 <pre><code>type dbSchema = { people : { name : string; age : int } list; }
 </code></pre>
 
-<p>We use the LINQ-to-SQL <code>TypeProvider</code> to get the types directly from the database tables:</p>
+<p>We will use the LINQ-to-SQL <code>TypeProvider</code> to connect to the database and get the record types:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
@@ -116,6 +118,8 @@ yourself.</p>
 <span class="l"> 9: </span>
 <span class="l">10: </span>
 <span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
@@ -129,7 +133,9 @@ yourself.</p>
 
 <span class="k">type</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">dbSchema</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">SqlDataConnection</span><span class="o">&lt;</span><span class="i">ConnectionStringName</span><span class="o">=</span><span class="s">&quot;</span><span class="s">PeopleConnectionString</span><span class="s">&quot;</span>, <span class="i">ConfigFile</span><span class="o">=</span><span class="s">&quot;</span><span class="s">db</span><span class="s">.</span><span class="s">config</span><span class="s">&quot;</span><span class="o">&gt;</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">db</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 10)" onmouseover="showTip(event, 'fs7', 10)" class="i">dbSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="i">GetDataContext</span>()</pre>
+<span class="k">type</span> <span class="k">internal</span> <span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">Person</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 10)" onmouseover="showTip(event, 'fs7', 10)" class="i">dbSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="i">ServiceTypes</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="i">People</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">db</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 14)" onmouseover="showTip(event, 'fs7', 14)" class="i">dbSchema</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="i">GetDataContext</span>()</pre>
 </td>
 </tr>
 </table>
@@ -146,46 +152,49 @@ yourself.</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="i">satisfies</span>  <span class="o">=</span> 
- &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">p</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="i">query</span> { 
-    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs14', 15)" onmouseover="showTip(event, 'fs14', 15)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs9', 16)" onmouseover="showTip(event, 'fs9', 16)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">People</span> <span class="k">do</span>
-        <span class="k">if</span> <span onmouseout="hideTip(event, 'fs12', 18)" onmouseover="showTip(event, 'fs12', 18)" class="i">p</span> <span onmouseout="hideTip(event, 'fs14', 19)" onmouseover="showTip(event, 'fs14', 19)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 20)" onmouseover="showTip(event, 'fs16', 20)" class="i">Age</span> <span class="k">then</span> 
-            <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs12', 21)" onmouseover="showTip(event, 'fs12', 21)" class="i">p</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">satisfies</span>  <span class="o">=</span> 
+ &lt;@ <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">p</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs16', 18)" onmouseover="showTip(event, 'fs16', 18)" class="i">query</span> { 
+    <span class="k">for</span> <span onmouseout="hideTip(event, 'fs17', 19)" onmouseover="showTip(event, 'fs17', 19)" class="i">u</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs12', 20)" onmouseover="showTip(event, 'fs12', 20)" class="i">db</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 21)" onmouseover="showTip(event, 'fs18', 21)" class="i">People</span> <span class="k">do</span>
+        <span class="k">if</span> <span onmouseout="hideTip(event, 'fs15', 22)" onmouseover="showTip(event, 'fs15', 22)" class="i">p</span> <span onmouseout="hideTip(event, 'fs17', 23)" onmouseover="showTip(event, 'fs17', 23)" class="i">u</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="i">Age</span> <span class="k">then</span> 
+            <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs15', 25)" onmouseover="showTip(event, 'fs15', 25)" class="i">p</span>
    } @&gt;</pre>
 </td>
 </tr>
 </table>
 
-<p>We can now use this function, for example, to find all people with age at least 20 and less than 30</p>
+<p>We can now use this function, for example, to find all people with age at least 20 and less than 30:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 22)" onmouseover="showTip(event, 'fs17', 22)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 23)" onmouseover="showTip(event, 'fs13', 23)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs11', 24)" onmouseover="showTip(event, 'fs11', 24)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs18', 25)" onmouseover="showTip(event, 'fs18', 25)" class="i">x</span> <span class="k">-&gt;</span> <span class="n">20</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs18', 26)" onmouseover="showTip(event, 'fs18', 26)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs18', 27)" onmouseover="showTip(event, 'fs18', 27)" class="i">x</span> <span class="o">&lt;</span> <span class="n">30</span> ) }</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 26)" onmouseover="showTip(event, 'fs20', 26)" class="i">ex1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 27)" onmouseover="showTip(event, 'fs16', 27)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs14', 28)" onmouseover="showTip(event, 'fs14', 28)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs21', 29)" onmouseover="showTip(event, 'fs21', 29)" class="i">x</span> <span class="k">-&gt;</span> <span class="n">20</span> <span class="o">&lt;=</span> <span onmouseout="hideTip(event, 'fs21', 30)" onmouseover="showTip(event, 'fs21', 30)" class="i">x</span> <span class="o">&amp;&amp;</span> <span onmouseout="hideTip(event, 'fs21', 31)" onmouseover="showTip(event, 'fs21', 31)" class="i">x</span> <span class="o">&lt;</span> <span class="n">30</span> ) }</pre>
 </td>
 </tr>
 </table>
 
-<p>Another example: find all people with even age</p>
+<p>Find all people with an even age:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 28)" onmouseover="showTip(event, 'fs19', 28)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 29)" onmouseover="showTip(event, 'fs13', 29)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs11', 30)" onmouseover="showTip(event, 'fs11', 30)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs18', 31)" onmouseover="showTip(event, 'fs18', 31)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs18', 32)" onmouseover="showTip(event, 'fs18', 32)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) }</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="i">ex2</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 33)" onmouseover="showTip(event, 'fs16', 33)" class="i">query</span> { <span class="k">yield!</span> (<span class="o">%</span><span onmouseout="hideTip(event, 'fs14', 34)" onmouseover="showTip(event, 'fs14', 34)" class="i">satisfies</span>) (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs21', 35)" onmouseover="showTip(event, 'fs21', 35)" class="i">x</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs21', 36)" onmouseover="showTip(event, 'fs21', 36)" class="i">x</span> <span class="o">%</span> <span class="n">2</span> <span class="o">=</span> <span class="n">0</span> ) }</pre>
 </td>
 </tr>
 </table>
+
+<p>An overview of the main use cases of the library can be found <a href="./tutorial.html">here</a></p>
 
 <h2>Caveats</h2>
 
 <ul>
 <li>WARNING: F# compiler optimizations are no longer applied to in-memory queries. 
 This library should only be used for database query programming.  If both in-memory querying and
-composable database queries are needed, you can explicitly bind</li>
+composable database queries are needed, you can explicitly bind the <strong>FSharpComposableQuery</strong> builder
+to a variable instead of opening the whole namespace to avoid shadowing the built-in <code>query</code> keyword:</li>
 </ul>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -193,16 +202,13 @@ composable database queries are needed, you can explicitly bind</li>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 33)" onmouseover="showTip(event, 'fs20', 33)" class="i">dbQuery</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs1', 34)" onmouseover="showTip(event, 'fs1', 34)" class="i">FSharpComposableQuery</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 35)" onmouseover="showTip(event, 'fs21', 35)" class="i">TopLevelValues</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs13', 36)" onmouseover="showTip(event, 'fs13', 36)" class="i">query</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 37)" onmouseover="showTip(event, 'fs23', 37)" class="i">dbQuery</span> <span class="o">=</span>  <span onmouseout="hideTip(event, 'fs1', 38)" onmouseover="showTip(event, 'fs1', 38)" class="i">FSharpComposableQuery</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 39)" onmouseover="showTip(event, 'fs24', 39)" class="i">TopLevelValues</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 40)" onmouseover="showTip(event, 'fs16', 40)" class="i">query</span></pre>
 </td>
 </tr>
 </table>
 
-<p>instead of opening the 'FSharpComposableQuery' namespace, to avoid shadowing the built-in 'query' construct.
-   You can then use the 'dbQuery' construct with database queries, without changing the behavior of query {} on in-memory queries.</p>
-
 <ul>
-<li>Please also check the <a href="https://github.com/fsharp/FSharpComposableQuery/issues">issues page on GitHub</a>.</li>
+<li>Please check the <a href="https://github.com/fsharp/FSharpComposableQuery/issues">issues page</a> on GitHub for further information.</li>
 </ul>
 
 <h2>Samples &amp; documentation</h2>
@@ -210,11 +216,10 @@ composable database queries are needed, you can explicitly bind</li>
 <p>The API reference is automatically generated from Markdown comments in the library implementation.</p>
 
 <ul>
-<li><p><a href="tutorial.html">Tutorial</a> contains a further explanation of this sample library.</p></li>
-<li><p><a href="QueryExamples.html">Query Examples</a> contains a more comprehensive set of queries from the MSDN documentation.</p></li>
+<li><p><a href="tutorial.html">The tutorial</a> contains a further overview of this library's main use cases.</p></li>
+<li><p><a href="QueryExamples.html">Query Examples</a> contains a comprehensive set of default queries from the MSDN documentation.</p></li>
 <li><p><a href="reference/index.html">API Reference</a> contains automatically generated documentation for all types, modules
-and functions in the library. This includes additional brief samples on using most of the
-functions.</p></li>
+and functions in the library. This includes additional brief samples on using most of the functions.</p></li>
 </ul>
 
 <h2>Contributing and copyright</h2>
@@ -236,19 +241,22 @@ redistribution for both commercial and non-commercial purposes. For more informa
 <div class="tip" id="fs6">namespace Microsoft.FSharp.Data.TypeProviders</div>
 <div class="tip" id="fs7">type dbSchema =<br />&#160;&#160;static member GetDataContext : unit -&gt; MyPeople + 1 overload<br />&#160;&#160;nested type ServiceTypes<br /><br />Full name: Index.dbSchema<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
 <div class="tip" id="fs8">type SqlDataConnection<br /><br />Full name: Microsoft.FSharp.Data.TypeProviders.SqlDataConnection<br /><em><br /><br />&lt;summary&gt;Provides the types to access a database, using a LINQ-to-SQL mapping&lt;/summary&gt;&lt;param name=&#39;ConnectionString&#39;&gt;The connection string for the database connection. If using Visual Studio, a connection string can be found in database properties in the Server Explorer window.&lt;/param&gt;&lt;param name=&#39;ConnectionStringName&#39;&gt;The name of the connection string for the database connection in the configuration file.&lt;/param&gt;&lt;param name=&#39;LocalSchemaFile&#39;&gt;The local .dbml file for the database schema (default: no local schema file)&lt;/param&gt;&lt;param name=&#39;ForceUpdate&#39;&gt;Require that a direct connection to the database be available at design-time and force the refresh of the local schema file (default: true)&lt;/param&gt;&lt;param name=&#39;Pluralize&#39;&gt;Automatically pluralize or singularize class and member names using English language rules (default: false)&lt;/param&gt;&lt;param name=&#39;Views&#39;&gt;Extract database views (default: true)&lt;/param&gt;&lt;param name=&#39;Functions&#39;&gt;Extract database functions (default: true)&lt;/param&gt;&lt;param name=&#39;ConfigFile&#39;&gt;The name of the configuration file used for connection strings (default: app.config or web.config is used)&lt;/param&gt;&lt;param name=&#39;DataDirectory&#39;&gt;The name of the data directory, used to replace |DataDirectory| in connection strings (default: the project or script directory)&lt;/param&gt;&lt;param name=&#39;ResolutionFolder&#39;&gt;The folder used to resolve relative file paths at compile-time (default: folder containing the project or script)&lt;/param&gt;&lt;param name=&#39;StoredProcedures&#39;&gt;Extract stored procedures (default: true)&lt;/param&gt;&lt;param name=&#39;Timeout&#39;&gt;Timeout value in seconds to use when SqlMetal accesses the database (default: 0, which means infinite)&lt;/param&gt;&lt;param name=&#39;ContextTypeName&#39;&gt;The name of data context class (default: derived from database name)&lt;/param&gt;&lt;param name=&#39;Serializable&#39;&gt;Generate uni-directional serializable classes (default: false, which means no serialization)&lt;/param&gt;</em></div>
-<div class="tip" id="fs9">val db : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><br />Full name: Index.db</div>
-<div class="tip" id="fs10">dbSchema.GetDataContext() : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em><br />dbSchema.GetDataContext(connectionString: string) : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em></div>
-<div class="tip" id="fs11">val satisfies : Quotations.Expr&lt;((int -&gt; bool) -&gt; Linq.IQueryable&lt;(int -&gt; bool)&gt;)&gt;<br /><br />Full name: Index.satisfies</div>
-<div class="tip" id="fs12">val p : (int -&gt; bool)</div>
-<div class="tip" id="fs13">val query : QueryImpl.QueryBuilder<br /><br />Full name: FSharpComposableQuery.TopLevelValues.query</div>
-<div class="tip" id="fs14">val u : dbSchema.ServiceTypes.People</div>
-<div class="tip" id="fs15">property dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople.People: Data.Linq.Table&lt;dbSchema.ServiceTypes.People&gt;<br /><em><br /><br />Gets the &#39;People&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
-<div class="tip" id="fs16">property dbSchema.ServiceTypes.People.Age: int</div>
-<div class="tip" id="fs17">val ex1 : Linq.IQueryable&lt;(int -&gt; bool)&gt;<br /><br />Full name: Index.ex1</div>
-<div class="tip" id="fs18">val x : int</div>
-<div class="tip" id="fs19">val ex2 : Linq.IQueryable&lt;(int -&gt; bool)&gt;<br /><br />Full name: Index.ex2</div>
-<div class="tip" id="fs20">val dbQuery : QueryImpl.QueryBuilder<br /><br />Full name: Index.dbQuery</div>
-<div class="tip" id="fs21">module TopLevelValues<br /><br />from FSharpComposableQuery</div>
+<div class="tip" id="fs9">type internal Person = dbSchema.ServiceTypes.People<br /><br />Full name: Index.Person</div>
+<div class="tip" id="fs10">type ServiceTypes =<br />&#160;&#160;nested type Couples<br />&#160;&#160;nested type MyPeople<br />&#160;&#160;nested type People<br />&#160;&#160;nested type SimpleDataContextTypes<br /><br />Full name: Index.dbSchema.ServiceTypes<br /><em><br /><br />&lt;summary&gt;&lt;para&gt;The full API to the SQL connection.&lt;/para&gt;&lt;para&gt;To use the service via the full API, create an instance of one of the types &#39;MyPeople&#39;.&lt;/para&gt;&lt;/summary&gt;</em></div>
+<div class="tip" id="fs11">type People =<br />&#160;&#160;interface INotifyPropertyChanging<br />&#160;&#160;interface INotifyPropertyChanged<br />&#160;&#160;new : unit -&gt; People<br />&#160;&#160;member Age : int with get, set<br />&#160;&#160;member Name : string with get, set<br />&#160;&#160;event PropertyChanged : PropertyChangedEventHandler<br />&#160;&#160;event PropertyChanging : PropertyChangingEventHandler<br /><br />Full name: Index.dbSchema.ServiceTypes.People</div>
+<div class="tip" id="fs12">val db : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><br />Full name: Index.db</div>
+<div class="tip" id="fs13">dbSchema.GetDataContext() : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em><br />dbSchema.GetDataContext(connectionString: string) : dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople<br /><em><br /><br />Get a simplified data context for this SQL connection. By default, no credentials are set</em></div>
+<div class="tip" id="fs14">val satisfies : Quotations.Expr&lt;((int -&gt; bool) -&gt; Linq.IQueryable&lt;(int -&gt; bool)&gt;)&gt;<br /><br />Full name: Index.satisfies</div>
+<div class="tip" id="fs15">val p : (int -&gt; bool)</div>
+<div class="tip" id="fs16">val query : QueryImpl.QueryBuilder<br /><br />Full name: FSharpComposableQuery.TopLevelValues.query</div>
+<div class="tip" id="fs17">val u : dbSchema.ServiceTypes.People</div>
+<div class="tip" id="fs18">property dbSchema.ServiceTypes.SimpleDataContextTypes.MyPeople.People: Data.Linq.Table&lt;dbSchema.ServiceTypes.People&gt;<br /><em><br /><br />Gets the &#39;People&#39; entities from the SQL connection. This property may be used as the source in a query expression.</em></div>
+<div class="tip" id="fs19">property dbSchema.ServiceTypes.People.Age: int</div>
+<div class="tip" id="fs20">val ex1 : Linq.IQueryable&lt;(int -&gt; bool)&gt;<br /><br />Full name: Index.ex1</div>
+<div class="tip" id="fs21">val x : int</div>
+<div class="tip" id="fs22">val ex2 : Linq.IQueryable&lt;(int -&gt; bool)&gt;<br /><br />Full name: Index.ex2</div>
+<div class="tip" id="fs23">val dbQuery : QueryImpl.QueryBuilder<br /><br />Full name: Index.dbQuery</div>
+<div class="tip" id="fs24">module TopLevelValues<br /><br />from FSharpComposableQuery</div>
 
         </div>
         <div class="span3">
