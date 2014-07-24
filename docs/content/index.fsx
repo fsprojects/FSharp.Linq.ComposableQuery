@@ -11,8 +11,8 @@ let ConnectionString =
 (**
 FSharpComposableQuery
 =====================
-
 (__work in progress__)
+
 
 <div class="row">
   <div class="span1"></div>
@@ -30,63 +30,67 @@ FSharpComposableQuery
 Overview
 --------
 
-When you open 'FSharpComposableQuery', a new 'query' builder is available. The old F# query builder 
-is out-scoped, but can still be accessed as 'Microsoft.FSharp.Core.ExtraTopLevelOperators.query'.
+The **FSharpComposableQuery** library exposes a new query builder in place of the old F# one. 
 
+All existing F# database and in-memory queries should work as normal.
+In addition, queries can be _composed_ using lambda-abstraction and are explicitly transformed to a _normal form_ 
+before execution. 
 
-All existing F# database and in-memory queries should work as normal. 
+See the paper ["A Practical Theory of Language-Integrated Query" (ICFP 2013)](http://dl.acm.org/citation.cfm?id=2500586)
+for further information.  
 
-Example
--------
+Simple forms of _query composition_, such as parameterizing a value of base type, already work in LINQ, 
+but 'FSharpComposableQuery' additionally supports passing functions as parameters to allow for higher-order query 
+operations.
 
-This example demonstrates a query.
+The library also performs _normalisation_ on the input query, which allows us to provide strong guarantees 
+about the runtime of composed queries. It thus allows the user to use higher-order abstraction and dynamically 
+construct queries without having to worry about the efficiency of the generated SQL code. 
+
+Installation
+---------------------
+
+You can install the library from [NuGet](https://nuget.org/packages/FSharpComposableQuery). 
+Alternatively you can find the source code on [GitHub](http://github.com/fsharp/FSharpComposableQuery) and build it 
+yourself. 
+
+To then include the library in your project or script simply open the `FSharpComposableQuery` namespace:
 
 *)
-#r "FSharp.Data.TypeProviders.dll"
-#r "System.Data.dll"
-#r "System.Data.Linq.dll"
-#r "FSharp.PowerPack.Linq.dll"
+
+#if INTERACTIVE     // reference required libraries if run as a script
 #r "FSharpComposableQuery.dll"
-
-open System
-open System.Data.Linq.SqlClient
-open System.Linq
-
-open Microsoft.FSharp.Data.TypeProviders
-open Microsoft.FSharp.Linq
+#endif
 
 open FSharpComposableQuery
 
-
-
-let data = [1; 5; 7; 11; 18; 21]
-let lastNumberInSortedList =
-    query {
-        for s in data do
-        sortBy s
-        last
-    }
-
 (**
 
-Intended use
+Example
 ------------
 
-In addition to normal usage, queries can be *composed* using lambda-abstraction. See the paper 
-["A Practical Theory of Language-Integrated Query" (ICFP 2013)](http://dl.acm.org/citation.cfm?id=2500586).  
+The following example demonstrates query composition using a parameterized predicate.  
 
-Simple forms of query composition (such as abstracting over a value of base type) already work in LINQ, 
-but 'FSharpComposableQuery' in addition supports abstracting over functions, to allow higher-order query 
-operations, and provides stronger guarantees on the runtime of composed queries. 
+We assume the following simple database schema:
+  
+    type dbSchema = { people : { name : string; age : int } list; }
 
-The following is a simple example.  We assume ConnectionString is a database connection string 
-pointing to a database with appropriate tables matching the query, namely a 'People' table with fields 'name:String' and 'age:Int'. 
+We will use the LINQ-to-SQL `TypeProvider` to connect to the database and get the record types:
 *)
 
-type dbSchema = SqlDataConnection<ConnectionString>;;
-let db = dbSchema.GetDataContext();;
-type People = dbSchema.ServiceTypes.People
-type PeopleR = { name:string; age:int }
+#if INTERACTIVE
+#r "FSharp.Data.TypeProviders.dll"
+#r "System.Data.Linq.dll"
+#endif
+
+open System
+open Microsoft.FSharp.Data.TypeProviders
+
+type dbSchema = SqlDataConnection<ConnectionStringName="PeopleConnectionString", ConfigFile="db.config">
+
+type internal Person = dbSchema.ServiceTypes.People
+
+let db = dbSchema.GetDataContext()
 
 (**
 We can then construct a function `satisfies` that takes a predicate on ages and returns all people that satisfy it
@@ -95,53 +99,49 @@ We can then construct a function `satisfies` that takes a predicate on ages and 
 let satisfies  = 
  <@ fun p -> query { 
     for u in db.People do
-    if p u.Age 
-    then yield p
+        if p u.Age then 
+            yield p
    } @>
 
-(** We can now use it, for example, to find all people with age at least 20 and less than 30 *)
+(** We can now use this function, for example, to find all people with age at least 20 and less than 30: *)
 
-let ex1 = query { for x in (%satisfies) (fun x -> 20 <= x && x < 30 ) do yield x }
+let ex1 = query { yield! (%satisfies) (fun x -> 20 <= x && x < 30 ) }
 
 
-(** Another example: find all people with even age *)
+(** Find all people with an even age: *)
 
-let ex2 = query {for x in (%satisfies) (fun x ->  x % 2 = 0 ) do yield x }
+let ex2 = query { yield! (%satisfies) (fun x ->  x % 2 = 0 ) }
 
 (**
+
+An overview of the main use cases of the library can be found [here](./tutorial.html)
+
 
 Caveats
 -------
 
  * WARNING: F# compiler optimizations are no longer applied to in-memory queries. 
    This library should only be used for database query programming.  If both in-memory querying and 
-   composable database queries are needed, you can explicitly bind *)
+   composable database queries are needed, you can explicitly bind the **FSharpComposableQuery** builder
+   to a variable instead of opening the whole namespace to avoid shadowing the built-in `query` keyword: *)
 
 let dbQuery =  FSharpComposableQuery.TopLevelValues.query
 
-(**instead of opening the 'FSharpComposableQuery' namespace, to avoid shadowing the built-in 'query' construct.
-   You can then use the 'dbQuery' construct with database queries, without changing the behavior of query {} on in-memory queries.
-
- * Please also check the [issues page on GitHub][issues]. 
-
-
-*)
-
-
 (**
+ * Please check the [issues page][issues] on GitHub for further information. 
+
 
 Samples & documentation
 -----------------------
 
 The API reference is automatically generated from Markdown comments in the library implementation.
 
- * [Tutorial](tutorial.html) contains a further explanation of this sample library.
+ * [The tutorial](tutorial.html) contains a further overview of this library's main use cases.
 
- * [Query Examples](QueryExamples.html) contains a more comprehensive set of queries from the MSDN documentation.
+ * [Query Examples](QueryExamples.html) contains a comprehensive set of default queries from the MSDN documentation.
 
  * [API Reference](reference/index.html) contains automatically generated documentation for all types, modules
-   and functions in the library. This includes additional brief samples on using most of the
-   functions.
+   and functions in the library. This includes additional brief samples on using most of the functions.
  
 Contributing and copyright
 --------------------------
