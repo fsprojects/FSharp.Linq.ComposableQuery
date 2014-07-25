@@ -90,6 +90,7 @@
     <Compile Include="Nested.fs" />
     <Compile Include="Xml.fs" />
     <Compile Include="QueryTests.fs" />
+    <Compile Include="NorthwindTests.fs" />
     <Compile Include="ExtraTests.fs" />
     <Compile Include="RunTests.fs" />
     <None Include="sql\organisation.sql" />
@@ -123,6 +124,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />

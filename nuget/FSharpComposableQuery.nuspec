@@ -6,8 +6,8 @@
     <authors>@authors@</authors>
     <owners>@authors@</owners>
     <licenseUrl>http://github.com/fsharp/FSharpComposableQuery/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>http://fsharp.github.com/FSharpComposableQuery</projectUrl>
-    <iconUrl>https://raw.github.com/fsharp/FSharpComposableQuery/master/nuget/logo.png</iconUrl>
+    <projectUrl>http://fsprojects.github.io/FSharp.Linq.Experimental.ComposableQuery</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/fsprojects/FSharp.Linq.Experimental.ComposableQuery/master/docs/files/img/cqlogo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
     <description>@description@</description>

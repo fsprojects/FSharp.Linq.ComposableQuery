@@ -25,17 +25,17 @@ let project = "FSharpComposableQuery"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = "A Compositional, Safe Query Framework for F# Queries."
+let summary = "A Compositional, Safe Query Framework for Dynamic F# Queries."
 
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
 let description = """
-  A Compositional Query Framework for F# Queries, based on 'A Practical Theory of Language-Integrated Query',
+  A Compositional Query Framework for Dynamic F# Queries, based on 'A Practical Theory of Language-Integrated Query',
   """
 // List of author names (for NuGet package)
 let authors = [ "James Cheney"; "Sam Lindley"; "Yordan Stoyanov" ]
 // Tags for your project (for NuGet package)
-let tags = "F# fsharp LINQ SQL database data query"
+let tags = "F# fsharp LINQ SQL database data dynamic query"
 
 // File system information 
 // Pattern specifying all library files (projects or solutions)
@@ -51,7 +51,7 @@ let testAssemblies = !! "bin/FSharpComposableQuery*Tests*.exe"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted 
-let gitHome = "https://github.com/fsharp"
+let gitHome = "https://github.com/fsprojects"
 // The name of the project on GitHub
 let gitName = "FSharpComposableQuery"
 
@@ -185,7 +185,9 @@ Target "All" DoNothing
 // Run 'Build' target by default. Invoke 'build <Target>' to override
 
 "Clean" ==> "RestorePackages" ==> "AssemblyInfo" ==> "Build"
-"AssemblyInfo" ==> "BuildTest" ==> "RunTests" ==> "All"
-"CleanDocs" ==> "GenerateDocs" ==> "ReleaseDocs" ==> "NuGet" ==> "Release"
+"AssemblyInfo" ==> "BuildTest" ==> "RunTests" 
+"CleanDocs" ==> "GenerateDocs" ==> "ReleaseDocs" 
+"Build" ==> "RunTests" ==> "GenerateDocs" ==> "All"
+"RunTests" ==> "NuGet" ==> "Release"
 
 RunTargetOrDefault "Build"
