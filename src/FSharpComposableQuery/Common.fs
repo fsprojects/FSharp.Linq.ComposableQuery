@@ -6,7 +6,6 @@ open Microsoft.FSharp.Quotations.DerivedPatterns
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Reflection
 open System.Reflection
-open System.Data.Services
 
 #nowarn "62"
 
@@ -29,19 +28,21 @@ type Op =
     | Neg // unary
     | Like // SQL
 
-let arity op = 
-    match op with
-    | Plus | Times | Div | Minus | And | Or | Mod | Equal | Nequal | Gt | Geq | Lt | Leq | Concat | Like -> 
-        2
-    | Neg | Not -> 1
+    member op.Arity() =
+        match op with
+        | Plus | Times | Div | Minus | And | Or | Mod | Equal | Nequal | Gt | Geq | Lt | Leq | Concat | Like -> 2
+        | Neg | Not -> 1
 
-let getOpType op = 
-    match op with
-    | Plus | Times | Div | Minus | Mod -> typeof<int>
-    | Equal | Nequal | Gt | Geq | Lt | Leq | And | Or -> typeof<bool>
-    | Concat | Like -> typeof<string>
-    | Neg -> typeof<int>
-    | Not -> typeof<bool>
+    member op.GetOpType() =
+        match op with
+        | Plus | Times | Div | Minus | Mod 
+        | Neg -> 
+            typeof<int>
+        | Equal | Nequal | Gt | Geq | Lt | Leq | And | Or
+        | Not -> 
+            typeof<bool>
+        | Concat | Like -> 
+            typeof<string>
     
 
 let UnitTy = typeof<unit>
@@ -51,14 +52,6 @@ let StringTy = typeof<string>
 
 let FunTy(ty1 : System.Type, ty2) = 
     typeof<_ -> _>.GetGenericTypeDefinition().MakeGenericType([| ty1; ty2 |])
-
-let TableTy(ty : System.Type) = 
-    typeof<System.Data.Linq.Table<_>>.GetGenericTypeDefinition()
-        .MakeGenericType([| ty |])
-
-let DataServiceQueryTy(ty:System.Type) = 
-    typeof<System.Data.Services.Client.DataServiceQuery<_>>.GetGenericTypeDefinition()
-        .MakeGenericType([| ty |])
 
 let (|UnitTy|_|) ty = 
     if ty = typeof<unit> then Some()
@@ -83,19 +76,23 @@ let (|FunTy|_|) (ty : System.Type) =
         Some(ty.GetGenericArguments().[0], ty.GetGenericArguments().[1])
     else None
 
-let (|TableTy|_|) (ty : System.Type) = 
-    if ty.IsGenericType 
-       && ty.GetGenericTypeDefinition() = typeof<System.Data.Linq.Table<_>>
-              .GetGenericTypeDefinition() then 
-        Some(ty.GetGenericArguments().[0])
-    else None
+/// <summary>
+/// Checks whether the specified type is or extends from System.Linq.IQueryable<T>
+/// </summary>
+/// <param name="ty">The type argument </param>
+let (|IQueryableExtTy|_|) (ty : System.Type) = 
+    if ty.IsGenericType then
+        // compare the typed versions of each of ty and IQueryable<_>
+        // or the IsAssignableFrom() call will fail
+        let argTy = ty.GetGenericArguments().[0]
+        let qTy = typedefof<System.Linq.IQueryable<_>>.MakeGenericType argTy
 
-let (|DataServiceQueryTy|_|) (ty : System.Type) = 
-    if ty.IsGenericType 
-       && ty.GetGenericTypeDefinition() = typeof<System.Data.Services.Client.DataServiceQuery<_>>
-              .GetGenericTypeDefinition() then 
-        Some(ty.GetGenericArguments().[0])
-    else None
+        if qTy.IsAssignableFrom(ty) then
+            Some argTy
+        else
+            None
+    else
+        None
 
 type Field = 
     { name : string
@@ -407,10 +404,10 @@ let getUnOp unop (e : Expr) =
 
 let (|BinOp|_|) exp = 
     match exp with
-    | Op(op, [ e1; e2 ]) when arity op = 2 -> Some(e1, op, e2)
+    | Op(op, [ e1; e2 ]) when op.Arity() = 2 -> Some(e1, op, e2)
     | _ -> None
 
 let (|UnOp|_|) exp = 
     match exp with
-    | Op(op, [ e ]) when arity op = 1 -> Some(op, e)
+    | Op(op, [ e ]) when op.Arity() = 1 -> Some(op, e)
     | _ -> None

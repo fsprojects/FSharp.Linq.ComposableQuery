@@ -24,8 +24,8 @@ module internal Helpers =
         else None
 
     let (|QuerySourceTy|_|) (ty:System.Type) = 
-        if ty.IsGenericType && ty.GetGenericTypeDefinition() = typeof<Linq.QuerySource<_,_>>.GetGenericTypeDefinition()
-        then Some (ty.GetGenericArguments().[0],ty.GetGenericArguments().[1])
+        if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<Linq.QuerySource<_,_>>
+        then Some (ty.GetGenericArguments().[0], ty.GetGenericArguments().[1])
         else None
 
 
@@ -128,7 +128,7 @@ module QueryImpl =
             match exp with
             | EVar x -> x.Type
             | ELet(_, _, e2) -> getType e2
-            | Op(op, _) -> getOpType op
+            | Op(op, _) -> op.GetOpType()
             | IntC _ -> typeof<int>
             | BoolC _ -> typeof<bool>
             | StringC _ -> typeof<string>
@@ -459,10 +459,10 @@ module QueryImpl =
                     from e          // catchall to ignore other coercions
                 | Patterns.PropertyGet(Some(Variable(None, _db)), _tbl, []) as e -> 
                     match e.Type with
-                    | QuerySourceTy(ty, _) -> Table(e, ty)  // assume it's a db table ref
-                    | TableTy ty -> Table(e, ty)            // assume it's a db table ref
-                    | DataServiceQueryTy ty -> Table(e,ty)  // assume it's a db table ref
-                    | ty' -> failwithf "Unexpected table reference %A %A" e ty'
+                    | QuerySourceTy(ty, _)
+                    | IQueryableExtTy ty 
+                        -> Table(e,ty)  // assume it's a db table ref
+                    | _ -> failwithf "Unexpected table reference %A %A" e e.Type
                 | Variable(Some(e), l) ->
                     Field(from e, l)                        // otherwise assume field ref
                 | Variable(None, _) -> 
