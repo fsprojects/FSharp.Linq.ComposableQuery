@@ -8,13 +8,13 @@ open Microsoft.FSharp.Quotations
 open FSharpComposableQuery
 
 module QueryBuilders = 
-    let TLinq = FSharpComposableQuery.TopLevelValues.query
     let FSharp3 = ExtraTopLevelOperators.query
-
+    let TLinq = FSharpComposableQuery.TopLevelValues.query
 
 module ExprUtils = 
     open FSharpComposableQuery.Common
 
+    // gets the methodInfo declarations of the different TLinq RunQuery methods. 
     let runQueryMi = ForwardDeclarations.RunQueryMi.Query
     let runValueMi = ForwardDeclarations.RunQueryMi.Value
     let runEnumMi =  ForwardDeclarations.RunQueryMi.Enum
@@ -74,11 +74,11 @@ module ExprUtils =
             | _ -> failwith "Unrecognized expression!"
         tExp e
                     
-    // Substitutes all calls to recognized methods with their native counterparts
+    // Substitutes all calls to recognized RunQuery methods with their native counterparts
     let replaceNestedQueries (e:Expr<'T>) : Expr<'T> = 
         e 
-        |> traverseExpr (fun e ->
-            match e with
+        |> traverseExpr (fun ex ->
+            match ex with
             | Patterns.Call(e1, mi, l) ->
                 let genMi = getGenericMethodDefinition mi
                 if genMi = runQueryMi then
@@ -90,14 +90,32 @@ module ExprUtils =
                 else if genMi = runValueMi then
                     let runMi = runNativeValueMi.MakeGenericMethod(mi.GetGenericArguments())
                     Expr.Call(runMi, nativeBuilderExpr :: l.Tail)
-                else e
-            | _ -> e)
+                else ex
+            | _ -> ex)
         |> Expr.Cast
 
 
 type UtilsMode = 
+    /// <summary>
+    /// Specifies that queries should be passed to the FSharpComposableQuery and exceptions be thrown as encountered. 
+    /// <para/>
+    /// This is the default mode used when executing unit tests. 
+    /// </summary>
     | RunThrow = 0
+    /// <summary>
+    /// Specifies that queries should be evaluated against both the default and FSharpComposableQuery builders. 
+    /// <para/>
+    /// This mode catches any exceptions and pretty-prints execution and comparison results,
+    /// given the queries executed successfully. 
+    /// </summary>
     | CompPrint = 1
+    /// <summary>
+    /// Specifies that queries should be evaluated against both the default and FSharpComposableQuery builders
+    /// and their results timed.  
+    /// <para/>
+    /// This mode catches any exceptions and pretty-prints the timing results,
+    /// given the queries executed successfully.  
+    /// </summary>
     | TimePrint = 2
 
 type Utils() = 
@@ -139,7 +157,7 @@ type Utils() =
         | _ ->
             failwith "Unable to find an outermost query expression"
 
-    // Gets the body of an expression and casts it to the appropriate type
+    // Gets the body of an expression e and casts it to the appropriate type
     static let extractValue(e:Expr<'T>) : Expr<'T> = 
         Expr.Cast (extractBodyRaw e)
     static let extractQuery(e:Expr<IQueryable<'T>>) : Expr<QuerySource<'T, IQueryable>> = 
@@ -149,7 +167,7 @@ type Utils() =
     
 
     // Substitutes the default builder in an expression with the given one
-    static let substituteBuilder translate =
+    static let substituteExprBuilder translate =
         let subst (qb : #QueryBuilder) (e:Expr<'T>) : Expr<'T> = 
             let qbExpr = Expr.Value(qb, qb.GetType())
             e.Substitute(fun v ->
@@ -189,7 +207,7 @@ type Utils() =
         
     // Runs the given expression
     static let run runMethod translate = 
-        substituteBuilder translate >> runMethod translate
+        substituteExprBuilder translate >> runMethod translate
 
 
         
@@ -216,19 +234,21 @@ type Utils() =
         ans
 
 
-    // Formats and prints the text using a specific color
-    static let printResult c text = 
-        let old = Console.ForegroundColor 
-        try 
-            Console.ForegroundColor <- c
-            printf "%-10s" text
-        finally
-            System.Console.ForegroundColor <- old
+    // Prints the text t using a color c
+    static let printResult' c f = 
+        let old = Console.ForegroundColor
+        Printf.kprintf (fun txt ->
+            try 
+                Console.ForegroundColor <- c
+                printf "%-10s" txt
+            finally
+                System.Console.ForegroundColor <- old) f
+            
 
-    static let printOk() = printResult ConsoleColor.Green "OK"
-    static let printFail() = printResult ConsoleColor.Red "FAIL"
-
-    
+    static let printOk() = printResult' ConsoleColor.Green "OK"
+    static let printFail() = printResult' ConsoleColor.Red "FAIL"
+    static let printNA() = printResult' Console.ForegroundColor "N/A"
+    static let printTime ms = printResult' ConsoleColor.Green "%.2fms" ms
 
     // Evaluates the expression, catching any exceptions. 
     // returns ('T option) indicating whether the call was successful
@@ -237,7 +257,7 @@ type Utils() =
         with exn -> None
 
     // Tries evaluating (f arg) and prints the outcome
-    static let eval f arg = 
+    static let evalPrint f arg = 
         let ans = tryEval f arg 
 
         match ans with 
@@ -257,8 +277,8 @@ type Utils() =
     // Compares the results of a query when run under the 2 different builders
     // and prints the outcome (running on the default builder, running on the composable builder, and comparison of results)
     static let compPrint (compMethod : 'b -> 'b -> bool) (runMethod : bool -> Expr<'a> -> 'b) e = 
-        let fsharp = eval (run runMethod true) e
-        let tlinq = eval (run runMethod false) e
+        let fsharp = evalPrint (run runMethod true) e
+        let tlinq = evalPrint (run runMethod false) e
 
         if fsharp.IsSome && tlinq.IsSome then
             if (compMethod fsharp.Value tlinq.Value) then
@@ -266,7 +286,7 @@ type Utils() =
             else
                 printFail()
         else
-            printResult Console.ForegroundColor "N/A"
+            printNA()
 
         printfn ""
 
@@ -275,7 +295,7 @@ type Utils() =
     static let timePrint runMethod e = 
 
         // prepare the simplified expressions so we can time just the execution
-        let expA, expB = substituteBuilder true e, substituteBuilder false e
+        let expA, expB = substituteExprBuilder true e, substituteExprBuilder false e
         let qbA, qbB = true, false
         
         // gets the timing results for the execution of the Expr e' on the QueryBuilder qb
@@ -289,8 +309,8 @@ type Utils() =
         let ev qb e' = 
             match tryEval (getResults qb) e' with
             | Some t -> 
-                let m = mean t
-                printResult ConsoleColor.Green (sprintf "%.2fms" m)
+                let meanT = mean t
+                printTime meanT
             | None -> 
                 printFail()
 
@@ -301,11 +321,23 @@ type Utils() =
 
     // Throws an invalid RunMode exception
     static let invalidRunMode() = 
-        failwithf "Invalid RunMode (%s) specified!" (Utils.RunMode.ToString())
+        failwithf "Invalid RunMode '%s' specified!" (Utils.RunMode.ToString())
 
-    // Gets or sets the execution mode of tests. 
+    /// <summary>
+    /// Gets or sets the query evaluation mode. 
+    /// </summary>
     static member val RunMode = UtilsMode.RunThrow with get, set
 
+    /// <summary>
+    /// A method used for evaluating queries under different conditions and query builders. 
+    /// <para/>
+    /// Runs the given quotation as a query using the comparison rules specified by <seealso cref="Utils.RunMode">RunMode</seealso>
+    /// The input should be the exact expression you would use to evaluate a given query, but wrapped in query brackets.
+    /// <para><example>Example usage: <code>
+    /// Utils.Run &lt;@ query { yield! db.Students } @&lt;
+    /// </code></example></para>
+    /// </summary>
+    /// <param name="e">The query to be evaluated. </param>
     static member Run (e:Expr<IQueryable<'T>>) = 
         (extractQuery e) 
         |> match Utils.RunMode with
@@ -313,7 +345,7 @@ type Utils() =
             | UtilsMode.CompPrint -> compPrint compQuery runQuery
             | UtilsMode.TimePrint -> timePrint runQuery
             | _ -> invalidRunMode()
-
+            
     static member internal RunAsValue (e:Expr<'T>) = 
         (extractValue e) 
         |> match Utils.RunMode with
@@ -321,7 +353,7 @@ type Utils() =
             | UtilsMode.CompPrint -> compPrint compVal runVal
             | UtilsMode.TimePrint -> timePrint runVal
             | _ -> invalidRunMode()
-
+            
     static member internal RunAsEnumerable (e:Expr<seq<'T>>) = 
         (extractEnum e) 
         |> match Utils.RunMode with
@@ -336,13 +368,33 @@ type Utils() =
 [<AutoOpen>]
 module UtilsHi = 
     type Utils with
-
+    
+    /// <summary>
+    /// A method used for evaluating queries under different conditions and query builders.
+    /// <para/>
+    /// Runs the given quotation as a value using the comparison rules specified by <seealso cref="Utils.RunMode">RunMode</seealso>
+    /// The input should be the exact expression you would use to evaluate a given query, but wrapped in query brackets.
+    /// <para><example>Example usage: <code>
+    /// Utils.Run &lt;@ query { yield! db.Students } @&lt;
+    /// </code></example></para>
+    /// </summary>
+    /// <param name="e">The query to be evaluated. </param>
     [<CompiledName("RunAsValue")>]
     static member Run (e:Expr<'T>) = Utils.RunAsValue e
 
 [<AutoOpen>]
 module UtilsLo = 
     type Utils with
-
+    
+    /// <summary>
+    /// A method used for evaluating queries under different conditions and query builders.
+    /// <para/>
+    /// Runs the given quotation as an enumerable using the comparison rules specified by <seealso cref="Utils.RunMode">RunMode</seealso>
+    /// The input should be the exact expression you would use to evaluate a given query, but wrapped in query brackets.
+    /// <para><example>Example usage: <code>
+    /// Utils.Run &lt;@ query { yield! db.Students } @&lt;
+    /// </code></example></para>
+    /// </summary>
+    /// <param name="e">The query to be evaluated. </param>
     [<CompiledName("RunAsEnumerable")>]
     static member Run (e:Expr<seq<'T>>) = Utils.RunAsEnumerable e

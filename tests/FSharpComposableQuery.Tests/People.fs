@@ -23,11 +23,12 @@ module People =
 
     type internal Person = dbSchemaPeople.ServiceTypes.People
 
+    // Used in example 1
     type internal Result = { Name : string; Diff : int }
 
     let internal db = dbSchemaPeople.GetDataContext()
 
-    // used in example 6
+    // Used in example 6
     type internal Predicate =
         | Above of int
         | Below of int
@@ -169,8 +170,7 @@ module People =
 
         let ex6 = <@ query { yield! (%satisfies) (%eval (And(Above 20, Below 30))) } @>
 
-        let t7 = eval (Not(Or(Below 20, Above 30)))
-        let ex7 = <@ query { yield! (%satisfies) (%t7) } @>
+        let ex7 = <@ query { yield! (%satisfies) (%eval (Not(Or(Below 20, Above 30)))) } @>
 
         [<TestFixtureSetUp>]
         member public this.init() =

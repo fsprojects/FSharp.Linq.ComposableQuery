@@ -7,7 +7,7 @@ open NUnit.Framework
 open System.Linq
 
 /// <summary>
-/// Contains example queries and operations on the Nested database.
+/// Contains example queries and operations on the Organisation database.
 /// The queries here are further wrapped in quotations to allow for their evaluation in different contexts (see Utils.fs).
 /// <para>These tests require the schema from sql/organisation.sql in a database referred to in app.config </para>
 /// </summary>
@@ -18,6 +18,7 @@ module Nested =
     // Schema declarations
     type internal Department = dbSchema.ServiceTypes.Departments
 
+    // TypeProvider type abbreviations. 
     type internal Employee = dbSchema.ServiceTypes.Employees
 
     type internal Contact = dbSchema.ServiceTypes.Contacts
@@ -60,8 +61,6 @@ module Nested =
         static let mutable idx = 0
 
         static let genId str =
-            let e = new Employee()
-
             idx <- idx + 1
             str + "_" + idx.ToString()
 
@@ -76,26 +75,35 @@ module Nested =
         static let randomTask() = 
             randomArray [| "abstract"; "buy"; "call"; "dissemble"; "enthuse" |] 
             |> genId
+
         static let randomDepartment() = 
             randomArray [| "Sales"; "Research"; "Quality"; "Product" |] 
             |> genId
 
-        //Creates n employees at random in the given departments
+        /// <summary>
+        /// Generates n uniquely named employees and distributes them uniformly across the given departments. 
+        /// </summary>
         static let randomEmployees n depts = List.map (fun _ -> new Employee(Emp = randomName(), Dpt = randomArray depts)) [ 1..n ]
 
-        // Creates n employees in each of the given departments
-        static let randomEmployeesInDepartments depts n =
+        /// <summary>
+        /// Generates n uniquely named employees in each of the given departments. 
+        /// </summary>
+        static let randomEmployeesInEach n depts =
             depts
             |> Array.toList
             |> List.map (fun d -> randomEmployees n [| d |])
             |> List.concat
 
-        // Creates n contacts at random in the given departments
+        /// <summary>
+        /// Generates n uniquely named contacts and distributes them uniformly across the given departments. 
+        /// </summary>
         static let randomContacts n depts =
             [ 1..n ]
             |> List.map (fun _ -> new Contact(Dpt = randomArray depts, Contact = randomName(), Client = rand.Next(2)))
 
-        // Creates 0 to 2 random tasks for each of the given employees
+        /// <summary>
+        /// Generates 0 to 2 (inclusive) unique tasks for each of the given employees. 
+        /// </summary>
         static let randomTasks emps =
             emps
             |> List.map (fun (r : Employee) ->
@@ -104,25 +112,13 @@ module Nested =
 
 
         //database records update functions
-        static let addContacts (r : Contact) = contacts.InsertOnSubmit(r)
+        static let addContact (r : Contact) = contacts.InsertOnSubmit(r)
 
-        static let addContactR (c : Contact) =
-            addContacts (c)
+        static let addDept (dpt : string) = departments.InsertOnSubmit(new Department(Dpt = dpt))
 
-        static let addDept (dpt : string) =
-            let d = new Department()
-            d.Dpt <- dpt
-            departments.InsertOnSubmit(d)
-
-        static let addEmployees (r : Employee) = employees.InsertOnSubmit(r)
-
-        static let addEmpR (emp : Employee) =
-            addEmployees (emp)
-
-        static let addTasks (r : Task) = tasks.InsertOnSubmit(r)
-
-        static let addTaskR (t : Task) =
-            addTasks (t)
+        static let addEmployee (r : Employee) = employees.InsertOnSubmit(r)
+        
+        static let addTask (r : Task) = tasks.InsertOnSubmit(r)
 
         // Clears all relevant tables in the database.
         static let dropTables() =
@@ -130,57 +126,84 @@ module Nested =
             ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[tasks]"))
             ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[departments]"))
             ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[contacts]"))
-
-        static let addRandom ds n =
-            let depts = Array.map (ignore >> randomDepartment) [| 1..ds |]
+            
+        /// <summary>
+        /// Creates a number of random departments and uniformly distributes the specified number of employees across them, 
+        /// then updates the database with the new rows. 
+        /// </summary>
+        /// <param name="nDep">The number of departments to generate. </param>
+        /// <param name="nEmp">The total number of employees to generate. </param>
+        static let addRandom nDep nEmp =
+            let depts = Array.map (ignore >> randomDepartment) [| 1..nDep |]
             Array.iter addDept depts
             db.DataContext.SubmitChanges()
 
-            let employees = randomEmployees n depts
-            List.iter addEmpR employees
+            let employees = randomEmployees nEmp depts
+            List.iter addEmployee employees
             db.DataContext.SubmitChanges()
 
-            let contacts = randomContacts n depts
-            List.iter addContactR contacts
+            let contacts = randomContacts nEmp depts
+            List.iter addContact contacts
             db.DataContext.SubmitChanges()
-
+            
             let tasks = randomTasks employees
-            List.iter addTaskR tasks
+            List.iter addTask tasks
             db.DataContext.SubmitChanges()
 
-        static let addRandomDepartments ds n =
-            let depts = Array.map (ignore >> randomDepartment) [| 1..ds |]
+        /// <summary>
+        /// Creates a number of random departments and in each of them generates the specified number of employees,
+        /// then updates the database with the new rows. 
+        /// </summary>
+        /// <param name="nDep">The number of departments to generate. </param>
+        /// <param name="nEmp">The number of employees to generate in each department. </param>
+        static let addRandomForEach nDep nEmp =
+            let depts = Array.map (ignore >> randomDepartment) [| 1..nDep |]
             Array.iter addDept depts
             db.DataContext.SubmitChanges()
 
             // for each department generate n employees
-            let employees = randomEmployeesInDepartments depts n
-            List.iter addEmpR employees
+            let employees = randomEmployeesInEach nEmp depts
+            List.iter addEmployee employees
             db.DataContext.SubmitChanges()
 
-            let contacts = randomContacts n depts
-            List.iter addContactR contacts
+            let contacts = randomContacts nEmp depts
+            List.iter addContact contacts
             db.DataContext.SubmitChanges()
 
             let tasks = randomTasks employees
-            List.iter addTaskR tasks
+            List.iter addTask tasks
             db.DataContext.SubmitChanges()
-
-        static let addAbstractionDept n =
+            
+        /// <summary>
+        /// Creates a department named 'Abstraction' and generates a specified number of employees in it,
+        /// each of whom can perform the task "abstract"
+        /// <para/>
+        /// </summary>
+        /// <param name="nEmp">The number of employees to generate in the 'Abstraction' department. </param>
+        static let addAbstractionDept nEmp =
             addDept "Abstraction"
             db.DataContext.SubmitChanges()
 
-            let employees = randomEmployees n [| "Abstraction" |]
-            List.iter addEmpR employees
+            let employees = randomEmployees nEmp [| "Abstraction" |]
+            List.iter addEmployee employees
             db.DataContext.SubmitChanges()
 
             let tasks = randomTasks employees
-            List.iter addTaskR tasks
+            List.iter addTask tasks
             List.iter (fun (e : Employee) ->
-                addTaskR (new Task(Emp = e.Emp, Tsk = "abstract"))) employees
+                addTask (new Task(Emp = e.Emp, Tsk = "abstract"))) employees
             db.DataContext.SubmitChanges()
 
+
+        (*
+        Example 8 and 9 demonstrate the benefit of using intermediate nested structures. 
+        Each of them evaluates to the same query but the way we formulate them is inherently different. 
+
+        "List all departments where every employee can perform a given task t"
+        *)
+
         // Example 8
+
         let expertiseNaive =
             <@ fun u ->
                 query {
@@ -197,8 +220,10 @@ module Nested =
 
         let ex8 = <@ query { yield! (%expertiseNaive) "abstract" } @>
 
+
         // Example 9
-        let nestedOrg =
+
+        let nestedDb =
             <@ query {
                    for d in db.Departments do
                        yield { dpt = d.Dpt
@@ -215,29 +240,33 @@ module Nested =
                                    } }
                } @>
 
-        let any =
+        let any() =
             <@ fun xs p ->
                 query {
                     for x in xs do
                         exists (p x)
                 } @>
+                
 
-        let all' = //clashes with default method name
+        (* There are a number of ways to write each of the following queries *)
 
-            <@ fun xs p ->
-                not (query {
-                         for x in xs do
-                             exists (not (p (x)))
-                     }) @>
+        let forallA() = <@ fun xs p -> not ((%any()) xs (fun x -> not(p x))) @>
 
-        let contains' = //clashes with default method name
-            <@ fun xs u -> (%any) xs (fun x -> x = u) @>
+        let forallB() = <@ fun xs p -> query { for x in xs do all(p x) } @>
+        
+
+        let containsA() = <@ fun xs u -> (%any()) xs (fun x -> x = u) @>
+
+        let containsB() = <@ fun xs u -> not ((%forallA()) xs (fun x -> x <> u)) @>
+
+        let containsC() = <@ fun xs u -> query { for x in xs do contains u } @>
+        
 
         let expertise =
             <@ fun u ->
                 query {
-                    for d in (%nestedOrg) do
-                        if (%all') (d.employees) (fun e -> (%contains') e.tasks u) then yield d.dpt
+                    for d in (%nestedDb) do
+                        if (%forallA()) (d.employees) (fun e -> (%containsA()) e.tasks u) then yield d.dpt
                 } @>
 
         let ex9 = <@ query { yield! (%expertise) "abstract" } @>
@@ -251,6 +280,14 @@ module Nested =
             addRandom N_DEPARTMENTS N_EMPLOYEES
             addAbstractionDept N_ABSTRACTION
             printfn "done!"
+            
+        // This query evaluates, but it lazily constructs the result
+        // by stitching SQL queries: one for every department and employee. 
+        // Thus accessing even parts of the data is done by executing 
+        // multiple queries instead of, possibly, one.  
+        member this.test00() =
+            let z = query { yield! (%nestedDb) }
+            ()
 
         [<Test>]
         member this.test01() =
