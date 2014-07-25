@@ -6,6 +6,7 @@ open Microsoft.FSharp.Quotations.DerivedPatterns
 open Microsoft.FSharp.Linq
 open Microsoft.FSharp.Reflection
 open System.Reflection
+open System.Data.Services
 
 #nowarn "62"
 
@@ -55,6 +56,10 @@ let TableTy(ty : System.Type) =
     typeof<System.Data.Linq.Table<_>>.GetGenericTypeDefinition()
         .MakeGenericType([| ty |])
 
+let DataServiceQueryTy(ty:System.Type) = 
+    typeof<System.Data.Services.Client.DataServiceQuery<_>>.GetGenericTypeDefinition()
+        .MakeGenericType([| ty |])
+
 let (|UnitTy|_|) ty = 
     if ty = typeof<unit> then Some()
     else None
@@ -81,6 +86,13 @@ let (|FunTy|_|) (ty : System.Type) =
 let (|TableTy|_|) (ty : System.Type) = 
     if ty.IsGenericType 
        && ty.GetGenericTypeDefinition() = typeof<System.Data.Linq.Table<_>>
+              .GetGenericTypeDefinition() then 
+        Some(ty.GetGenericArguments().[0])
+    else None
+
+let (|DataServiceQueryTy|_|) (ty : System.Type) = 
+    if ty.IsGenericType 
+       && ty.GetGenericTypeDefinition() = typeof<System.Data.Services.Client.DataServiceQuery<_>>
               .GetGenericTypeDefinition() then 
         Some(ty.GetGenericArguments().[0])
     else None

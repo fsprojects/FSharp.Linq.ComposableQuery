@@ -461,6 +461,7 @@ module QueryImpl =
                     match e.Type with
                     | QuerySourceTy(ty, _) -> Table(e, ty)  // assume it's a db table ref
                     | TableTy ty -> Table(e, ty)            // assume it's a db table ref
+                    | DataServiceQueryTy ty -> Table(e,ty)  // assume it's a db table ref
                     | ty' -> failwithf "Unexpected table reference %A %A" e ty'
                 | Variable(Some(e), l) ->
                     Field(from e, l)                        // otherwise assume field ref
