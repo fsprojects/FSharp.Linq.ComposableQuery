@@ -6,9 +6,9 @@ open System.Runtime.CompilerServices
 [<assembly: AssemblyTitleAttribute("FSharpComposableQuery")>]
 [<assembly: AssemblyProductAttribute("FSharpComposableQuery")>]
 [<assembly: AssemblyDescriptionAttribute("A Compositional, Safe Query Framework for Dynamic F# Queries.")>]
-[<assembly: AssemblyVersionAttribute("1.0.0")>]
-[<assembly: AssemblyFileVersionAttribute("1.0.0")>]
+[<assembly: AssemblyVersionAttribute("1.0.2")>]
+[<assembly: AssemblyFileVersionAttribute("1.0.2")>]
 do ()
 
 module internal AssemblyVersionInformation =
-    let [<Literal>] Version = "1.0.0"
+    let [<Literal>] Version = "1.0.2"

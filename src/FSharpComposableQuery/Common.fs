@@ -77,7 +77,7 @@ let (|FunTy|_|) (ty : System.Type) =
     else None
 
 /// <summary>
-/// Checks whether the specified type is or extends from System.Linq.IQueryable<T>
+/// Checks whether the specified type is or extends from System.Linq.IQueryable&lt;T&gt;
 /// </summary>
 /// <param name="ty">The type argument </param>
 let (|IQueryableExtTy|_|) (ty : System.Type) = 
