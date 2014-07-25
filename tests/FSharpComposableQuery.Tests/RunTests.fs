@@ -44,6 +44,7 @@ module RunTests =
             
     let newTests() : obj list = 
         [
+//            (new FSharpComposableQuery.Tests.NorthwindTests.TestClass())
             (new FSharpComposableQuery.Tests.Simple.TestClass())
             (new FSharpComposableQuery.Tests.People.TestClass())
             (new FSharpComposableQuery.Tests.Nested.TestClass())
