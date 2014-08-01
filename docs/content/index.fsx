@@ -11,7 +11,6 @@ let ConnectionString =
 (**
 FSharpComposableQuery
 =====================
-(__work in progress__)
 
 
 <div class="row">

@@ -17,8 +17,6 @@ open Microsoft.FSharp.Data.TypeProviders
 FSharpComposableQuery Tutorial
 =================================
 
-(__work in progress__)
-
 Basic Queries
 -----------------------
 
