@@ -30,7 +30,7 @@ let summary = "A Compositional, Safe Query Framework for Dynamic F# Queries."
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
 let description = """
-  A Compositional Query Framework for Dynamic F# Queries, based on 'A Practical Theory of Language-Integrated Query',
+  A Compositional, Safe Query Framework for Dynamic F# Queries
   """
 // List of author names (for NuGet package)
 let authors = [ "James Cheney"; "Sam Lindley"; "Yordan Stoyanov" ]
