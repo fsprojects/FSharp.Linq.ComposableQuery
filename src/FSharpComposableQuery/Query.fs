@@ -154,7 +154,7 @@ module QueryImpl =
             | RunAsQueryable(_, ty) -> IQueryableTTy ty
             | RunAsEnumerable(_, ty) -> SeqTy ty
     
-        let rec removeRunAs exp = 
+        let removeRunAs exp = 
             let rec removeInner exp = 
                 match exp with
                 | Source(_, _, RunAsQueryable(Quote(e), _)) -> removeInner e     // removes occurences of RunQueryAsQueryable

@@ -172,10 +172,6 @@ module People =
 
         let ex7 = <@ query { yield! (%satisfies) (%eval (Not(Or(Below 20, Above 30)))) } @>
 
-        let testYieldFrom' = 
-              <@ query { for u in db.People do
-                         if 0 <= u.Age then
-                          yield! (query {yield u}) }@>
 
         [<TestFixtureSetUp>]
         member public this.init() =
@@ -218,8 +214,3 @@ module People =
         member this.test07() =
             printfn "%s" "ex7"
             Utils.Run ex7
-
-        [<Test>]
-        member this.test00() = 
-            printfn "%s" "testYieldFrom"
-            Utils.Run testYieldFrom' 
