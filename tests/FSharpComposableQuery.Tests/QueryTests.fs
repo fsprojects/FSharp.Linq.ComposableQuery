@@ -859,3 +859,4 @@ module QueryTests =
                 select (student.Name, course.CourseName)
                 }
             |> Seq.iter (fun (studentName, courseName) -> printfn "%s %s" studentName courseName)
+

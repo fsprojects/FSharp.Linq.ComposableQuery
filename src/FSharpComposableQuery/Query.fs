@@ -157,7 +157,7 @@ module QueryImpl =
         let rec removeRunAs exp = 
             let rec removeInner exp = 
                 match exp with
-                | Source(_, _, RunAsQueryable(Quote(e), _)) -> e     // removes occurences of RunQueryAsQueryable
+                | Source(_, _, RunAsQueryable(Quote(e), _)) -> removeInner e     // removes occurences of RunQueryAsQueryable
                 //TODO: also check for RunQueryAsEnumerable?
 
                 // recurse
