@@ -174,8 +174,15 @@ module People =
 
         let testYieldFrom' = 
               <@ query { for u in db.People do
-                         if 0 <= u.Age then
+                         if 1 <= 0 then
                           yield! (query {yield u}) }@>
+        
+        let testYieldFrom2' = 
+              <@ query { for u in db.People do
+                         if 1 <= 0 then
+                          yield! (query {for u in db.People do 
+                                         where (1 <= 0) 
+                                         yield u}) }@>
 
         [<TestFixtureSetUp>]
         member public this.init() =
@@ -220,6 +227,11 @@ module People =
             Utils.Run ex7
 
         [<Test>]
-        member this.test00() = 
+        member this.test000() = 
             printfn "%s" "testYieldFrom"
             Utils.Run testYieldFrom' 
+
+        [<Test>]
+        member this.test001() = 
+            printfn "%s" "testYieldFrom2"
+            Utils.Run testYieldFrom2' 

@@ -99,6 +99,7 @@ module QueryImpl =
         | ForF
         | ZeroF
         | YieldF
+        | YieldFromF
         | UnknownF
         | UnionF
         | RunQueryAsValueF
@@ -115,12 +116,12 @@ module QueryImpl =
         let getQuerySourceTy ty k = 
             match ty with
             | QuerySourceTy(ty', qty) -> k ty' qty
-            | _ -> raise NYI
+            | _ ->  failwith ("Expected QuerySourceTy")
         
         let getFunTy ty k = 
             match ty with
             | FunTy(ty1, ty2) -> k ty1 ty2
-            | _ -> raise NYI
+            | _ -> failwith ("Expected FunTy")
         
         // quick and dirty function to compute result type of an expression
         // does not check if the expression is well-typed; relies on variable annotations
@@ -150,7 +151,7 @@ module QueryImpl =
             | Table(_, ty) -> QuerySourceTy(ty, IQueryableTy)
             | Unknown(_, ty, _, _) -> ty
             | Quote(e) -> typedefof<Expr<_>>.MakeGenericType(getType e)
-            | Source(eTy, sTy, _) -> QuerySourceTy(eTy, sTy)
+            | Source(eTy, sTy, _) -> QuerySourceTy(eTy, IQueryableTy)
             | RunAsQueryable(_, ty) -> IQueryableTTy ty
             | RunAsEnumerable(_, ty) -> SeqTy ty
     
@@ -216,9 +217,11 @@ module QueryImpl =
                 | BoolC true -> reduce e1
                 | BoolC false -> reduce e2
                 | n -> 
-                    match (getType e1) with
-                    | QuerySourceTy(ty, _) -> 
+                    match (getType e1,getType e2) with
+                    | QuerySourceTy(ty, IQueryableTy),QuerySourceTy(_ty, IQueryableTy) -> 
                         reduceIfThenElseSeq n (reduce e1) (reduce e2) ty
+                    | QuerySourceTy(ty, _),QuerySourceTy(_ty, _) -> 
+                        failwith "Expected QuerySourceTy(_,IQueryableTy) in both branches of If"
                     | _ -> IfThenElse(n, reduce e1, reduce e2)
             | Record(rty, r) -> Record(rty, List.map (fun (l, e) -> (l, reduce e)) r)
             | Field(e, l) -> 
@@ -259,7 +262,7 @@ module QueryImpl =
                 | QuerySourceTy(UnitTy, _) -> Exists(reduce e) 
                 | QuerySourceTy(ty, _) -> 
                     Exists(Comp(Singleton(Unit), new Var("__dummy", ty), reduce e))
-                | _ -> raise NYI
+                | _ -> failwith "reduce: expected Exists to have type QuuerySourceTy"
             | Table(e, ty) -> Table(e, ty)
             | Unknown(unk, ty, eopt, es) -> 
                 Unknown(unk, ty, Option.map reduce eopt, List.map reduce es)
@@ -293,6 +296,11 @@ module QueryImpl =
              
         // MethodInfo data
         let yieldMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Yield @>
+        let yieldFromMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.YieldFrom @>
+        let baseRunQueryAsValueMi = getGenericMethodInfo <@ fun (q:Microsoft.FSharp.Linq.QueryBuilder) (e:Expr<bool>) -> q.Run e @>
+        let baseRunQueryAsEnumMi =  getGenericMethodInfo <@ fun (q:Microsoft.FSharp.Linq.QueryBuilder) (e : Expr<QuerySource<_, System.Collections.IEnumerable>>) -> q.Run e @>
+        let baseRunQueryAsQueryableMi =  getGenericMethodInfo <@ fun (q:Microsoft.FSharp.Linq.QueryBuilder) (e : Expr<QuerySource<_, System.Linq.IQueryable>>) -> q.Run e @>
+
         let zeroMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.Zero @>
         let forMi = getGenericMethodInfo <@ fun (q:QueryBuilder) -> q.For @>
         let whereMi = getGenericMethodInfo  <@ fun (q:QueryBuilder) -> q.Where @>
@@ -305,6 +313,7 @@ module QueryImpl =
         let recognizeFunc (methodInfo':MethodInfo) = 
             let methodInfo = getGenericMethodDefinition methodInfo' 
             if methodInfo = yieldMi then YieldF
+            else if methodInfo = yieldFromMi then YieldFromF
             else if methodInfo = zeroMi then ZeroF
             else if methodInfo = forMi then ForF
             else if methodInfo = whereMi then WhereF
@@ -332,9 +341,15 @@ module QueryImpl =
             else if methodInfo = unionQueryMi then UnionF
             else if methodInfo = sourceQueryMi then SourceQueryF
             else if methodInfo = sourceEnumMi then SourceEnumF
-            else if methodInfo = ForwardDeclarations.RunQueryMi.Enum then RunQueryAsEnumerableF
-            else if methodInfo = ForwardDeclarations.RunQueryMi.Value then RunQueryAsValueF
-            else if methodInfo = ForwardDeclarations.RunQueryMi.Query then RunQueryAsQueryableF
+            else if methodInfo = ForwardDeclarations.RunQueryMi.Enum 
+                    || methodInfo = baseRunQueryAsEnumMi 
+                 then RunQueryAsEnumerableF
+            else if methodInfo = ForwardDeclarations.RunQueryMi.Value 
+                    || methodInfo = baseRunQueryAsValueMi 
+                 then RunQueryAsValueF
+            else if methodInfo = ForwardDeclarations.RunQueryMi.Query 
+                    || methodInfo = baseRunQueryAsQueryableMi
+                 then RunQueryAsQueryableF
             else UnknownF
          
         member internal this.unknownExpr unk obj0 args = 
@@ -425,7 +440,7 @@ module QueryImpl =
                     this.unknownExpr unk (Option.map toExp eopt) (List.map toExp es)
 
                 | _ -> 
-                    raise NYI
+                    failwith "toExp: unhandled case"
 
             // strips outer RunQueryAsValue calls from the expression. 
             // This allows us to use query.Run to execute value queries. 
@@ -490,6 +505,8 @@ module QueryImpl =
               match (recognizeFunc func),args with 
                 | YieldF, [e] ->
                     Singleton(from e)
+                | YieldFromF, [e] ->
+                    from e
                 | ZeroF, [] -> getQuerySourceTy expr_ty (fun ty _ -> Empty ty)
                 | ForF, [e;f] ->
                     getFunTy f.Type (fun ty _ -> 

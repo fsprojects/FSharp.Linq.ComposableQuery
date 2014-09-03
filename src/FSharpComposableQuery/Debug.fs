@@ -85,7 +85,7 @@ type internal Debug() =
                 | Source(eTy, sTy, e1) -> 
                     ["query.Source<" + eTy.Name + ", " + sTy.Name + ">"] 
                     @ prettyPrintRec 1 e1
-                | _ -> raise NYI
+                | _ -> failwith "prettyPrint: unhandled case"
             |> List.map (fun x -> (String.replicate lvl "  ") + x)
 
         prettyPrintRec 1 exp

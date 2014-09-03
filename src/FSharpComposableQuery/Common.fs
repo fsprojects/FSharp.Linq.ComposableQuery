@@ -151,7 +151,6 @@ type Exp =
     | Source of System.Type * System.Type * Exp
     | Unknown of UnknownThing * System.Type * Exp option * Exp list
 
-exception NYI
 
 let mutable tag = 0
 let fresh (x : Var) = 
