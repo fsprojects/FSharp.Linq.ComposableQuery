@@ -99,7 +99,7 @@ let satisfies  =
  <@ fun p -> query { 
     for u in db.People do
         if p u.Age then 
-            yield p
+            yield u
    } @>
 
 (** We can now use this function, for example, to find all people with age at least 20 and less than 30: *)
