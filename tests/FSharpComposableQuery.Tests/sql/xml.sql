@@ -6,21 +6,20 @@ GO
 USE [master];
 GO
 
-IF EXISTS (SELECT * FROM sys.databases WHERE name = 'MyXml')
-                DROP DATABASE MyXml;
+:setvar DatabaseName "FCQ-Xml"
+
+IF EXISTS (SELECT * FROM sys.databases WHERE name = [$(DatabaseName)])
+                DROP DATABASE [$(DatabaseName)];
 GO
 
--- Create the MyXml database.
-CREATE DATABASE MyXml COLLATE SQL_Latin1_General_CP1_CI_AS;
+CREATE DATABASE [$(DatabaseName)] COLLATE SQL_Latin1_General_CP1_CI_AS;
 GO
 
--- Specify a simple recovery model 
--- to keep the log growth to a minimum.
-ALTER DATABASE MyXml
-                SET RECOVERY SIMPLE;
+-- Specify a simple recovery model to keep the log growth to a minimum.
+ALTER DATABASE [$(DatabaseName)] SET RECOVERY SIMPLE;
 GO
 
-USE MyXml;
+USE [$(DatabaseName)];
 GO
 
 CREATE TABLE [dbo].[Data] (
