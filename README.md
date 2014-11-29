@@ -32,3 +32,11 @@ You can find the library on [NuGet](https://www.nuget.org/packages/FSharpComposa
 ## Usage
 
 Check out the [tutorial](http://fsprojects.github.io/FSharp.Linq.ComposableQuery/) for examples and an overview of the main use cases of this library. 
+
+
+## Maintainer(s)
+
+- [@ixtreon](https://github.com/ixtreon)
+- [@jamescheney](https://github.com/jamescheney)
+
+The default maintainer account for projects under "fsprojects" is [@fsgit](https://github.com/fsgit) - F# Community Project Incubation Space (repo management)
