@@ -1,4 +1,7 @@
-# FSharpComposableQuery
+[![Issue Stats](http://issuestats.com/github/fsprojects/FSharp.Linq.ComposableQuery/badge/issue)](http://issuestats.com/github/fsprojects/FSharp.Linq.ComposableQuery)
+[![Issue Stats](http://issuestats.com/github/fsprojects/FSharp.Linq.ComposableQuery/badge/pr)](http://issuestats.com/github/fsprojects/FSharp.Linq.ComposableQuery)
+
+# FSharpComposableQuery [![NuGet Status](http://img.shields.io/nuget/v/FSharpComposableQuery.svg?style=flat)](https://www.nuget.org/packages/FSharpComposableQuery/)
 
 A Compositional Query Framework for F# Queries, based on ["A Practical Theory of Language-Integrated Query" (ICFP 2013)](http://dl.acm.org/citation.cfm?id=2500586)
 
