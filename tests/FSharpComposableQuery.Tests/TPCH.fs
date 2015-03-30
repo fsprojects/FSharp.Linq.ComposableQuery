@@ -1,4 +1,4 @@
-﻿namespace FSharpComposableQuery.TPCH
+﻿namespace FSharpComposableQuery.Tests
 
 open Microsoft.FSharp.Data.TypeProviders
 open Microsoft.FSharp.Quotations
@@ -10,22 +10,22 @@ open NUnit.Framework
 /// The queries here are further wrapped in quotations to allow for their evaluation in different contexts (see Utils.fs).  
 /// <para>These tests require the schema from sql/people.sql in a database referred to in app.config </para>
 /// </summary>
-module People =
+module TPCH =
 
     
     [<Literal>]
     let dbConfigPath = "db.config"
     
-    type internal dbSchemaPeople = SqlDataConnection< ConnectionStringName="TPCHConnectionString", ConfigFile=dbConfigPath>
+    type dbSchemaPeople = SqlDataConnection< ConnectionStringName="TPCHConnectionString", ConfigFile=dbConfigPath>
 
-    type internal Customer = dbSchemaPeople.ServiceTypes.Customer
-    type internal Lineitem = dbSchemaPeople.ServiceTypes.Lineitem
-    type internal Nation = dbSchemaPeople.ServiceTypes.Nation
-    type internal Orders = dbSchemaPeople.ServiceTypes.Orders
-    type internal Part = dbSchemaPeople.ServiceTypes.Part
-    type internal Partsupp = dbSchemaPeople.ServiceTypes.Partsupp
-    type internal Region = dbSchemaPeople.ServiceTypes.Region
-    type internal Supplier = dbSchemaPeople.ServiceTypes.Supplier
+    type  Customer = dbSchemaPeople.ServiceTypes.Customer
+    type  Lineitem = dbSchemaPeople.ServiceTypes.Lineitem
+    type  Nation = dbSchemaPeople.ServiceTypes.Nation
+    type  Orders = dbSchemaPeople.ServiceTypes.Orders
+    type  Part = dbSchemaPeople.ServiceTypes.Part
+    type  Partsupp = dbSchemaPeople.ServiceTypes.Partsupp
+    type  Region = dbSchemaPeople.ServiceTypes.Region
+    type  Supplier = dbSchemaPeople.ServiceTypes.Supplier
 
     let internal db = dbSchemaPeople.GetDataContext()
 
@@ -66,8 +66,8 @@ module People =
                   select (g.Key,sum_qty,sum_base_price,sum_disc_price,sum_charge,avg_qty,avg_price,avg_disc, g.Count) }
 
 
-        
-        let q22 countries = 
+        [<Test>]
+        let q22 (countries : string list) = 
             let avgBalance = 
                 <@ fun (cs : IQueryable<Customer>) -> 
                     query {for c in cs do 
@@ -88,7 +88,7 @@ module People =
             let countryCodeOf = 
                 <@ fun (c : Customer) -> c.C_Phone.Substring(0,2) @> in
             let livesIn countries = 
-                <@ fun (c:Customer) -> (%contains countries) c @>
+                <@ fun (c:Customer) -> (%contains countries) ((%countryCodeOf) c) @>
             let pots = <@ (%potentialCustomers) (query { for c in db.Customer do 
                                                          where ((%livesIn countries) c)
                                                          select c}) @> in 
@@ -99,3 +99,14 @@ module People =
                     select(g.Key, g.Count(), total)
                     }
 
+
+
+
+        [<TestFixtureSetUp>]
+        member public this.init() = ()
+
+        [<Test>]
+        member public this.testQ1() = q1 90.0
+
+        [<Test>]
+        member public this.testQ22() = q22 ["France";"Germany"; "Italy"; "Austria"; "Greece"]
