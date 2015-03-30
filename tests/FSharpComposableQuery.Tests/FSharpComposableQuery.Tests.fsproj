@@ -87,6 +87,7 @@
     <Compile Include="Utils.fs" />
     <Compile Include="Simple.fs" />
     <Compile Include="People.fs" />
+    <Compile Include="TPCH.fs" />
     <Compile Include="Nested.fs" />
     <Compile Include="Xml.fs" />
     <Compile Include="QueryTests.fs" />
@@ -97,6 +98,7 @@
     <None Include="sql\simple.sql" />
     <None Include="sql\xml.sql" />
     <None Include="sql\people.sql" />
+    <None Include="sql\tpch.sql" />
     <Content Include="data\movies.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
