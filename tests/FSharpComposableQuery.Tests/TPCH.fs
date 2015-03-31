@@ -43,7 +43,7 @@ module TPCH =
         static let customers = db.DataContext.GetTable<Customer>()
 
         /// helper: emptiness test
-        static let empty = <@ fun xs -> not (query {for x in xs do exists (true)}) @>
+        static let empty () = <@ fun xs -> not (query {for x in xs do exists (true)}) @>
         /// helper: contains 
         static let rec contains xs = 
             match xs with 
@@ -66,38 +66,45 @@ module TPCH =
                   select (g.Key,sum_qty,sum_base_price,sum_disc_price,sum_charge,avg_qty,avg_price,avg_disc, g.Count) }
 
 
-        [<Test>]
-        let q22 (countries : string list) = 
-            let avgBalance = 
-                <@ fun (cs : IQueryable<Customer>) -> 
-                    query {for c in cs do 
-                           where (c.C_AcctBal > decimal(0)) 
-                           averageBy (c.C_AcctBal)} @> in
-            let ordersOf = 
-                <@ fun (c : Customer) ->
-                    query { for o in db.Orders do 
-                            where (o.O_CustKey = c.C_CustKey)
-                            select o } @> in
+       
+        let avgBalance = 
+            <@ fun (cs : IQueryable<Customer>) -> 
+                query { for c in cs do 
+                        where (c.C_AcctBal > decimal(0)) 
+                        averageBy (c.C_AcctBal)} @> 
+        let sumBalance = <@ fun (g : IGrouping<_,Customer>) ->  
+                           query { for c in g do
+                                   sumBy c.C_AcctBal} @>
+        let ordersOf = 
+            <@ fun (c : Customer) ->
+                query { for o in db.Orders do 
+                        where (o.O_CustKey = c.C_CustKey)
+                        select o } @> 
            
-            let potentialCustomers = 
-                <@ fun (cs : IQueryable<Customer>) ->
-                    query { for c in cs do
-                            where (c.C_AcctBal > (%avgBalance) cs && (%empty) ((%ordersOf) c))  
-                            select c
-                            }  @> in 
-            let countryCodeOf = 
-                <@ fun (c : Customer) -> c.C_Phone.Substring(0,2) @> in
-            let livesIn countries = 
-                <@ fun (c:Customer) -> (%contains countries) ((%countryCodeOf) c) @>
-            let pots = <@ (%potentialCustomers) (query { for c in db.Customer do 
-                                                         where ((%livesIn countries) c)
-                                                         select c}) @> in 
-            query { for p in (%pots) do 
-                    groupBy ((%countryCodeOf) p) into g
-                    sortBy (g.Key)
-                    let total = g.Sum(fun c -> c.C_AcctBal) in 
-                    select(g.Key, g.Count(), total)
-                    }
+        let potentialCustomers = 
+            <@ fun (cs : IQueryable<Customer>) ->
+                query { for c in cs do
+                        where (c.C_AcctBal > (%avgBalance) cs && (%empty()) ((%ordersOf) c))  
+                        select c
+                        }  @>  
+        let countryCodeOf = 
+            <@ fun (c : Customer) -> c.C_Phone.Substring(0,2) @> 
+        let livesIn countries = 
+            <@ fun (c:Customer) -> (%contains countries) ((%countryCodeOf) c) @>
+        let pots countries = <@ (%potentialCustomers) (query { for c in db.Customer do 
+                                                               where ((%livesIn countries) c)
+                                                               select c}) @>  
+
+                    // works!
+        let q22 (countries : string list) = 
+            <@ query { 
+                for p in (%pots countries) do 
+                groupBy ((%countryCodeOf) p) into g
+                sortBy (g.Key)
+                select(g.Key, g.Count(), (%sumBalance) g)
+            }@>
+
+
 
 
 
@@ -105,11 +112,7 @@ module TPCH =
         [<TestFixtureSetUp>]
         member public this.init() = ()
 
-        [<Test>]
-        member public this.testQ1() = q1 90.0
-
-        [<Test>]
-        member public this.testQ22() = q22 ["France";"Germany"; "Italy"; "Austria"; "Greece"]
+        
 
 
         (* Trivial change to fix problem with times *)
