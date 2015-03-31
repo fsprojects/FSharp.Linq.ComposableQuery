@@ -151,7 +151,7 @@ module QueryImpl =
             | Table(_, ty) -> QuerySourceTy(ty, IQueryableTy)
             | Unknown(_, ty, _, _) -> ty
             | Quote(e) -> typedefof<Expr<_>>.MakeGenericType(getType e)
-            | Source(eTy, sTy, _) -> QuerySourceTy(eTy, IQueryableTy)
+            | Source(eTy, sTy, _) -> QuerySourceTy(eTy, sTy)
             | RunAsQueryable(_, ty) -> IQueryableTTy ty
             | RunAsEnumerable(_, ty) -> SeqTy ty
     
