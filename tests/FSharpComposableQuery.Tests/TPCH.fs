@@ -110,3 +110,6 @@ module TPCH =
 
         [<Test>]
         member public this.testQ22() = q22 ["France";"Germany"; "Italy"; "Austria"; "Greece"]
+
+
+        (* Trivial change to fix problem with times *)
