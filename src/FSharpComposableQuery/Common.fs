@@ -355,18 +355,22 @@ module ForwardDeclarations =
 
 let getBinOp binop (e1 : Expr) (e2 : Expr) = 
     match binop, e1.Type, e2.Type with
-    | Plus, IntTy, IntTy -> 
+    | Plus, ty1, ty2 -> 
+        assert (ty1 = ty2)
         Expr.Call
-            (plusMi.MakeGenericMethod([| IntTy; IntTy; IntTy |]), [ e1; e2 ])
-    | Times, IntTy, IntTy -> 
+            (plusMi.MakeGenericMethod([| ty1; ty1; ty1 |]), [ e1; e2 ])
+    | Times, ty1, ty2 -> 
+        assert (ty1 = ty2)
         Expr.Call
-            (timesMi.MakeGenericMethod([| IntTy; IntTy; IntTy |]), [ e1; e2 ])
-    | Minus, IntTy, IntTy -> 
+            (timesMi.MakeGenericMethod([| ty1; ty1; ty1 |]), [ e1; e2 ])
+    | Minus,  ty1, ty2 -> 
+        assert (ty1 = ty2)
         Expr.Call
-            (minusMi.MakeGenericMethod([| IntTy; IntTy; IntTy |]), [ e1; e2 ])
-    | Div, IntTy, IntTy -> 
+            (minusMi.MakeGenericMethod([| ty1; ty1; ty1 |]), [ e1; e2 ])
+    | Div,  ty1, ty2 -> 
+        assert (ty1 = ty2)
         Expr.Call
-            (divMi.MakeGenericMethod([| IntTy; IntTy; IntTy |]), [ e1; e2 ])
+            (divMi.MakeGenericMethod([| ty1; ty1; ty1 |]), [ e1; e2 ])
     | Mod, IntTy, IntTy -> 
         Expr.Call
             (modMi.MakeGenericMethod([| IntTy; IntTy; IntTy |]), [ e1; e2 ])
