@@ -6,3 +6,4 @@
 * 1.0.1-beta - Minor fix to support ODataService type provider and related queries
 * 1.0.2-beta - Improvement to support arbitrary instances of IQueryable as table types, subsuming previous change
 * 1.0.3-beta - Fixed a bug arising if the standard QueryBuilder expressions get mixed in with FSharpComposableQuery.query expressions
+* 1.0.4-beta - Added support for arithmetic operations at types other than int
