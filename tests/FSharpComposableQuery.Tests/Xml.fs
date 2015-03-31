@@ -170,9 +170,9 @@ module Xml =
     /// Clears all relevant tables in the database. 
     /// </summary>
     let dropTables() =
-        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyXml].[dbo].[Attribute]"))
-        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyXml].[dbo].[Text]"))
-        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyXml].[dbo].[Data]"))
+        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-Xml].[dbo].[Attribute]"))
+        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-Xml].[dbo].[Text]"))
+        ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-Xml].[dbo].[Data]"))
 
     /// <summary>
     /// Loads the basicXml file

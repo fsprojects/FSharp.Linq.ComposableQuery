@@ -122,10 +122,10 @@ module Nested =
 
         // Clears all relevant tables in the database.
         static let dropTables() =
-            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[employees]"))
-            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[tasks]"))
-            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[departments]"))
-            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [organisation].[dbo].[contacts]"))
+            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-Org].[dbo].[employees]"))
+            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-Org].[dbo].[tasks]"))
+            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-Org].[dbo].[departments]"))
+            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-Org].[dbo].[contacts]"))
             
         /// <summary>
         /// Creates a number of random departments and uniformly distributes the specified number of employees across them, 

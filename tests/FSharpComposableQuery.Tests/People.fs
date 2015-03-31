@@ -53,8 +53,8 @@ module People =
 
         // Clears all relevant tables in the database. 
         static let dropTables() =
-            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyPeople].[dbo].[Couples]"))
-            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [MyPeople].[dbo].[People]"))
+            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-People].[dbo].[Couples]"))
+            ignore (db.DataContext.ExecuteCommand("TRUNCATE TABLE [FCQ-People].[dbo].[People]"))
 
             
         static let rnd = new System.Random()

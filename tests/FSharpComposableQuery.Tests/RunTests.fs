@@ -49,6 +49,7 @@ module RunTests =
             (new FSharpComposableQuery.Tests.People.TestClass())
             (new FSharpComposableQuery.Tests.Nested.TestClass())
             (new FSharpComposableQuery.Tests.Xml.TestClass()) 
+            (new FSharpComposableQuery.Tests.TPCH.TestClass()) 
         ]
 
     [<EntryPoint>]
