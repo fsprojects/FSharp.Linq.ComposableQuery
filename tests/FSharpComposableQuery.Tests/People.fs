@@ -18,7 +18,6 @@ module People =
     let dbConfigPath = "db.config"
     
     type internal dbSchemaPeople = SqlDataConnection< ConnectionStringName="PeopleConnectionString", ConfigFile=dbConfigPath>
-
     type internal Couple = dbSchemaPeople.ServiceTypes.Couples
 
     type internal Person = dbSchemaPeople.ServiceTypes.People

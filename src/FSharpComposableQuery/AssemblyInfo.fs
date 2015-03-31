@@ -1,4 +1,4 @@
-﻿﻿namespace System
+﻿namespace System
 open System.Reflection
 open System.Runtime.CompilerServices
 
@@ -12,4 +12,3 @@ do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] Version = "1.0.3"
-
